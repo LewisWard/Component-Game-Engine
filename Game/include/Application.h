@@ -5,6 +5,7 @@
 #include "ObjObject.h"
 #include "Program.h"
 #include "Log.h"
+#include "Configurations.h"
 #include <memory>
 #define shared std::shared_ptr
 

@@ -7,23 +7,28 @@
 
 Application::Application()
 {
+	Configurations config;
+	config.readINIFile(ENGINEASSETS"game.ini");
+	std::string assetPath(ENGINEASSETS);
+
 	m_scrennSize.x = RES_LOW_X;
 	m_scrennSize.y = RES_LOW_Y;
 	onResize((int)m_scrennSize.x, (int)m_scrennSize.y);
 	glViewport(0, 0, (int)m_scrennSize.x, (int)m_scrennSize.y);
-	windowRename("Game Engine - Lewis Ward (i7212443)");
+	windowRename(std::string(assetPath + config.data.windowTitle).c_str());
 
-	m_texture = std::make_shared<GEC::Texture>(ENGINEASSETS"textures/wood.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
-	m_sphereObject = std::make_shared<GEC::ObjObject>(ENGINEASSETS"models/sphere.obj", "models/");
-	m_planeObject = std::make_shared<GEC::ObjObject>(ENGINEASSETS"models/plane.obj", "models/");
+
+	m_texture = std::make_shared<GEC::Texture>(std::string(assetPath + config.data.texturePaths[0]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
+	m_sphereObject = std::make_shared<GEC::ObjObject>(std::string(assetPath + config.data.modelPaths[0]).c_str(), "models/");
+	m_planeObject = std::make_shared<GEC::ObjObject>(std::string(assetPath + config.data.modelPaths[1]).c_str(), "models/");
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_TEXTURE_2D);
 	glCullFace(GL_BACK);
 
-	GE::Shader vertexShader(ENGINEASSETS"shaders/shader.vrt", kVertexShader);
-	GE::Shader pixelShader(ENGINEASSETS"shaders/shader.pix", kPixelShader);
+	GE::Shader vertexShader(std::string(assetPath + config.data.shaderPaths[0]).c_str(), kVertexShader);
+	GE::Shader pixelShader(std::string(assetPath + config.data.shaderPaths[1]).c_str(), kPixelShader);
 	m_shaderProgram = std::make_shared<GE::Program>(vertexShader, pixelShader);
 }
 
