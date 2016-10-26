@@ -209,11 +209,9 @@ void getSize(int& newWidth, int& newHeight)
 	newHeight = windowOldHeight;
 }
 
-int run()
+int run(int argc, char* argv[])
 {
 	// setup glut and window
-	char* argv[] = { "GameEngine.exe", 0 };
-	int argc = 1;
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE);
 	glutInitWindowSize(800, 600);

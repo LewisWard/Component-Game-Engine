@@ -13,17 +13,17 @@ Application::Application()
 	glViewport(0, 0, (int)m_scrennSize.x, (int)m_scrennSize.y);
 	windowRename("Game Engine - Lewis Ward (i7212443)");
 
-	m_texture = std::make_shared<GEC::Texture>("textures/wood.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
-	m_sphereObject = std::make_shared<GEC::ObjObject>("models/sphere.obj", "models/");
-	m_planeObject = std::make_shared<GEC::ObjObject>("models/plane.obj", "models/");
+	m_texture = std::make_shared<GEC::Texture>(ENGINEASSETS"textures/wood.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
+	m_sphereObject = std::make_shared<GEC::ObjObject>(ENGINEASSETS"models/sphere.obj", "models/");
+	m_planeObject = std::make_shared<GEC::ObjObject>(ENGINEASSETS"models/plane.obj", "models/");
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_TEXTURE_2D);
 	glCullFace(GL_BACK);
 
-	GE::Shader vertexShader("shaders/shader.vrt", kVertexShader);
-	GE::Shader pixelShader("shaders/shader.pix", kPixelShader);
+	GE::Shader vertexShader(ENGINEASSETS"shaders/shader.vrt", kVertexShader);
+	GE::Shader pixelShader(ENGINEASSETS"shaders/shader.pix", kPixelShader);
 	m_shaderProgram = std::make_shared<GE::Program>(vertexShader, pixelShader);
 }
 
@@ -101,4 +101,3 @@ void Application::draw()
 
 	glutSwapBuffers();
 }
-

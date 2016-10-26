@@ -2,6 +2,9 @@
 // Program : 3D Renderer
 // Date    : 09/10/2016
 #pragma once
+
+#define ENGINEASSETS "../EngineAssets/"
+
 #ifdef _WIN32
 #include <Windows.h>
 #endif
@@ -144,6 +147,6 @@ void cleanup();
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief  MAIN ENETRY POINT! called from main(), calls glut functions.
 //----------------------------------------------------------------------------------------------------------------------
-int run();
+int run(int argc, char* argv[]);
 
 
