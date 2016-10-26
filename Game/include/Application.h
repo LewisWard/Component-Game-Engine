@@ -4,6 +4,7 @@
 #include "Defines.h"
 #include "ObjObject.h"
 #include "Program.h"
+#include "Log.h"
 #include <memory>
 #define shared std::shared_ptr
 
