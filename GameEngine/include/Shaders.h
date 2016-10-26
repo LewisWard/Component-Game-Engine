@@ -18,7 +18,7 @@ enum kShaderType
 	kComputeShader = GL_COMPUTE_SHADER,
 };
 
-namespace gl
+namespace GE
 {
 	//----------------------------------------------------------------------------------------------------------------------
 	/// \brief  gets OpenGL error

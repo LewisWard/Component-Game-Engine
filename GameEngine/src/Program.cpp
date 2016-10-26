@@ -3,7 +3,7 @@
 // Date    : 7/11/2015
 #include "Program.h"
 
-namespace gl
+namespace GE
 {
 	Program::Program()
 	{
@@ -17,7 +17,7 @@ namespace gl
 		}
 	}
 
-	Program::Program(gl::Shader& shaderOne, gl::Shader& shaderTwo)
+	Program::Program(Shader& shaderOne, Shader& shaderTwo)
 	{
 		m_program = glCreateProgram();
 

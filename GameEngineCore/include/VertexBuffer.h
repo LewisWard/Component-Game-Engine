@@ -45,7 +45,7 @@ struct vertex
 	glm::vec2 u; ///< Texture coordinates (UV)
 };
 
-namespace gl
+namespace GEC
 {
 	//----------------------------------------------------------------------------------------------------------------------
 	/// \brief  Vertex Buffer - Vertex/Normal/UV

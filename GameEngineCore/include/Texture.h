@@ -10,7 +10,7 @@
 #include <fstream>
 #include <iostream>
 
-namespace gl
+namespace GEC
 {
 	//----------------------------------------------------------------------------------------------------------------------
 	/// \brief Texture Descriptor

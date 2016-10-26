@@ -6,7 +6,7 @@
 #include "glm/common.hpp"
 #include "glm/glm.hpp"
 
-namespace gl
+namespace GE
 {
 	//----------------------------------------------------------------------------------------------------------------------
 	/// \brief  The different types of buffers
@@ -60,7 +60,7 @@ namespace gl
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  constructor creates program with two attached shader (i.e. vertex/fragment)
 		//----------------------------------------------------------------------------------------------------------------------
-		Program(gl::Shader& shaderOne, gl::Shader& shaderTwo);
+		Program(Shader& shaderOne, Shader& shaderTwo);
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  destructor

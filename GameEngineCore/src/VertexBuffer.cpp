@@ -3,7 +3,7 @@
 // Date    : 06/02/2016
 #include "VertexBuffer.h"
 
-namespace gl
+namespace GEC
 {
 	VertexBuffer::VertexBuffer(const std::vector<vertexNormalUV>& vertices, const std::vector<int>& indices)
 	{

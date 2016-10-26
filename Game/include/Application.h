@@ -18,9 +18,9 @@ public:
 	void draw();
 
 private:
-	shared<gl::Texture> m_texture;
-	shared<gl::ObjObject> m_planeObject;
-	shared<gl::ObjObject> m_sphereObject;
-	shared<gl::Program> m_shaderProgram;
+	shared<GEC::Texture> m_texture;
+	shared<GEC::ObjObject> m_planeObject;
+	shared<GEC::ObjObject> m_sphereObject;
+	shared<GE::Program> m_shaderProgram;
 	glm::vec2 m_scrennSize;
 };

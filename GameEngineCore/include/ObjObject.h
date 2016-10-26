@@ -5,7 +5,7 @@
 #include "Texture.h"
 #include "VertexBuffer.h"
 
-namespace gl
+namespace GEC
 {
 	//----------------------------------------------------------------------------------------------------------------------
 	/// \brief  loads a obj file
@@ -52,13 +52,13 @@ namespace gl
 		/// \brief  gets the texture
 		/// \return gl::Texture*
 		//----------------------------------------------------------------------------------------------------------------------
-		inline gl::Texture* getLinkedTexture() { return m_linkedTexture; }
+		inline Texture* getLinkedTexture() { return m_linkedTexture; }
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  sets the texture
 		/// \parma  gl::Texture*
 		//----------------------------------------------------------------------------------------------------------------------
-		inline void setLinkedTexture(gl::Texture* texture) { m_linkedTexture = texture; }
+		inline void setLinkedTexture(Texture* texture) { m_linkedTexture = texture; }
 
 
 	private:
@@ -67,7 +67,7 @@ namespace gl
 		std::vector<int> m_indices; ///< store the indices
 		glm::mat4 m_modelMatrix; ///< model matrix
 		VertexBuffer* m_vertexBuffer; ///< Vertex Buffer (VBO/IBO)
-		gl::Texture* m_linkedTexture; ///< points to the texture that should be bound
+		Texture* m_linkedTexture; ///< points to the texture that should be bound
 	};
 }; ///< end of namespace
 

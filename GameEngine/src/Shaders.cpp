@@ -3,7 +3,7 @@
 // Date    : 21/09/2015
 #include "Shaders.h"
 
-namespace gl
+namespace GE
 {
 	void getGLError(const char* file)
 	{

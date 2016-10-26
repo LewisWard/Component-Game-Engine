@@ -3,7 +3,7 @@
 // Date    : 29/01/2016
 #include "Texture.h"
 
-namespace gl
+namespace GEC
 {
 	Texture::Texture(const char* filename, int channel, uint32_t textureID, uint32_t flags)
 	{
