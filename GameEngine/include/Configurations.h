@@ -1,5 +1,5 @@
 // Author  : Lewis Ward (i7212443)
-// Program : 3D Render Engine
+// Program : Game Engine
 // Date    : 26/10/2016
 #pragma once
 #include <iostream>
@@ -9,7 +9,7 @@ struct gameINI
 	std::vector<std::string> texturePaths;
 	std::vector<std::string> shaderPaths;
 	std::vector<std::string> modelPaths;
-	std::string WindowTitle;
+	std::string windowTitle;
 	int textureCount;
 	int shaderCount;
 	int modelCount;
@@ -36,7 +36,7 @@ public:
 			char* buffer = new char[128];
 
 			ifs.getline(buffer, 128, '\n');
-			data.WindowTitle = buffer;
+			data.windowTitle = buffer;
 
 			ifs.getline(buffer, 128, '\n');
 			data.textureCount = std::atoi(buffer);

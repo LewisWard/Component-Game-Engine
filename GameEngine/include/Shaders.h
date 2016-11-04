@@ -1,6 +1,6 @@
 // Author  : Lewis Ward (i7212443)
-// Program : 3D Render Engine
-// Date    : 21/09/2015
+// Program : Game Engine
+// Date    : 25/10/2016
 #pragma once
 #include "Window.h"
 

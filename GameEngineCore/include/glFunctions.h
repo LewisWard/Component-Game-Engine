@@ -1,6 +1,6 @@
 // Author  : Lewis Ward (i7212443)
-// Program : Animation System Tech Demo
-// Date    : 06/12/2015
+// Program : Game Engine
+// Date    : 25/10/2016
 //
 // glut doesn't seem to be correctly extracting the OpenGL functions, for example glCreateShader(GL_VERTEX_SHADER)
 // will return GL_INVALID_ENUM. So I have resulted to calling the functions myself.

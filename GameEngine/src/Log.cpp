@@ -1,3 +1,6 @@
+// Author  : Lewis Ward (i7212443)
+// Program : Game Engine
+// Date    : 26/10/2016
 #include "..\include\Log.h"
 
 void GE::consoleLog(const char * msg)

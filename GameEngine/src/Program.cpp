@@ -1,6 +1,6 @@
 // Author  : Lewis Ward (i7212443)
-// Program : 3D Render Engine
-// Date    : 7/11/2015
+// Program : Game Engine
+// Date    : 25/10/2016
 #include "Program.h"
 
 namespace GE

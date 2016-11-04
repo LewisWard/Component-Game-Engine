@@ -1,5 +1,5 @@
 // Author  : Lewis Ward (i7212443)
-// Program : 3D Renderer
+// Program : Game Engine
 // Date    : 10/10/2016
 #include "ObjObject.h"
 #include "tiny_obj_loader.h"

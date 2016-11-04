@@ -1,5 +1,5 @@
 // Author  : Lewis Ward (i7212443)
-// Program : 3D Render Engine
+// Program : Game Engine
 // Date    : 29/01/2016
 #include "Texture.h"
 

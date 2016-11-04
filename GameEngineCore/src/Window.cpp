@@ -1,5 +1,5 @@
 // Author  : Lewis Ward (i7212443)
-// Program : 3D Renderer
+// Program : Game Engine
 // Date    : 09/10/2016
 #include "Window.h"
 

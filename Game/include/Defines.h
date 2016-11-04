@@ -1,5 +1,5 @@
 // Author  : Lewis Ward (i7212443)
-// Program : 3D Render Engine
+// Program : Game Engine
 // Date    : 18/09/2016
 #pragma once
 #define RELEASEINBUILD 0
