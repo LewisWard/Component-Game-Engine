@@ -15,6 +15,10 @@
 #include "glFunctions.h"
 #include "soil/SOIL.h"
 #include <iostream>
+#include <memory>
+#define shared std::shared_ptr
+#define mkShare std::make_shared
+#define weak std::weak_ptr
 static int windowOldWidth = 0;
 static int windowOldHeight = 0;
 static bool windowUpdated = false;

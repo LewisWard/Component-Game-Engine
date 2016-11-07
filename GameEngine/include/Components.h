@@ -2,9 +2,6 @@
 // Program : Game Engine
 // Date    : 26/10/2016
 #pragma once
-#define shared std::shared_ptr
-#define mkShare std::make_shared
-#define weak std::weak_ptr
 #include "glm\gtc\matrix_transform.hpp"
 #include "ObjObject.h"
 #include "Program.h"

@@ -9,31 +9,33 @@ namespace GE
 	{
 		InputManager::InputManager()
 		{
-			m_srdKeys[0].inputName = "movementVert";
-			m_srdKeys[0].keyBinding = (int)'w';
-			m_srdKeys[1].inputName = "movementHoriz";
-			m_srdKeys[1].keyBinding = (int)'a';
-			m_srdKeys[2].inputName = "mouseX";
-			m_srdKeys[2].keyBinding = 0;
-			m_srdKeys[3].inputName = "mouseY";
-			m_srdKeys[3].keyBinding = 0;
-			m_srdKeys[4].inputName = "fire1";
-			m_srdKeys[4].keyBinding = 0;
-			m_srdKeys[5].inputName = "fire2";
-			m_srdKeys[5].keyBinding = 0;
-			m_srdKeys[6].inputName = "fire3";
-			m_srdKeys[6].keyBinding = 0;
-			m_srdKeys[7].inputName = "jump";
-			m_srdKeys[7].keyBinding = SPACE;
-			m_srdKeys[8].inputName = "action";
-			m_srdKeys[8].keyBinding = (int)'e';
-			m_srdKeys[9].inputName = "enter";
-			m_srdKeys[9].keyBinding = ENTER;
-			m_srdKeys[10].inputName = "quit";
-			m_srdKeys[10].keyBinding = ESC;
-
-			makeMultiKey(m_srdKeys[0], (short)'w', (short)'s');
-			//makeMultiKey(m_srdKeys[1], (short)'a', (short)'d');
+			// edit vaules
+			if (!readConfigFile())
+			{
+				// standard keys always init
+				m_srdKeys[0].inputName = "movementVert";
+				m_srdKeys[0].keyBinding = (int)'w';
+				m_srdKeys[1].inputName = "movementHoriz";
+				m_srdKeys[1].keyBinding = (int)'a';
+				m_srdKeys[2].inputName = "mouseX";
+				m_srdKeys[2].keyBinding = 0;
+				m_srdKeys[3].inputName = "mouseY";
+				m_srdKeys[3].keyBinding = 0;
+				m_srdKeys[4].inputName = "fire1";
+				m_srdKeys[4].keyBinding = 0;
+				m_srdKeys[5].inputName = "fire2";
+				m_srdKeys[5].keyBinding = 0;
+				m_srdKeys[6].inputName = "fire3";
+				m_srdKeys[6].keyBinding = 0;
+				m_srdKeys[7].inputName = "jump";
+				m_srdKeys[7].keyBinding = SPACE;
+				m_srdKeys[8].inputName = "action";
+				m_srdKeys[8].keyBinding = (int)'e';
+				m_srdKeys[9].inputName = "enter";
+				m_srdKeys[9].keyBinding = ENTER;
+				m_srdKeys[10].inputName = "quit";
+				m_srdKeys[10].keyBinding = ESC;
+			}
 		}
 
 		InputManager::~InputManager()
