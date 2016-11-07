@@ -2,6 +2,7 @@
 // Program : Game Engine
 // Date    : 26/10/2016
 #pragma once
+#include <vector>
 #include <iostream>
 
 struct gameINI
