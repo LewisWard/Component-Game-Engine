@@ -10,6 +10,8 @@ Application::Application()
 	config.readINIFile(ENGINEASSETS"game.ini");
 	std::string assetPath(ENGINEASSETS);
 
+	m_input = mkShare<GE::Input::InputManager>();
+
 	m_scrennSize.x = RES_LOW_X;
 	m_scrennSize.y = RES_LOW_Y;
 	onResize((int)m_scrennSize.x, (int)m_scrennSize.y);
@@ -62,6 +64,10 @@ Application::~Application()
 
 void Application::update(float& dt)
 {
+	// update inputw
+	m_input->update();
+
+	// update GameObjects
 	for (size_t i = 0; i < m_gameObjects.size(); ++i)
 	{
 		m_gameObjects[i]->update(dt);

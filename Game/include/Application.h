@@ -3,7 +3,6 @@
 // Date    : 09/10/2016
 #include "Defines.h"
 #include "GameObject.h"
-#include "Configurations.h"
 
 class Application
 {
@@ -21,5 +20,6 @@ private:
 	shared<GEC::ObjObject> m_planeObject;
 	shared<GEC::ObjObject> m_sphereObject;
 	shared<GE::Program> m_shaderProgram;
+	shared<GE::Input::InputManager> m_input;
 	glm::vec2 m_scrennSize;
 };
