@@ -62,6 +62,12 @@ namespace GEC
 		VertexBuffer(const std::vector<vertexNormalUV>& vertices, const std::vector<int>& indices);
 
 		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  Constructor
+		/// \parma	std::vector vertexNormalUV vertices
+		//----------------------------------------------------------------------------------------------------------------------
+		VertexBuffer(const std::vector<vertexNormalUV>& vertices);
+
+		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  Destructor
 		//----------------------------------------------------------------------------------------------------------------------
 		~VertexBuffer();
@@ -78,8 +84,15 @@ namespace GEC
 		//----------------------------------------------------------------------------------------------------------------------
 		inline uint32_t getIBO() { return m_ibo; }
 
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  gets if the data is being index
+		/// \return bool true if it is 
+		//----------------------------------------------------------------------------------------------------------------------
+		inline bool isIndexed() { return m_usingIndexed; }
+
 	private:
 		uint32_t m_vbo; ///< Vertex Buffer Object
 		uint32_t m_ibo; ///< Index Buffer Object
+		bool m_usingIndexed; ///< is GL_ELEMENT_ARRAY_BUFFER/glDrawElements to be used or not, true if so.
 	};
 }; ///< end of namespace

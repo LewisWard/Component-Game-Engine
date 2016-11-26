@@ -32,7 +32,6 @@ namespace GE
 
 	void Component::onDelete()
 	{
-		//m_parent.reset();
 		m_parent = nullptr;
 	}
 
@@ -86,25 +85,71 @@ namespace GE
 		//program->uniformMatrix4("viewMatrix", 1, view);
 		//program->uniformMatrix4("projectionlMatrix", 1, projection);
 
-		const float* offset = 0;
-		glBindBuffer(GL_ARRAY_BUFFER, mesh->getVertexBuffer()->getVBO());
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->getVertexBuffer()->getIBO());
-		glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(vertexNormalUV), offset);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, true, sizeof(vertexNormalUV), offset + 3);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(2, 2, GL_FLOAT, true, sizeof(vertexNormalUV), offset + 6);
-		glEnableVertexAttribArray(2);
-		glDrawElements(GL_TRIANGLES, (GLsizei)mesh->getIndicesCount(), GL_UNSIGNED_INT, 0);
-		glDisableVertexAttribArray(2);
-		glDisableVertexAttribArray(1);
-		glDisableVertexAttribArray(0);
+		if (!mesh->getVertexBuffer()->isIndexed())
+		{
+			const float* offset = 0;
+			glBindBuffer(GL_ARRAY_BUFFER, mesh->getVertexBuffer()->getVBO());
+			glBindVertexArray(mesh->getVertexBuffer()->getIBO());
+			glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(vertexNormalUV), offset);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(1, 3, GL_FLOAT, true, sizeof(vertexNormalUV), offset + 3);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(2, 2, GL_FLOAT, true, sizeof(vertexNormalUV), offset + 6);
+			glEnableVertexAttribArray(2);
+			glDrawArrays(GL_TRIANGLES, 0, mesh->getIndicesCount());
+			glDisableVertexAttribArray(2);
+			glDisableVertexAttribArray(1);
+			glDisableVertexAttribArray(0);
 #if _DEBUG
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
 #endif
+		}
+		else
+		{
+			const float* offset = 0;
+			glBindBuffer(GL_ARRAY_BUFFER, mesh->getVertexBuffer()->getVBO());
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->getVertexBuffer()->getIBO());
+			glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(vertexNormalUV), offset);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(1, 3, GL_FLOAT, true, sizeof(vertexNormalUV), offset + 3);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(2, 2, GL_FLOAT, true, sizeof(vertexNormalUV), offset + 6);
+			glEnableVertexAttribArray(2);
+			glDrawElements(GL_TRIANGLES, (GLsizei)mesh->getIndicesCount(), GL_UNSIGNED_INT, 0);
+			glDisableVertexAttribArray(2);
+			glDisableVertexAttribArray(1);
+			glDisableVertexAttribArray(0);
+#if _DEBUG
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#endif
+		}
+
+
 
 		texture->unbind();
 		program->unbind();
+	}
+
+	BoxCollider::BoxCollider()
+	{
+		m_type = kBoxCollider;
+	}
+
+	BoxCollider::BoxCollider(glm::vec3 min, glm::vec3 max)
+	{
+		m_type = kBoxCollider;
+		m_boundingBox = GEC::AABB(min, max);
+	}
+
+	BoxCollider::~BoxCollider()
+	{
+
+	}
+
+	bool BoxCollider::collision(BoxCollider other)
+	{
+		return m_boundingBox.intersects(other.m_boundingBox);
 	}
 };

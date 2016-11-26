@@ -3,7 +3,7 @@
 // Date    : 10/10/2016
 #pragma once
 #include "Texture.h"
-#include "VertexBuffer.h"
+#include "ObjParser.h"
 
 namespace GEC
 {
