@@ -1,0 +1,21 @@
+// Author  : Lewis Ward
+// Program : Game Engine
+// Date    : 02/12/2016
+#version 330
+
+layout(location = 0) in vec4 position;
+layout(location = 1) in vec3 normal; 
+layout(location = 2) in vec2 uv;
+
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projectionlMatrix;
+
+void main()
+{
+  vec4 worldPos = modelMatrix * position;
+  vec4 eyePos = viewMatrix * worldPos;
+  vec4 clipPos = projectionlMatrix * eyePos;
+
+  gl_Position = clipPos;
+}

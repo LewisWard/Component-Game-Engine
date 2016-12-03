@@ -1,0 +1,16 @@
+// Author  : Lewis Ward
+// Program : Game Engine
+// Date    : 10/10/2016
+#version 330
+
+uniform sampler2D texture;
+
+in vec2 vs_uv;
+out vec4 output_colour;
+
+void main()
+{
+  vec4 diffuse = texture2D(texture, vs_uv);
+  output_colour = diffuse;
+}
+
