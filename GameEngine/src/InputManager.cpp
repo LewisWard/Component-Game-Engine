@@ -109,27 +109,49 @@ namespace GE
 			// cycle over the keys
 			for (int i = 0; i < m_srdKeys.size(); i++)
 			{
-				// IF SINGLE STANDARD KEY PRESSED
+				bool justSet = false;
+				bool justMoved = false;
+				// IF SINGLE STANDARD KEY PRESSED ADD TO PRESSED DOWN
 				if (isKeyPressed(m_srdKeys[i].keyBinding))
 				{
-					// if it is empty we don't need to cycle over the vector
+					// make sure it isn't add if it is already in the heldDown vector
 					if (m_srdKeys[i].value == 0)
 					{
 						m_srdKeys[i].value = 1;
 						m_keysDown.push_back(m_srdKeys[i]);
-					}
-					else
-					{
-						// make sure we don't have it more then once
-						if (!getKeyHeld(m_srdKeys[i].inputName))
-						{
-							// already pressed down to now is held down
-							m_keysHeld.push_back(m_srdKeys[i]);
-						}
+						justSet = true;
 					}
 				}
+
+
+				// IF SINGLE STANDARD KEY PRESSED AND IS ALREADY PRESSED DOWN ADD TO HELD AND REMOVE TO DOWN
+				if (m_keysDown.size() && !justSet)
+				{
+					// make sure the same key isn't added more then once
+					bool heldAlready = false;
+					for (int ii = 0; ii < m_keysHeld.size(); ii++)
+					{
+						if (m_keysHeld[ii].value == m_srdKeys[i].value)
+							heldAlready = true;
+					}
+
+					// add it and remove from the keyDown
+					if (false == heldAlready)
+					{
+						m_keysHeld.push_back(m_srdKeys[i]);
+						justMoved = true;
+
+						for (int h = 0; h < m_keysHeld.size(); h++)
+							for (int d = 0; d < m_keysDown.size(); d++)
+								if (m_keysHeld[h].keyBinding == m_keysDown[d].keyBinding)
+								{
+									m_keysDown.erase(m_keysDown.begin() + d);
+								}
+					}
+				}
+
 				// HANDLE MULTIKEYS
-				else if (m_srdKeys[i].multiKey) 
+				if (m_srdKeys[i].multiKey) 
 				{
 					short higherKey, lowerKey;
 					useMultiKey(m_srdKeys[i], higherKey, lowerKey);
@@ -179,24 +201,30 @@ namespace GE
 				// DELETE SINGLE KEYS NOT PRESSED
 				else
 				{
-					// match the key that has been released to the correct vector index, then erase it
-					for (size_t ii = 0; ii < m_keysDown.size(); ++ii)
+					if (!justSet)
 					{
-						if (m_srdKeys[i].inputName == m_keysDown[ii].inputName)
+						// match the key that has been released to the correct vector index, then erase it
+						for (size_t ii = 0; ii < m_keysDown.size(); ++ii)
 						{
-							m_srdKeys[i].value = 0;
-							m_keysDown.erase(m_keysDown.begin() + ii);
-							ii--;
+							if (m_srdKeys[i].inputName == m_keysDown[ii].inputName)
+							{
+								m_srdKeys[i].value = 0;
+								m_keysDown.erase(m_keysDown.begin() + ii);
+								ii--;
+							}
 						}
 					}
 
-					for (size_t ii = 0; ii < m_keysHeld.size(); ++ii)
+					if (!justMoved)
 					{
-						if (m_srdKeys[i].inputName == m_keysHeld[ii].inputName)
+						for (size_t ii = 0; ii < m_keysHeld.size(); ++ii)
 						{
-							m_srdKeys[i].value = 0;
-							m_keysHeld.erase(m_keysHeld.begin() + ii);
-							ii--;
+							if (m_srdKeys[i].inputName == m_keysHeld[ii].inputName)
+							{
+								m_srdKeys[i].value = 0;
+								m_keysHeld.erase(m_keysHeld.begin() + ii);
+								ii--;
+							}
 						}
 					}
 				}

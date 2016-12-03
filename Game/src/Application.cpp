@@ -80,29 +80,37 @@ Application::~Application()
 
 void Application::update(float& dt)
 {
+	static float refreshDT = 0.0f;
+	refreshDT += dt;
+
 	// update input
 	m_input->update();
 
-	// select the next object 
-	if (m_input->getKeyDown("action"))
+	// cap how often you can change selection - make input update more accurate
+	if (refreshDT >= 0.05f)
 	{
-		int index = -1;
-		for (size_t i = 0; i < m_gameObjects.size(); ++i)
+		// select the next object 
+		if (m_input->getKeyDown("action"))
 		{
-			if (m_gameObjects.at(i)->isSelected())
+			int index = -1;
+			for (size_t i = 0; i < m_gameObjects.size(); ++i)
 			{
-				m_gameObjects.at(i)->unselected();
+				if (m_gameObjects.at(i)->isSelected())
+				{
+					m_gameObjects.at(i)->unselected();
 
-				// cycle back to the start if at the end of the vector
-				if(i < m_gameObjects.size() - 1)
-					m_gameObjects.at(i + 1)->setSelected();
-				else
-					m_gameObjects.at(0)->setSelected();
+					// cycle back to the start if at the end of the vector
+					if (i < m_gameObjects.size() - 1)
+						m_gameObjects.at(i + 1)->setSelected();
+					else
+						m_gameObjects.at(0)->setSelected();
 
-				printf("selected %d \n", i);
-				break;
+					printf("selected %d \n", i);
+					break;
+				}
 			}
 		}
+		refreshDT = 0.0f;
 	}
 
 	// update GameObjects
@@ -110,7 +118,7 @@ void Application::update(float& dt)
 	{
 		if (m_gameObjects.at(i)->isSelected())
 		{
-			if (m_input->getKeyDown("movementVert"))
+			if (m_input->getKeyHeld("movementVert"))
 			{
 				GE::Transform* transform = m_gameObjects.at(i)->getComponent<GE::Transform>(GE::kTransform);
 				transform->translate(glm::vec3(0, 1.0f, 0) * dt);
