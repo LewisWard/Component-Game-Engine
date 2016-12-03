@@ -4,6 +4,7 @@
 #pragma once
 #include "Texture.h"
 #include "ObjParser.h"
+#include <algorithm>
 
 namespace GEC
 {
@@ -17,7 +18,7 @@ namespace GEC
 		/// \brief  Constructor
 		/// \parma	char* filename
 		//----------------------------------------------------------------------------------------------------------------------
-		ObjObject(const char* objFilename, const char* mtlRootDir);
+		ObjObject(const char* objFilename);
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  Destructor 
@@ -60,6 +61,30 @@ namespace GEC
 		//----------------------------------------------------------------------------------------------------------------------
 		inline void setLinkedTexture(Texture* texture) { m_linkedTexture = texture; }
 
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  sets the position of the vertices that are the greatest distance away from the center of the model
+		/// \parma  glm::vec2 X axis
+		/// \parma  glm::vec2 Y axis
+		/// \parma  glm::vec2 Z axis
+		//----------------------------------------------------------------------------------------------------------------------
+		void getVertexRange(glm::vec2& X, glm::vec2& Y, glm::vec2& Z)
+		{
+			std::vector<vertexNormalUV>::iterator result, resultmax;
+			result = std::min_element(m_vertices.begin(), m_vertices.end(), vertexCompareX);
+			resultmax = std::max_element(m_vertices.begin(), m_vertices.end(), vertexCompareX);
+			X.x = result->v.x;
+			X.y = resultmax->v.x;
+
+			result = std::min_element(m_vertices.begin(), m_vertices.end(), vertexCompareY);
+			resultmax = std::max_element(m_vertices.begin(), m_vertices.end(), vertexCompareY);
+			Y.x = result->v.y;
+			Y.y = resultmax->v.y;
+
+			result = std::min_element(m_vertices.begin(), m_vertices.end(), vertexCompareZ);
+			resultmax = std::max_element(m_vertices.begin(), m_vertices.end(), vertexCompareZ);
+			Z.x = result->v.z;
+			Z.y = resultmax->v.z;
+		}
 
 	private:
 		const char* m_objectName; ///< objects name
@@ -68,6 +93,21 @@ namespace GEC
 		glm::mat4 m_modelMatrix; ///< model matrix
 		VertexBuffer* m_vertexBuffer; ///< Vertex Buffer (VBO/IBO)
 		Texture* m_linkedTexture; ///< points to the texture that should be bound
+
+		static bool vertexCompareX(vertexNormalUV a, vertexNormalUV b)
+		{
+			return (a.v.x < b.v.x);
+		}
+
+		static bool vertexCompareY(vertexNormalUV a, vertexNormalUV b)
+		{
+			return (a.v.y < b.v.y);
+		}
+
+		static bool vertexCompareZ(vertexNormalUV a, vertexNormalUV b)
+		{
+			return (a.v.z < b.v.z);
+		}
 	};
 }; ///< end of namespace
 

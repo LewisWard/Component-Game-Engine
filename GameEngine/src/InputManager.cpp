@@ -85,7 +85,7 @@ namespace GE
 			for (int i = 0; i < 3; i++)
 			{
 				// is mouse button pressed
-				if (isMouseKeyPressed(m_mouseKeys[i]))
+				if (isMouseKeyPressed((short)m_mouseKeys[i]))
 				{
 					// if it's been pressed for the first time
 					if (m_mouseKeysDown[i] == mouseKeys::kNoButton)

@@ -53,7 +53,6 @@ namespace GEC
 	class VertexBuffer
 	{
 	public:
-
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  Constructor
 		/// \parma	std::vector vertexNormalUV vertices

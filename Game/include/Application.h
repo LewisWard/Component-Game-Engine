@@ -1,4 +1,4 @@
-// Author  : Lewis Ward (i7212443)
+﻿// Author  : Lewis Ward (i7212443)
 // Program : Game Engine
 // Date    : 09/10/2016
 #include "Defines.h"
@@ -20,6 +20,7 @@ private:
 	shared<GEC::ObjObject> m_planeObject;
 	shared<GEC::ObjObject> m_sphereObject;
 	shared<GE::Program> m_shaderProgram;
+	shared<GE::Program> m_shaderProgramCollision;
 	shared<GE::Input::InputManager> m_input;
 	glm::vec2 m_scrennSize;
 };

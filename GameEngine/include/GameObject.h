@@ -14,56 +14,9 @@ namespace GE
 		GameObject();
 		virtual ~GameObject();
 
-		void update(float dt)
-		{
-			for (size_t i = 0; i < m_components.size(); i++)
-			{
-				m_components[i]->onUpdate(dt);
-			}
-		}
+		void update(float dt);
 
-		void draw()
-		{
-			// get the order of attached components
-			std::vector<shared<Component>> pair;
-			while (pair.size() != m_components.size())
-			{
-				for (size_t i = 0; i < m_components.size(); i++)
-				{
-					if (kTransform == m_components.at(i).get()->m_type && pair.empty())
-					{
-						pair.push_back(m_components[i]);
-					}
-
-					if (kMeshRenderer == m_components.at(i).get()->m_type && !pair.empty())
-					{
-						pair.push_back(m_components[i]);
-					}
-				}
-			}
-			m_components = pair;
-
-			glm::mat4 model;
-			// as this GameObject might not have all types of component we still need to check which type is where, but now it is an
-			// ordered list. Just skip the ones this GameObject doesn't have
-			for (size_t i = 0; i < m_components.size(); i++)
-			{
-				if (kTransform == m_components.at(i).get()->m_type)
-				{
-					Transform* trs = dynamic_cast<Transform*>(m_components.at(i).get());
-					model = trs->createTransform();
-				}
-
-				if (kMeshRenderer == m_components.at(i).get()->m_type)
-				{
-					MeshRenderer* renderer = dynamic_cast<MeshRenderer*>(m_components.at(i).get());
-					glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 5.0f, 25.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-					glm::mat4 projection = glm::perspective(45.0f, renderer->m_screenRes.x / renderer->m_screenRes.y, 0.1f, 100.0f);
-					renderer->setMVPUniforms(model, view, projection);
-					m_components[i]->onDraw();
-				}
-			}
-		}
+		void draw();
 
 		template <class T>
 		T* getComponent(ComponentType type)
@@ -96,7 +49,7 @@ namespace GE
 		}
 
 		template <class T>
-		weak<T> addComponent()
+		shared<T> addComponent()
 		{
 			shared<T> component(new T());
 
@@ -112,17 +65,9 @@ namespace GE
 
 		std::vector<shared<Component>> getComponents() { return m_components;  }
 
-		void setParent(GameObject Go) 
-		{ 
-			m_parent = mkShare<GameObject>(Go); 
-			m_hasParent = true;
-		}
+		void setParent(GameObject Go);
 
-		void unsetParent()
-		{
-			m_parent.reset();
-			m_hasParent = false;
-		}
+		void unsetParent();
 		
 		inline bool hasParent() { return m_hasParent; }
 

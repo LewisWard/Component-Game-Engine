@@ -12,7 +12,7 @@ namespace GE
 
 	Component::~Component()
 	{
-
+		std::cout << "~Component()" << std::endl;
 	}
 
 	void Component::onLoad()
@@ -58,32 +58,22 @@ namespace GE
 	MeshRenderer::MeshRenderer()
 	{
 		m_type = kMeshRenderer;
-	}
-
-	MeshRenderer::MeshRenderer(const MeshRenderer & m)
-	{
+		m_usingVertexBuffer = false;
 	}
 
 	MeshRenderer::~MeshRenderer()
 	{
+		std::cout << "~MeshRenderer()" << std::endl;
 	}
 
 	void MeshRenderer::onDraw()
 	{
-		glm::mat4 model(8.0f);
-		model[3][3] = 1.0f;
-		glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 5.0f, 25.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		glm::mat4 projection = glm::perspective(45.0f, m_screenRes.x / m_screenRes.y, 0.1f, 100.0f);
-
 		shared<GE::Program> program(m_shaderProgram);
 		shared<GEC::ObjObject> mesh(m_mesh);
 		shared<GEC::Texture> texture(m_texture);
 		program->bind();
 		texture->bind(1);
 		program->uniform1i("texture", 1);
-		//program->uniformMatrix4("modelMatrix", 1, model);
-		//program->uniformMatrix4("viewMatrix", 1, view);
-		//program->uniformMatrix4("projectionlMatrix", 1, projection);
 
 		if (!mesh->getVertexBuffer()->isIndexed())
 		{
@@ -101,8 +91,8 @@ namespace GE
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(0);
 #if _DEBUG
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			glBindVertexArray(0);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+				glBindVertexArray(0);
 #endif
 		}
 		else
@@ -121,31 +111,31 @@ namespace GE
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(0);
 #if _DEBUG
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 #endif
-		}
-
-
-
 		texture->unbind();
 		program->unbind();
+		}
 	}
 
+	/*
 	BoxCollider::BoxCollider()
 	{
 		m_type = kBoxCollider;
+		makeVertexBuffer();
 	}
 
 	BoxCollider::BoxCollider(glm::vec3 min, glm::vec3 max)
 	{
 		m_type = kBoxCollider;
 		m_boundingBox = GEC::AABB(min, max);
+		makeVertexBuffer();
 	}
-
+	*/
 	BoxCollider::~BoxCollider()
 	{
-
+		std::cout << "~BoxCollider()" << std::endl;
 	}
 
 	bool BoxCollider::collision(BoxCollider other)

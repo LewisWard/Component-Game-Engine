@@ -20,8 +20,8 @@ Application::Application()
 
 
 	m_texture = mkShare<GEC::Texture>(std::string(assetPath + config.data.texturePaths[0]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
-	m_sphereObject = mkShare<GEC::ObjObject>(std::string(assetPath + config.data.modelPaths[0]).c_str(), "models/");
-	m_planeObject = mkShare<GEC::ObjObject>(std::string(assetPath + config.data.modelPaths[1]).c_str(), "models/");
+	m_sphereObject = mkShare<GEC::ObjObject>(std::string(assetPath + config.data.modelPaths[0]).c_str());
+	m_planeObject = mkShare<GEC::ObjObject>(std::string(assetPath + config.data.modelPaths[1]).c_str());
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -37,24 +37,34 @@ Application::Application()
 
 	GE::Transform* transform;
 	GE::MeshRenderer* meshRenderer;
+	GE::BoxCollider* boxCollider;
 
-	transform = m_gameObjects[0]->getComponent<GE::Transform>(GE::kTransform);
+	transform = m_gameObjects.at(0)->getComponent<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(8.0f));
-	m_gameObjects[0]->addComponent<GE::MeshRenderer>();
-	meshRenderer = m_gameObjects[0]->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+	m_gameObjects.at(0)->addComponent<GE::MeshRenderer>();
+	meshRenderer = m_gameObjects.at(0)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
 	meshRenderer->setMesh(m_planeObject);
 	meshRenderer->setTexture(m_texture);
 	meshRenderer->setProgram(m_shaderProgram);
+	m_gameObjects.at(0)->addComponent<GE::BoxCollider>();
+	boxCollider = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider->boundToObject(m_planeObject);
+	boxCollider->setScreenRes(m_scrennSize);
 
-	transform = m_gameObjects[1]->getComponent<GE::Transform>(GE::kTransform);
-	transform->setPosition(glm::vec3(0, 0, -5.0f));
-	m_gameObjects[1]->addComponent<GE::MeshRenderer>();
-	meshRenderer = m_gameObjects[1]->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+	transform = m_gameObjects.at(1)->getComponent<GE::Transform>(GE::kTransform);
+	transform->setScale(glm::vec3(2.0f));
+	transform->setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
+	m_gameObjects.at(1)->addComponent<GE::MeshRenderer>();
+	meshRenderer = m_gameObjects.at(1)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
 	meshRenderer->setMesh(m_sphereObject);
 	meshRenderer->setTexture(m_texture);
 	meshRenderer->setProgram(m_shaderProgram);
+	m_gameObjects.at(1)->addComponent<GE::BoxCollider>();
+	boxCollider = m_gameObjects.at(1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider->boundToObject(m_sphereObject);
+	boxCollider->setScreenRes(m_scrennSize);
 }
 
 Application::~Application()
@@ -70,7 +80,7 @@ void Application::update(float& dt)
 	// update GameObjects
 	for (size_t i = 0; i < m_gameObjects.size(); ++i)
 	{
-		m_gameObjects[i]->update(dt);
+		m_gameObjects.at(i)->update(dt);
 	}
 }
 
@@ -81,7 +91,7 @@ void Application::draw()
 
 	for (size_t i = 0; i < m_gameObjects.size(); ++i)
 	{
-		m_gameObjects[i]->draw();
+		m_gameObjects.at(i)->draw();
 	}
 
 	glutSwapBuffers();

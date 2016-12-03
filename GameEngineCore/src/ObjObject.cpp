@@ -3,7 +3,7 @@
 // Date    : 10/10/2016
 #include "ObjObject.h"
 
-GEC::ObjObject::ObjObject(const char* objFilename, const char* mtlRootDir)
+GEC::ObjObject::ObjObject(const char* objFilename)
 {
 	ObjParser object;
 	object.load(objFilename);
