@@ -8,6 +8,7 @@ namespace GE
 	GameObject::GameObject()
 	{
 		m_hasParent = false;
+		m_isSelected = false;
 		addComponent<Transform>();
 	}
 
@@ -18,9 +19,19 @@ namespace GE
 
 	void GameObject::update(float dt)
 	{
+		glm::mat4 model;
+		shared<GE::Input::InputManager> input(m_input);
+
 		for (size_t i = 0; i < m_components.size(); i++)
 		{
 			m_components[i]->onUpdate(dt);
+
+			if (kTransform == m_components.at(i).get()->m_type)
+			{
+				Transform* trs = dynamic_cast<Transform*>(m_components.at(i).get());
+				model = trs->createTransform();
+
+			}
 		}
 	}
 

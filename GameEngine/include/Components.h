@@ -60,6 +60,8 @@ namespace GE
 
 		inline void setRotation(glm::vec3& r) { m_rotation = r; }
 
+		inline void translate(glm::vec3& p) { m_position += p; }
+
 		glm::mat4 createTransform()
 		{
 			glm::mat4 m;
@@ -85,6 +87,52 @@ namespace GE
 		~MeshRenderer();
 
 		void onDraw();
+
+		void MeshRenderer::Draw()
+		{
+			shared<GEC::ObjObject> mesh(m_mesh);
+
+			if (!mesh->getVertexBuffer()->isIndexed())
+			{
+				const float* offset = 0;
+				glBindBuffer(GL_ARRAY_BUFFER, mesh->getVertexBuffer()->getVBO());
+				glBindVertexArray(mesh->getVertexBuffer()->getIBO());
+				glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(vertexNormalUV), offset);
+				glEnableVertexAttribArray(0);
+				glVertexAttribPointer(1, 3, GL_FLOAT, true, sizeof(vertexNormalUV), offset + 3);
+				glEnableVertexAttribArray(1);
+				glVertexAttribPointer(2, 2, GL_FLOAT, true, sizeof(vertexNormalUV), offset + 6);
+				glEnableVertexAttribArray(2);
+				glDrawArrays(GL_TRIANGLES, 0, mesh->getIndicesCount());
+				glDisableVertexAttribArray(2);
+				glDisableVertexAttribArray(1);
+				glDisableVertexAttribArray(0);
+#if _DEBUG
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+				glBindVertexArray(0);
+#endif
+			}
+			else
+			{
+				const float* offset = 0;
+				glBindBuffer(GL_ARRAY_BUFFER, mesh->getVertexBuffer()->getVBO());
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->getVertexBuffer()->getIBO());
+				glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(vertexNormalUV), offset);
+				glEnableVertexAttribArray(0);
+				glVertexAttribPointer(1, 3, GL_FLOAT, true, sizeof(vertexNormalUV), offset + 3);
+				glEnableVertexAttribArray(1);
+				glVertexAttribPointer(2, 2, GL_FLOAT, true, sizeof(vertexNormalUV), offset + 6);
+				glEnableVertexAttribArray(2);
+				glDrawElements(GL_TRIANGLES, (GLsizei)mesh->getIndicesCount(), GL_UNSIGNED_INT, 0);
+				glDisableVertexAttribArray(2);
+				glDisableVertexAttribArray(1);
+				glDisableVertexAttribArray(0);
+#if _DEBUG
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#endif
+			}
+		}
 
 		void setTexture(shared<GEC::Texture>& texture) { m_texture = texture; }
 
@@ -145,7 +193,7 @@ namespace GE
 		void onDraw()
 		{
 			m_shaderProgram->bind();
-
+			m_shaderProgram->uniform3f("wireframeColour", 128.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f);
 			const float* offset = 0;
 			glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer->getVBO());
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexBuffer->getIBO());
@@ -205,6 +253,7 @@ namespace GE
 		{
 			std::vector<vertexNormalUV> vertices;
 			std::vector<int> indices;
+
 			vertexNormalUV tmp;
 			tmp.n = glm::vec3(1.0f);
 			tmp.u = glm::vec2(0.0f);

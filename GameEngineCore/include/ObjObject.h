@@ -86,6 +86,7 @@ namespace GEC
 			Z.y = resultmax->v.z;
 		}
 
+
 	private:
 		const char* m_objectName; ///< objects name
 		std::vector<vertexNormalUV> m_vertices; ///< store the vertices

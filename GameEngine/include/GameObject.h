@@ -71,10 +71,23 @@ namespace GE
 		
 		inline bool hasParent() { return m_hasParent; }
 
+		void setInput(shared<GE::Input::InputManager> input)
+		{
+			m_input = input;
+		}
+
+		inline bool isSelected() { return m_isSelected; }
+
+		inline void setSelected() { m_isSelected = true; }
+
+		inline void unselected() { m_isSelected = false; }
+
 	private:
 		std::vector<shared<Component>> m_components;
 		std::vector<shared<GameObject>> m_childern;
+		weak<GE::Input::InputManager> m_input;
 		weak<GameObject> m_parent;
+		bool m_isSelected;
 		bool m_hasParent;
 	};
 };

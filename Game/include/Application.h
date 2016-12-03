@@ -23,4 +23,5 @@ private:
 	shared<GE::Program> m_shaderProgramCollision;
 	shared<GE::Input::InputManager> m_input;
 	glm::vec2 m_scrennSize;
+
 };
