@@ -56,20 +56,22 @@ Application::Application()
 	meshRenderer->setMesh(m_planeObject);
 	meshRenderer->setTexture(m_texture);
 	meshRenderer->setProgram(m_shaderProgram);
-	m_gameObjects.at(0)->addComponent<GE::SphereCollider>();
-	sphereCollider = m_gameObjects.at(0)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
-	sphereCollider->boundToObject(m_planeObject);
-	//m_gameObjects.at(0)->addComponent<GE::BoxCollider>();
-	//boxCollider = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-	//boxCollider->boundToObject(m_planeObject);
-	//boxCollider->recomputeBounds(transform->getPosition());
-	//boxCollider->setScreenRes(m_scrennSize);
+	//m_gameObjects.at(0)->addComponent<GE::SphereCollider>();
+	//sphereCollider = m_gameObjects.at(0)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+	//sphereCollider->boundToObject(m_planeObject);
+	m_gameObjects.at(0)->addComponent<GE::BoxCollider>();
+	boxCollider = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider->boundToObject(m_planeObject);
+	boxCollider->recomputeBounds(transform->getPosition());
+	boxCollider->setScreenRes(m_scrennSize);
 
-	sphereCollider->setCenter(transform->getPosition());
-	sphereCollider->setRadius(transform->getScale().x);
-	GE::SphereCollider A;
-	A.setCenter(sphereCollider->getCenter());
-	A.setRadius(sphereCollider->getRadius());
+	GE::BoxCollider A = *boxCollider;
+
+	//sphereCollider->setCenter(transform->getPosition());
+	//sphereCollider->setRadius(transform->getScale().x);
+	//GE::SphereCollider A;
+	//A.setCenter(sphereCollider->getCenter());
+	//A.setRadius(sphereCollider->getRadius());
 
 	transform = m_gameObjects.at(1)->getComponent<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f));
@@ -95,10 +97,8 @@ Application::Application()
 	GE::SphereCollider B;
 	B.setCenter(sphereCollider->getCenter());
 	B.setRadius(sphereCollider->getRadius());
-
+	
 	std::cout << A.collision(B) << std::endl;
-	std::cout << A.getCenter().x << " " << A.getCenter().y << " " << A.getCenter().z << " " << A.getRadius() << std::endl;
-	std::cout << B.getCenter().x << " " << B.getCenter().y << " " << B.getCenter().z << " " << B.getRadius() << std::endl;
 
 }
 
@@ -159,17 +159,24 @@ void Application::update(float& dt)
 
 				if (i < m_gameObjects.size() - 1)
 				{
-					GE::BoxCollider* tmp = m_gameObjects.at(i + 1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-					if (tmp != NULL)
+					GE::BoxCollider* tmpBox = m_gameObjects.at(i + 1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+					GE::SphereCollider* tmpSphere = m_gameObjects.at(i + 1)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+
+					if (tmpBox != NULL && boxCollider != NULL)
 					{
-						bool result = boxCollider->collision(*tmp);
+						bool result = boxCollider->collision(*tmpBox);
 						boxCollider->recomputeBounds(movement);
 						std::cout << result << std::endl;
 					}
-					
-					if (sphereCollider != NULL)
+					else if (tmpBox != NULL && sphereCollider != NULL)
 					{
-						GE::SphereCollider* tmpSphere = m_gameObjects.at(i + 1)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+						bool result = tmpBox->collision(*sphereCollider);
+						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
+						std::cout << result << std::endl;
+					}
+					
+					if (tmpSphere != NULL)
+					{
 						bool result = tmpSphere->collision(*sphereCollider);
 						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
 						std::cout << result << std::endl;
@@ -177,17 +184,25 @@ void Application::update(float& dt)
 				}
 				else
 				{
-					GE::BoxCollider* tmp = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-					if (tmp != NULL)
+					GE::BoxCollider* tmpBox = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+					GE::SphereCollider* tmpSphere = m_gameObjects.at(0)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+
+					if (tmpBox != NULL && boxCollider != NULL)
 					{
-						bool result = boxCollider->collision(*tmp);
+						bool result = boxCollider->collision(*tmpBox);
 						boxCollider->recomputeBounds(movement);
 						std::cout << result << std::endl;
 					}
-
-					if (sphereCollider != NULL)
+					else if (tmpBox != NULL && sphereCollider != NULL)
 					{
-						GE::SphereCollider* tmpSphere = m_gameObjects.at(0)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+						bool result = tmpBox->collision(*sphereCollider);
+						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
+						std::cout << result << std::endl;
+					}
+
+
+					if (tmpSphere != NULL)
+					{
 						bool result = tmpSphere->collision(*sphereCollider);
 						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
 						std::cout << result << std::endl;
@@ -205,17 +220,18 @@ void Application::update(float& dt)
 
 				if (i < m_gameObjects.size() - 1)
 				{
-					GE::BoxCollider* tmp = m_gameObjects.at(i + 1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-					if (tmp != NULL)
+					GE::BoxCollider* tmpBox = m_gameObjects.at(i + 1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+					GE::SphereCollider* tmpSphere = m_gameObjects.at(i + 1)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+
+					if (tmpBox != NULL)
 					{
-						bool result = boxCollider->collision(*tmp);
+						bool result = boxCollider->collision(*tmpBox);
 						boxCollider->recomputeBounds(movement);
 						std::cout << result << std::endl;
 					}
 
-					if (sphereCollider != NULL)
+					if (tmpSphere != NULL)
 					{
-						GE::SphereCollider* tmpSphere = m_gameObjects.at(i + 1)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
 						bool result = tmpSphere->collision(*sphereCollider);
 						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
 						std::cout << result << std::endl;
@@ -223,17 +239,24 @@ void Application::update(float& dt)
 				}
 				else
 				{
-					GE::BoxCollider* tmp = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-					if (tmp != NULL)
+					GE::BoxCollider* tmpBox = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+					GE::SphereCollider* tmpSphere = m_gameObjects.at(0)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+
+					if (tmpBox != NULL && boxCollider != NULL)
 					{
-						bool result = boxCollider->collision(*tmp);
+						bool result = boxCollider->collision(*tmpBox);
 						boxCollider->recomputeBounds(movement);
 						std::cout << result << std::endl;
 					}
-
-					if (sphereCollider != NULL)
+					else if (tmpBox != NULL && sphereCollider != NULL)
 					{
-						GE::SphereCollider* tmpSphere = m_gameObjects.at(0)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+						bool result = tmpBox->collision(*sphereCollider);
+						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
+						std::cout << result << std::endl;
+					}
+
+					if (tmpSphere != NULL)
+					{
 						bool result = tmpSphere->collision(*sphereCollider);
 						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
 						std::cout << result << std::endl;
