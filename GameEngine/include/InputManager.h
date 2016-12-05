@@ -44,9 +44,9 @@ namespace GE
 
 			void update();
 
-			bool getKeyDown(std::string inputName);
+			short getKeyDown(std::string inputName);
 
-			bool getKeyHeld(std::string inputName);
+			short getKeyHeld(std::string inputName);
 
 			bool getMouseDown(mouseKeys button);
 

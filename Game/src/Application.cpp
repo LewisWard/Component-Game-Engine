@@ -122,11 +122,34 @@ void Application::update(float& dt)
 	{
 		if (m_gameObjects.at(i)->isSelected())
 		{
-			if (m_input->getKeyHeld("movementVert"))
+			if (m_input->getKeyHeld("movementVert") == MULTI_KEY_HIGHER)
 			{
 				GE::Transform* transform = m_gameObjects.at(i)->getComponent<GE::Transform>(GE::kTransform);
 				GE::BoxCollider* boxCollider = m_gameObjects.at(i)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
 				glm::vec3 movement = glm::vec3(0, 1.0f, 0) * dt;
+
+				if (i < m_gameObjects.size() - 1)
+				{
+					GE::BoxCollider* tmp = m_gameObjects.at(i + 1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+					bool result = boxCollider->collision(*tmp);
+					boxCollider->recomputeBounds(movement);
+					std::cout << result << std::endl;
+				}
+				else
+				{
+					GE::BoxCollider* tmp = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+					bool result = boxCollider->collision(*tmp);
+					boxCollider->recomputeBounds(movement);
+					std::cout << result << std::endl;
+				}
+
+				transform->translate(movement);
+			}
+			else if (m_input->getKeyHeld("movementVert") == MULTI_KEY_LOWER)
+			{
+				GE::Transform* transform = m_gameObjects.at(i)->getComponent<GE::Transform>(GE::kTransform);
+				GE::BoxCollider* boxCollider = m_gameObjects.at(i)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+				glm::vec3 movement = glm::vec3(0, -1.0f, 0) * dt;
 
 				if (i < m_gameObjects.size() - 1)
 				{

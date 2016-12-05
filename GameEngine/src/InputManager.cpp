@@ -231,30 +231,51 @@ namespace GE
 			}
 		}
 
-		bool InputManager::getKeyDown(std::string inputName)
+		short InputManager::getKeyDown(std::string inputName)
 		{
 			for (size_t i = 0; i < m_keysDown.size(); ++i)
 			{
 				if (m_keysDown[i].inputName == inputName)
 				{
-					return true;
+					return 1;
 				}
 			}
 
-			return false;
+			return 0;
 		}
 
-		bool InputManager::getKeyHeld(std::string inputName)
+		short InputManager::getKeyHeld(std::string inputName)
 		{
 			for (size_t i = 0; i < m_keysHeld.size(); ++i)
 			{
-				if (m_keysHeld[i].inputName == inputName)
+				if (!m_keysHeld[i].multiKey)
 				{
-					return true;
+					if (m_keysHeld[i].inputName == inputName)
+					{
+						return 1;
+					}
+				}
+				else
+				{
+					if (m_keysHeld[i].inputName == inputName)
+					{
+						short h, l;
+
+						// need to extract the two keys from one key
+						useMultiKey(m_keysHeld[i], h, l);
+
+						// the higher key is pressed
+						if (isKeyPressed(h))
+							return 1;
+
+						// the lower key was pressed
+						if (isKeyPressed(l))
+							return -1;
+					}
 				}
 			}
 
-			return false;
+			return 0;
 		}
 
 		bool InputManager::getMouseDown(mouseKeys button)

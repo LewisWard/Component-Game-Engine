@@ -247,7 +247,7 @@ namespace GE
 		}
 
 		
-			void computeBounds(glm::vec3& newPosition)
+			void recomputeBounds(glm::vec3& newPosition)
 			{
 				m_boundingBox = GEC::AABB(m_boundingBox.center + newPosition, m_boundingBox.size);
 			}

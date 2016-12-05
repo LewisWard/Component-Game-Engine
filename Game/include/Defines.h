@@ -15,3 +15,5 @@
 #define RES_SUPER_X 2560
 #define RES_SUPER_Y 1440
 #define SHOW_MOUSE 1
+#define MULTI_KEY_HIGHER 1
+#define MULTI_KEY_LOWER -1
