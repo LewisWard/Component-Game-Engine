@@ -160,6 +160,60 @@ namespace GE
 		bool m_usingVertexBuffer;
 	};
 
+	class SphereCollider : public Component
+	{
+	public:
+
+		SphereCollider()
+		{
+			m_type = kSphereCollider;
+
+		}
+
+		SphereCollider(glm::vec3 center, glm::vec3 radius)
+		{
+			m_type = kSphereCollider;
+
+		}
+
+		~SphereCollider() {}
+
+		void boundToObject(shared<GEC::ObjObject> obj)
+		{
+			glm::vec2 X, Y, Z;
+			obj->getVertexRange(X, Y, Z);
+			m_center = glm::vec3(X.x - X.y, Y.x - Y.y, Z.x - Z.y);
+			m_radius = m_center.x - X.x;
+		}
+
+		inline float getRadius() { return m_radius; }
+
+		inline glm::vec3 getCenter() { return m_center; }
+
+		inline void setRadius(float r) { m_radius = r; }
+
+		inline void setCenter(glm::vec3 c) { m_center = c; }
+
+		bool collision(SphereCollider& other)
+		{
+			// compute the distance between the two spheres
+			glm::vec3 distanceDelta(m_center - other.getCenter());
+			float distance = glm::sqrt((distanceDelta.x * distanceDelta.x) + (distanceDelta.y * distanceDelta.y) + (distanceDelta.z * distanceDelta.z));
+
+			float radii = m_radius + other.getRadius();
+
+			if (distance < radii)
+				return true;
+
+			return false;
+		}
+
+
+	private:
+		glm::vec3 m_center;
+		float m_radius;
+	};
+
 	class BoxCollider : public Component
 	{
 	friend class AABB;
@@ -234,6 +288,20 @@ namespace GE
 			return m_boundingBox.intersects(other.m_boundingBox);
 		}
 
+		bool collision(GE::SphereCollider sphere)
+		{
+			glm::vec3 sphereCenter(sphere.getCenter());
+			float x = glm::max(m_boundingBox.min.x, glm::min(sphereCenter.x, m_boundingBox.max.x));
+			float y = glm::max(m_boundingBox.min.y, glm::min(sphereCenter.y, m_boundingBox.max.y));
+			float z = glm::max(m_boundingBox.min.z, glm::min(sphereCenter.z, m_boundingBox.max.z));
+
+			float distance = glm::sqrt((x - sphereCenter.x) * (x - sphereCenter.x) +
+																 (y - sphereCenter.y) * (y - sphereCenter.y) +
+																 (z - sphereCenter.z) * (z - sphereCenter.z));
+
+			return distance < sphere.getRadius();
+		}
+
 		inline void setScreenRes(glm::vec2 screen) { m_screenRes = screen; }
 
 		void setMVPUniforms(glm::mat4 M, glm::mat4 V, glm::mat4 P)
@@ -247,10 +315,10 @@ namespace GE
 		}
 
 		
-			void recomputeBounds(glm::vec3& newPosition)
-			{
-				m_boundingBox = GEC::AABB(m_boundingBox.center + newPosition, m_boundingBox.size);
-			}
+		void recomputeBounds(glm::vec3& newPosition)
+		{
+			m_boundingBox = GEC::AABB(m_boundingBox.center + newPosition, m_boundingBox.size);
+		}
 		
 
 	public:
@@ -330,60 +398,5 @@ namespace GE
 		int m_indexCount;
 	};
 
-
-	class SphereCollider : public Component
-	{
-		friend class AABB;
-	public:
-
-		SphereCollider()
-		{
-			m_type = kSphereCollider;
-
-		}
-
-		SphereCollider(glm::vec3 center, glm::vec3 radius)
-		{
-			m_type = kSphereCollider;
-
-		}
-
-		~SphereCollider() {}
-
-		void boundToObject(shared<GEC::ObjObject> obj)
-		{
-			glm::vec2 X, Y, Z;
-			obj->getVertexRange(X, Y, Z);
-			m_center = glm::vec3(X.x - X.y, Y.x - Y.y, Z.x - Z.y);
-			m_radius = m_center.x - X.x;
-		}
-
-		inline float getRadius() { return m_radius; }
-
-		inline glm::vec3 getCenter() { return m_center; }
-
-		inline void setRadius(float r) { m_radius = r; }
-
-		inline void setCenter(glm::vec3 c) { m_center = c; }
-
-		bool collision(SphereCollider& other)
-		{
-			// compute the distance between the two spheres
-			glm::vec3 distanceDelta(m_center - other.getCenter());
-			float distance = glm::sqrt((distanceDelta.x * distanceDelta.x) + (distanceDelta.y * distanceDelta.y) + (distanceDelta.z * distanceDelta.z));
-
-			float radii = m_radius + other.getRadius();
-
-			if (distance < radii)
-				return true;
-
-			return false;
-		}
-
-
-	private:
-		glm::vec3 m_center;
-		float m_radius;
-	};
 };
 
