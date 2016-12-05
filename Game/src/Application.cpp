@@ -59,13 +59,15 @@ Application::Application()
 	//m_gameObjects.at(0)->addComponent<GE::SphereCollider>();
 	//sphereCollider = m_gameObjects.at(0)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
 	//sphereCollider->boundToObject(m_planeObject);
+	//sphereCollider->setCenter(transform->getPosition());
+	//sphereCollider->setRadius(transform->getScale().x);
 	m_gameObjects.at(0)->addComponent<GE::BoxCollider>();
 	boxCollider = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
 	boxCollider->boundToObject(m_planeObject);
 	boxCollider->recomputeBounds(transform->getPosition());
 	boxCollider->setScreenRes(m_scrennSize);
 
-	GE::BoxCollider A = *boxCollider;
+	//GE::BoxCollider A = *boxCollider;
 
 	//sphereCollider->setCenter(transform->getPosition());
 	//sphereCollider->setRadius(transform->getScale().x);
@@ -84,6 +86,8 @@ Application::Application()
 	m_gameObjects.at(1)->addComponent<GE::SphereCollider>();
 	sphereCollider = m_gameObjects.at(1)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
 	sphereCollider->boundToObject(m_planeObject);
+	sphereCollider->setCenter(transform->getPosition());
+	sphereCollider->setRadius(transform->getScale().x);
 	//m_gameObjects.at(1)->addComponent<GE::BoxCollider>();
 	//boxCollider = m_gameObjects.at(1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
 	//boxCollider->boundToObject(m_sphereObject);
@@ -92,13 +96,13 @@ Application::Application()
 	m_gameObjects.at(1)->setSelected();
 
 
-	sphereCollider->setCenter(transform->getPosition());
-	sphereCollider->setRadius(transform->getScale().x);
-	GE::SphereCollider B;
-	B.setCenter(sphereCollider->getCenter());
-	B.setRadius(sphereCollider->getRadius());
-	
-	std::cout << A.collision(B) << std::endl;
+	//sphereCollider->setCenter(transform->getPosition());
+	//sphereCollider->setRadius(transform->getScale().x);
+	//GE::SphereCollider B;
+	//B.setCenter(sphereCollider->getCenter());
+	//B.setRadius(sphereCollider->getRadius());
+	//
+	//std::cout << A.collision(B) << std::endl;
 
 }
 
@@ -152,123 +156,135 @@ void Application::update(float& dt)
 		{
 			if (m_input->getKeyHeld("movementVert") == MULTI_KEY_HIGHER)
 			{
+				// get the current gameobject components
 				GE::Transform* transform = m_gameObjects.at(i)->getComponent<GE::Transform>(GE::kTransform);
 				GE::BoxCollider* boxCollider = m_gameObjects.at(i)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
 				GE::SphereCollider* sphereCollider = m_gameObjects.at(i)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+
+				// set movement speed
 				glm::vec3 movement = glm::vec3(0, 1.0f, 0) * dt;
 
-				if (i < m_gameObjects.size() - 1)
+				// loop over all gameojects in the scene
+				for (size_t object = 0; object < m_gameObjects.size(); ++object)
 				{
-					GE::BoxCollider* tmpBox = m_gameObjects.at(i + 1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-					GE::SphereCollider* tmpSphere = m_gameObjects.at(i + 1)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+					// make sure we don't test this object vs itself (I think this wouldn't make a difference but just in case)
+					if (object != i)
+					{
+						// get the components of the object we are going to test
+						GE::Transform* objectTransform = m_gameObjects.at(object)->getComponent<GE::Transform>(GE::kTransform);
+						GE::BoxCollider* objectBoxCollider = m_gameObjects.at(object)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+						GE::SphereCollider* objectSphereCollider = m_gameObjects.at(object)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
 
-					if (tmpBox != NULL && boxCollider != NULL)
-					{
-						bool result = boxCollider->collision(*tmpBox);
-						boxCollider->recomputeBounds(movement);
-						std::cout << result << std::endl;
-					}
-					else if (tmpBox != NULL && sphereCollider != NULL)
-					{
-						bool result = tmpBox->collision(*sphereCollider);
-						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
-						std::cout << result << std::endl;
-					}
-					
-					if (tmpSphere != NULL)
-					{
-						bool result = tmpSphere->collision(*sphereCollider);
-						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
-						std::cout << result << std::endl;
+
+						// AABB vs AABB test
+						if (boxCollider != NULL && objectBoxCollider != NULL)
+						{
+							std::cout << "AABB vs AABB - Result: ";
+							bool result = boxCollider->collision(*objectBoxCollider);
+							boxCollider->recomputeBounds(movement);
+							std::cout << result << std::endl;
+						}
+
+
+						// Sphere vs AABB test
+						// AABB's can only test vs Sphere so we need to work out which box collider is valid
+						if (boxCollider != NULL && objectSphereCollider != NULL)
+						{
+							std::cout << "Sphere vs AABB - Result: ";
+							bool result = boxCollider->collision(*objectSphereCollider);
+							boxCollider->recomputeBounds(movement);
+							std::cout << result << std::endl;
+
+						}
+						else if (sphereCollider != NULL && objectBoxCollider != NULL)
+						{
+							std::cout << "Sphere vs AABB - Result: ";
+							bool result = objectBoxCollider->collision(*sphereCollider);
+							sphereCollider->setCenter(sphereCollider->getCenter() + movement);
+							std::cout << result << std::endl;
+						}
+
+						// Sphere vs Sphere test
+						if (sphereCollider != NULL && objectSphereCollider != NULL)
+						{
+							std::cout << "Sphere vs Sphere - Result: ";
+							bool result = objectSphereCollider->collision(*sphereCollider);
+							sphereCollider->setCenter(sphereCollider->getCenter() + movement);
+							std::cout << result << std::endl;
+						}
 					}
 				}
-				else
-				{
-					GE::BoxCollider* tmpBox = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-					GE::SphereCollider* tmpSphere = m_gameObjects.at(0)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
 
-					if (tmpBox != NULL && boxCollider != NULL)
-					{
-						bool result = boxCollider->collision(*tmpBox);
-						boxCollider->recomputeBounds(movement);
-						std::cout << result << std::endl;
-					}
-					else if (tmpBox != NULL && sphereCollider != NULL)
-					{
-						bool result = tmpBox->collision(*sphereCollider);
-						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
-						std::cout << result << std::endl;
-					}
-
-
-					if (tmpSphere != NULL)
-					{
-						bool result = tmpSphere->collision(*sphereCollider);
-						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
-						std::cout << result << std::endl;
-					}
-				}
-
+				// update the position of the gameobject as no collision detected
 				transform->translate(movement);
 			}
 			else if (m_input->getKeyHeld("movementVert") == MULTI_KEY_LOWER)
 			{
+				// get the current gameobject components
 				GE::Transform* transform = m_gameObjects.at(i)->getComponent<GE::Transform>(GE::kTransform);
 				GE::BoxCollider* boxCollider = m_gameObjects.at(i)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
 				GE::SphereCollider* sphereCollider = m_gameObjects.at(i)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+
+				// set movement speed
 				glm::vec3 movement = glm::vec3(0, -1.0f, 0) * dt;
 
-				if (i < m_gameObjects.size() - 1)
+				// loop over all gameojects in the scene
+				for (size_t object = 0; object < m_gameObjects.size(); ++object)
 				{
-					GE::BoxCollider* tmpBox = m_gameObjects.at(i + 1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-					GE::SphereCollider* tmpSphere = m_gameObjects.at(i + 1)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+					// make sure we don't test this object vs itself (I think this wouldn't make a difference but just in case)
+					if (object != i)
+					{
+						// get the components of the object we are going to test
+						GE::Transform* objectTransform = m_gameObjects.at(object)->getComponent<GE::Transform>(GE::kTransform);
+						GE::BoxCollider* objectBoxCollider = m_gameObjects.at(object)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+						GE::SphereCollider* objectSphereCollider = m_gameObjects.at(object)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
 
-					if (tmpBox != NULL)
-					{
-						bool result = boxCollider->collision(*tmpBox);
-						boxCollider->recomputeBounds(movement);
-						std::cout << result << std::endl;
-					}
 
-					if (tmpSphere != NULL)
-					{
-						bool result = tmpSphere->collision(*sphereCollider);
-						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
-						std::cout << result << std::endl;
-					}
-				}
-				else
-				{
-					GE::BoxCollider* tmpBox = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-					GE::SphereCollider* tmpSphere = m_gameObjects.at(0)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+						// AABB vs AABB test
+						if (boxCollider != NULL && objectBoxCollider != NULL)
+						{
+							std::cout << "AABB vs AABB - Result: ";
+							bool result = boxCollider->collision(*objectBoxCollider);
+							boxCollider->recomputeBounds(movement);
+							std::cout << result << std::endl;
+						}
 
-					if (tmpBox != NULL && boxCollider != NULL)
-					{
-						bool result = boxCollider->collision(*tmpBox);
-						boxCollider->recomputeBounds(movement);
-						std::cout << result << std::endl;
-					}
-					else if (tmpBox != NULL && sphereCollider != NULL)
-					{
-						bool result = tmpBox->collision(*sphereCollider);
-						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
-						std::cout << result << std::endl;
-					}
 
-					if (tmpSphere != NULL)
-					{
-						bool result = tmpSphere->collision(*sphereCollider);
-						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
-						std::cout << result << std::endl;
+						// Sphere vs AABB test
+						// AABB's can only test vs Sphere so we need to work out which box collider is valid
+						if (boxCollider != NULL && objectSphereCollider != NULL)
+						{
+							std::cout << "Sphere vs AABB - Result: ";
+							bool result = boxCollider->collision(*objectSphereCollider);
+							boxCollider->recomputeBounds(movement);
+							std::cout << result << std::endl;
+
+						}
+						else if (sphereCollider != NULL && objectBoxCollider != NULL)
+						{
+							std::cout << "Sphere vs AABB - Result: ";
+							bool result = objectBoxCollider->collision(*sphereCollider);
+							sphereCollider->setCenter(sphereCollider->getCenter() + movement);
+							std::cout << result << std::endl;
+						}
+
+						// Sphere vs Sphere test
+						if (sphereCollider != NULL && objectSphereCollider != NULL)
+						{
+							std::cout << "Sphere vs Sphere - Result: ";
+							bool result = objectSphereCollider->collision(*sphereCollider);
+							sphereCollider->setCenter(sphereCollider->getCenter() + movement);
+							std::cout << result << std::endl;
+						}
 					}
 				}
 
 				transform->translate(movement);
 			}
-		}
 
-		m_gameObjects.at(i)->setInput(m_input);
-		m_gameObjects.at(i)->update(dt);
+			m_gameObjects.at(i)->setInput(m_input);
+			m_gameObjects.at(i)->update(dt);
+		}
 	}
 }
 

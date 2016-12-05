@@ -12,7 +12,6 @@ namespace GE
 
 	Component::~Component()
 	{
-		std::cout << "~Component()" << std::endl;
 	}
 
 	void Component::onLoad()
@@ -63,7 +62,6 @@ namespace GE
 
 	MeshRenderer::~MeshRenderer()
 	{
-		std::cout << "~MeshRenderer()" << std::endl;
 	}
 
 	void MeshRenderer::onDraw()
@@ -135,6 +133,5 @@ namespace GE
 	*/
 	BoxCollider::~BoxCollider()
 	{
-		std::cout << "~BoxCollider()" << std::endl;
 	}
 };
