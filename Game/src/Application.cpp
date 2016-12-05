@@ -42,24 +42,34 @@ Application::Application()
 	GE::Transform* transform;
 	GE::MeshRenderer* meshRenderer;
 	GE::BoxCollider* boxCollider;
+	GE::SphereCollider* sphereCollider;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// TODO: turn AABB points into world space points! Otherwise collision detection will never work
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	transform = m_gameObjects.at(0)->getComponent<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f));
-	transform->setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
+	transform->setPosition(glm::vec3(0.0f, 2.5f, 0.0f));
 	m_gameObjects.at(0)->addComponent<GE::MeshRenderer>();
 	meshRenderer = m_gameObjects.at(0)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
 	meshRenderer->setMesh(m_planeObject);
 	meshRenderer->setTexture(m_texture);
 	meshRenderer->setProgram(m_shaderProgram);
-	m_gameObjects.at(0)->addComponent<GE::BoxCollider>();
-	boxCollider = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-	boxCollider->boundToObject(m_planeObject);
-	boxCollider->recomputeBounds(glm::vec3(0.0f, 2.0f, 0.0f));
-	boxCollider->setScreenRes(m_scrennSize);
+	m_gameObjects.at(0)->addComponent<GE::SphereCollider>();
+	sphereCollider = m_gameObjects.at(0)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+	sphereCollider->boundToObject(m_planeObject);
+	//m_gameObjects.at(0)->addComponent<GE::BoxCollider>();
+	//boxCollider = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+	//boxCollider->boundToObject(m_planeObject);
+	//boxCollider->recomputeBounds(transform->getPosition());
+	//boxCollider->setScreenRes(m_scrennSize);
+
+	sphereCollider->setCenter(transform->getPosition());
+	sphereCollider->setRadius(transform->getScale().x);
+	GE::SphereCollider A;
+	A.setCenter(sphereCollider->getCenter());
+	A.setRadius(sphereCollider->getRadius());
 
 	transform = m_gameObjects.at(1)->getComponent<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f));
@@ -69,12 +79,27 @@ Application::Application()
 	meshRenderer->setMesh(m_sphereObject);
 	meshRenderer->setTexture(m_texture);
 	meshRenderer->setProgram(m_shaderProgram);
-	m_gameObjects.at(1)->addComponent<GE::BoxCollider>();
-	boxCollider = m_gameObjects.at(1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-	boxCollider->boundToObject(m_sphereObject);
-	boxCollider->setScreenRes(m_scrennSize);
+	m_gameObjects.at(1)->addComponent<GE::SphereCollider>();
+	sphereCollider = m_gameObjects.at(1)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+	sphereCollider->boundToObject(m_planeObject);
+	//m_gameObjects.at(1)->addComponent<GE::BoxCollider>();
+	//boxCollider = m_gameObjects.at(1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+	//boxCollider->boundToObject(m_sphereObject);
+	//boxCollider->setScreenRes(m_scrennSize);
 
 	m_gameObjects.at(1)->setSelected();
+
+
+	sphereCollider->setCenter(transform->getPosition());
+	sphereCollider->setRadius(transform->getScale().x);
+	GE::SphereCollider B;
+	B.setCenter(sphereCollider->getCenter());
+	B.setRadius(sphereCollider->getRadius());
+
+	std::cout << A.collision(B) << std::endl;
+	std::cout << A.getCenter().x << " " << A.getCenter().y << " " << A.getCenter().z << " " << A.getRadius() << std::endl;
+	std::cout << B.getCenter().x << " " << B.getCenter().y << " " << B.getCenter().z << " " << B.getRadius() << std::endl;
+
 }
 
 Application::~Application()
@@ -86,6 +111,9 @@ void Application::update(float& dt)
 {
 	static float refreshDT = 0.0f;
 	refreshDT += dt;
+
+	GE::SphereCollider* sphereColliderA = m_gameObjects.at(0)->getComponent<GE::SphereCollider>(GE::kSphereCollider);;
+	GE::SphereCollider* sphereColliderB = m_gameObjects.at(1)->getComponent<GE::SphereCollider>(GE::kSphereCollider);;
 
 	// update input
 	m_input->update();
@@ -126,21 +154,44 @@ void Application::update(float& dt)
 			{
 				GE::Transform* transform = m_gameObjects.at(i)->getComponent<GE::Transform>(GE::kTransform);
 				GE::BoxCollider* boxCollider = m_gameObjects.at(i)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+				GE::SphereCollider* sphereCollider = m_gameObjects.at(i)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
 				glm::vec3 movement = glm::vec3(0, 1.0f, 0) * dt;
 
 				if (i < m_gameObjects.size() - 1)
 				{
 					GE::BoxCollider* tmp = m_gameObjects.at(i + 1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-					bool result = boxCollider->collision(*tmp);
-					boxCollider->recomputeBounds(movement);
-					std::cout << result << std::endl;
+					if (tmp != NULL)
+					{
+						bool result = boxCollider->collision(*tmp);
+						boxCollider->recomputeBounds(movement);
+						std::cout << result << std::endl;
+					}
+					
+					if (sphereCollider != NULL)
+					{
+						GE::SphereCollider* tmpSphere = m_gameObjects.at(i + 1)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+						bool result = tmpSphere->collision(*sphereCollider);
+						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
+						std::cout << result << std::endl;
+					}
 				}
 				else
 				{
 					GE::BoxCollider* tmp = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-					bool result = boxCollider->collision(*tmp);
-					boxCollider->recomputeBounds(movement);
-					std::cout << result << std::endl;
+					if (tmp != NULL)
+					{
+						bool result = boxCollider->collision(*tmp);
+						boxCollider->recomputeBounds(movement);
+						std::cout << result << std::endl;
+					}
+
+					if (sphereCollider != NULL)
+					{
+						GE::SphereCollider* tmpSphere = m_gameObjects.at(0)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+						bool result = tmpSphere->collision(*sphereCollider);
+						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
+						std::cout << result << std::endl;
+					}
 				}
 
 				transform->translate(movement);
@@ -149,21 +200,44 @@ void Application::update(float& dt)
 			{
 				GE::Transform* transform = m_gameObjects.at(i)->getComponent<GE::Transform>(GE::kTransform);
 				GE::BoxCollider* boxCollider = m_gameObjects.at(i)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+				GE::SphereCollider* sphereCollider = m_gameObjects.at(i)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
 				glm::vec3 movement = glm::vec3(0, -1.0f, 0) * dt;
 
 				if (i < m_gameObjects.size() - 1)
 				{
 					GE::BoxCollider* tmp = m_gameObjects.at(i + 1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-					bool result = boxCollider->collision(*tmp);
-					boxCollider->recomputeBounds(movement);
-					std::cout << result << std::endl;
+					if (tmp != NULL)
+					{
+						bool result = boxCollider->collision(*tmp);
+						boxCollider->recomputeBounds(movement);
+						std::cout << result << std::endl;
+					}
+
+					if (sphereCollider != NULL)
+					{
+						GE::SphereCollider* tmpSphere = m_gameObjects.at(i + 1)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+						bool result = tmpSphere->collision(*sphereCollider);
+						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
+						std::cout << result << std::endl;
+					}
 				}
 				else
 				{
 					GE::BoxCollider* tmp = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-					bool result = boxCollider->collision(*tmp);
-					boxCollider->recomputeBounds(movement);
-					std::cout << result << std::endl;
+					if (tmp != NULL)
+					{
+						bool result = boxCollider->collision(*tmp);
+						boxCollider->recomputeBounds(movement);
+						std::cout << result << std::endl;
+					}
+
+					if (sphereCollider != NULL)
+					{
+						GE::SphereCollider* tmpSphere = m_gameObjects.at(0)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+						bool result = tmpSphere->collision(*sphereCollider);
+						sphereCollider->setCenter(sphereCollider->getCenter() + movement);
+						std::cout << result << std::endl;
+					}
 				}
 
 				transform->translate(movement);

@@ -29,8 +29,8 @@ namespace GE
 				}
 			}
 
-			// it failed, we always have a Transform component so we return that one
-			return dynamic_cast<T*>(m_components.at(0).get());
+			// it failed
+			return NULL;
 		}
 
 		template <class T>
@@ -44,8 +44,8 @@ namespace GE
 				}
 			}
 
-			// it failed, we always have a Transform component so we return that one
-			return dynamic_cast<T*>(m_components.at(0).get());
+			// it failed
+			return NULL;
 		}
 
 		template <class T>
@@ -71,10 +71,7 @@ namespace GE
 		
 		inline bool hasParent() { return m_hasParent; }
 
-		void setInput(shared<GE::Input::InputManager> input)
-		{
-			m_input = input;
-		}
+		void setInput(shared<GE::Input::InputManager> input) { m_input = input; }
 
 		inline bool isSelected() { return m_isSelected; }
 
