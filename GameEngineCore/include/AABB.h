@@ -26,7 +26,7 @@ namespace GEC
 
 		bool contains(glm::vec3 point);
 
-		bool intersects(AABB aabb);
+		bool intersects(const AABB& const aabb);
 
 	public:
 		glm::vec3 min;

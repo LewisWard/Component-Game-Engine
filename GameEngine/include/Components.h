@@ -223,13 +223,16 @@ namespace GE
 
 		void setMax(glm::vec3 max) { m_boundingBox.max = max; m_boundingBox.center = ((m_boundingBox.max - m_boundingBox.min) / 2.0f) + m_boundingBox.min; };
 
-		inline glm::vec3 getMin() { m_boundingBox.min; }
+		inline glm::vec3 getMin() { return m_boundingBox.min; }
 							
-		inline glm::vec3 getMax() { m_boundingBox.max; }
+		inline glm::vec3 getMax() { return m_boundingBox.max; }
 
-		inline glm::vec3 getCenter() { m_boundingBox.center; }
+		inline glm::vec3 getCenter() { return m_boundingBox.center; }
 
-		bool collision(BoxCollider other);
+		bool collision(BoxCollider other)
+		{
+			return m_boundingBox.intersects(other.m_boundingBox);
+		}
 
 		inline void setScreenRes(glm::vec2 screen) { m_screenRes = screen; }
 
@@ -242,6 +245,13 @@ namespace GE
 			program->uniformMatrix4("projectionlMatrix", 1, P);
 			program->unbind();
 		}
+
+		
+			void computeBounds(glm::vec3& newPosition)
+			{
+				m_boundingBox = GEC::AABB(m_boundingBox.center + newPosition, m_boundingBox.size);
+			}
+		
 
 	public:
 		GEC::AABB m_boundingBox;

@@ -21,7 +21,7 @@ Application::Application()
 
 	m_texture = mkShare<GEC::Texture>(std::string(assetPath + config.data.texturePaths[0]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
 	m_sphereObject = mkShare<GEC::ObjObject>(std::string(assetPath + config.data.modelPaths[0]).c_str());
-	m_planeObject = mkShare<GEC::ObjObject>(std::string(assetPath + config.data.modelPaths[1]).c_str());
+	m_planeObject = mkShare<GEC::ObjObject>(std::string(assetPath + config.data.modelPaths[0]).c_str());
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -43,8 +43,12 @@ Application::Application()
 	GE::MeshRenderer* meshRenderer;
 	GE::BoxCollider* boxCollider;
 
+	///////////////////////////////////////////////////////////////////////////////////////////////////
+	// TODO: turn AABB points into world space points! Otherwise collision detection will never work
+	///////////////////////////////////////////////////////////////////////////////////////////////////
 	transform = m_gameObjects.at(0)->getComponent<GE::Transform>(GE::kTransform);
-	transform->setScale(glm::vec3(8.0f));
+	transform->setScale(glm::vec3(1.0f));
+	transform->setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
 	m_gameObjects.at(0)->addComponent<GE::MeshRenderer>();
 	meshRenderer = m_gameObjects.at(0)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
@@ -54,11 +58,11 @@ Application::Application()
 	m_gameObjects.at(0)->addComponent<GE::BoxCollider>();
 	boxCollider = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
 	boxCollider->boundToObject(m_planeObject);
+	boxCollider->recomputeBounds(glm::vec3(0.0f, 2.0f, 0.0f));
 	boxCollider->setScreenRes(m_scrennSize);
 
 	transform = m_gameObjects.at(1)->getComponent<GE::Transform>(GE::kTransform);
-	transform->setScale(glm::vec3(2.0f));
-	transform->setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
+	transform->setScale(glm::vec3(1.0f));
 	m_gameObjects.at(1)->addComponent<GE::MeshRenderer>();
 	meshRenderer = m_gameObjects.at(1)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
@@ -121,7 +125,25 @@ void Application::update(float& dt)
 			if (m_input->getKeyHeld("movementVert"))
 			{
 				GE::Transform* transform = m_gameObjects.at(i)->getComponent<GE::Transform>(GE::kTransform);
-				transform->translate(glm::vec3(0, 1.0f, 0) * dt);
+				GE::BoxCollider* boxCollider = m_gameObjects.at(i)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+				glm::vec3 movement = glm::vec3(0, 1.0f, 0) * dt;
+
+				if (i < m_gameObjects.size() - 1)
+				{
+					GE::BoxCollider* tmp = m_gameObjects.at(i + 1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+					bool result = boxCollider->collision(*tmp);
+					boxCollider->recomputeBounds(movement);
+					std::cout << result << std::endl;
+				}
+				else
+				{
+					GE::BoxCollider* tmp = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+					bool result = boxCollider->collision(*tmp);
+					boxCollider->recomputeBounds(movement);
+					std::cout << result << std::endl;
+				}
+
+				transform->translate(movement);
 			}
 		}
 

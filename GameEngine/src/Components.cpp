@@ -137,9 +137,4 @@ namespace GE
 	{
 		std::cout << "~BoxCollider()" << std::endl;
 	}
-
-	bool BoxCollider::collision(BoxCollider other)
-	{
-		return m_boundingBox.intersects(other.m_boundingBox);
-	}
 };
