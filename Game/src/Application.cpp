@@ -21,7 +21,7 @@ Application::Application()
 
 	m_texture = mkShare<GEC::Texture>(std::string(assetPath + config.data.texturePaths[0]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
 	m_sphereObject = mkShare<GEC::ObjObject>(std::string(assetPath + config.data.modelPaths[0]).c_str());
-	m_planeObject = mkShare<GEC::ObjObject>(std::string(assetPath + config.data.modelPaths[1]).c_str());
+	m_planeObject = mkShare<GEC::ObjObject>(std::string(assetPath + config.data.modelPaths[0]).c_str());
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -45,7 +45,7 @@ Application::Application()
 	GE::SphereCollider* sphereCollider;
 
 	transform = m_gameObjects.at(0)->getComponent<GE::Transform>(GE::kTransform);
-	transform->setScale(glm::vec3(8.0f));
+	transform->setScale(glm::vec3(1.0f));
 	transform->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	m_gameObjects.at(0)->addComponent<GE::MeshRenderer>();
 	meshRenderer = m_gameObjects.at(0)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -63,6 +63,7 @@ Application::Application()
 	boxCollider->boundToObject(m_planeObject);
 	boxCollider->recomputeBounds(transform->getPosition());
 	boxCollider->setScreenRes(m_scrennSize);
+	m_gameObjects.at(0)->setChild(m_gameObjects.at(1));
 
 	transform = m_gameObjects.at(1)->getComponent<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f));
@@ -82,7 +83,6 @@ Application::Application()
 	//boxCollider = m_gameObjects.at(1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
 	//boxCollider->boundToObject(m_sphereObject);
 	//boxCollider->setScreenRes(m_scrennSize);
-
 	m_gameObjects.at(1)->setSelected();
 }
 
@@ -196,7 +196,8 @@ void Application::update(float& dt)
 				}
 
 				// update the position of the gameobject as no collision detected
-				transform->translate(movement);
+				m_gameObjects.at(i)->translate(movement);
+
 			}
 			else if (m_input->getKeyHeld("movementVert") == MULTI_KEY_LOWER)
 			{
@@ -259,7 +260,7 @@ void Application::update(float& dt)
 					}
 				}
 
-				transform->translate(movement);
+				m_gameObjects.at(i)->translate(movement);
 			}
 
 			m_gameObjects.at(i)->setInput(m_input);

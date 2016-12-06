@@ -65,6 +65,13 @@ namespace GE
 
 		std::vector<shared<Component>> getComponents() { return m_components;  }
 
+		void setChild(shared<GE::GameObject> GameObject)
+		{
+			m_childern.push_back(GameObject);
+		}
+
+		bool hasChildern() { return m_childern.size();  }
+
 		void setParent(GameObject Go);
 
 		void unsetParent();
@@ -78,6 +85,45 @@ namespace GE
 		inline void setSelected() { m_isSelected = true; }
 
 		inline void unselected() { m_isSelected = false; }
+
+		void translate(glm::vec3& translate) 
+		{ 
+			// get the transform and update it
+			GE::Transform* transform = getComponent<GE::Transform>(GE::kTransform);
+			transform->translate(translate);
+
+			// if there are childern update them too
+			size_t childCount = m_childern.size();
+			if (childCount)
+				for (size_t i = 0; i < childCount; i++)
+					m_childern.at(i)->translate(translate);
+		}
+
+		void scale(glm::vec3& scale)
+		{
+			// get the transform and update it
+			GE::Transform* transform = getComponent<GE::Transform>(GE::kTransform);
+			transform->setScale(scale);
+
+			// if there are childern update them too
+			size_t childCount = m_childern.size();
+			if (childCount)
+				for (size_t i = 0; i < childCount; i++)
+					m_childern.at(i)->scale(scale);
+		}
+
+		void rotate(glm::vec3& rotate)
+		{
+			// get the transform and update it
+			GE::Transform* transform = getComponent<GE::Transform>(GE::kTransform);
+			transform->setRotation(rotate);
+
+			// if there are childern update them too
+			size_t childCount = m_childern.size();
+			if (childCount)
+				for (size_t i = 0; i < childCount; i++)
+					m_childern.at(i)->rotate(rotate);
+		}
 
 	private:
 		std::vector<shared<Component>> m_components;
