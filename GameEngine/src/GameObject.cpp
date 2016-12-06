@@ -22,15 +22,24 @@ namespace GE
 		glm::mat4 model;
 		shared<GE::Input::InputManager> input(m_input);
 
-		for (size_t i = 0; i < m_components.size(); i++)
+		Transform* trs = getComponent<GE::Transform>(GE::kTransform);
+		GE::BoxCollider* boxCollider = getComponent<GE::BoxCollider>(GE::kBoxCollider);
+		GE::SphereCollider* sphereCollider = getComponent<GE::SphereCollider>(GE::kSphereCollider);
+
+		//m_components[i]->onUpdate(dt);
+
+		if (trs != NULL)
 		{
-			m_components[i]->onUpdate(dt);
+			model = trs->createTransform();
 
-			if (kTransform == m_components.at(i).get()->m_type)
+			if (boxCollider != NULL)
 			{
-				Transform* trs = dynamic_cast<Transform*>(m_components.at(i).get());
-				model = trs->createTransform();
+				boxCollider->recomputeBounds(trs->getPosition());
+			}
 
+			if (sphereCollider != NULL)
+			{
+				sphereCollider->setCenter(trs->getPosition());
 			}
 		}
 	}
@@ -50,7 +59,7 @@ namespace GE
 			if (kMeshRenderer == m_components.at(i).get()->m_type)
 			{
 				MeshRenderer* renderer = dynamic_cast<MeshRenderer*>(m_components.at(i).get());
-				glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 15.0f, 25.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+				glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 25.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 				glm::mat4 projection = glm::perspective(45.0f, renderer->m_screenRes.x / renderer->m_screenRes.y, 0.1f, 100.0f);
 				renderer->setMVPUniforms(model, view, projection);
 				m_components[i]->onDraw();
@@ -59,7 +68,7 @@ namespace GE
 			if (kBoxCollider == m_components.at(i).get()->m_type)
 			{
 				BoxCollider* collider = dynamic_cast<BoxCollider*>(m_components.at(i).get());
-				glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 15.0f, 25.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+				glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 25.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 				glm::mat4 projection = glm::perspective(45.0f, collider->m_screenRes.x / collider->m_screenRes.y, 0.1f, 100.0f);
 				collider->setMVPUniforms(model, view, projection);
 				m_components[i]->onDraw();
