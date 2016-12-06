@@ -2,9 +2,8 @@
 // Program : Game Engine
 // Date    : 26/10/2016
 #pragma once
-#include "glm\gtc\matrix_transform.hpp"
-#include "ObjObject.h"
 #include "Program.h"
+#include "Camera.h"
 #include "Log.h"
 #include "AABB.h"
 #include <vector>
@@ -142,8 +141,13 @@ namespace GE
 
 		inline void setScreenRes(glm::vec2 screen) { m_screenRes = screen; }
 
-		void setMVPUniforms(glm::mat4 M, glm::mat4 V, glm::mat4 P)
+		void setMainCamera(shared<GE::Camera> mainCamera) { m_mainCamera = mainCamera; }
+
+		void setMVPUniforms(glm::mat4 M)
 		{
+			shared<GE::Camera> camera(m_mainCamera);
+			glm::mat4 V = camera->getView();
+			glm::mat4 P = camera->getProjection();
 			shared<GE::Program> program(m_shaderProgram);
 			program->bind();
 			program->uniformMatrix4("modelMatrix", 1, M);
@@ -153,9 +157,10 @@ namespace GE
 		}
 
 	public:
+		weak<GE::Program> m_shaderProgram;
+		weak<GE::Camera> m_mainCamera;
 		weak<GEC::Texture> m_texture;
 		weak<GEC::ObjObject> m_mesh;
-		weak<GE::Program> m_shaderProgram;
 		glm::vec2 m_screenRes;
 		bool m_usingVertexBuffer;
 	};

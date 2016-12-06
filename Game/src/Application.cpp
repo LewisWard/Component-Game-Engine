@@ -28,6 +28,8 @@ Application::Application()
 	glEnable(GL_TEXTURE_2D);
 	glCullFace(GL_BACK);
 
+	m_camera = mkShare<GE::Camera>(glm::vec3(0, 0, 0), glm::vec3(0, 0, -1.0f), m_scrennSize, 45.0f, 0.1f, 100.0f);
+
 	GE::Shader vertexShader(std::string(assetPath + config.data.shaderPaths[0]).c_str(), kVertexShader);
 	GE::Shader pixelShader(std::string(assetPath + config.data.shaderPaths[1]).c_str(), kPixelShader);
 	m_shaderProgram = mkShare<GE::Program>(vertexShader, pixelShader);
@@ -53,6 +55,7 @@ Application::Application()
 	meshRenderer->setMesh(m_planeObject);
 	meshRenderer->setTexture(m_texture);
 	meshRenderer->setProgram(m_shaderProgram);
+	meshRenderer->setMainCamera(m_camera);
 	m_gameObjects.at(0)->addComponent<GE::SphereCollider>();
 	sphereCollider = m_gameObjects.at(0)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
 	sphereCollider->boundToObject(m_planeObject);
@@ -74,6 +77,7 @@ Application::Application()
 	meshRenderer->setMesh(m_sphereObject);
 	meshRenderer->setTexture(m_texture);
 	meshRenderer->setProgram(m_shaderProgram);
+	meshRenderer->setMainCamera(m_camera);
 	//m_gameObjects.at(1)->addComponent<GE::SphereCollider>();
 	//sphereCollider = m_gameObjects.at(1)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
 	//sphereCollider->boundToObject(m_planeObject);
@@ -86,9 +90,7 @@ Application::Application()
 	
 	m_gameObjects.at(0)->setSelected();
 
-	glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 projection = glm::perspective(45.0f, m_scrennSize.x / m_scrennSize.y, 0.1f, 100.0f);
-	m_screenMouse = mkShare<GE::Input::MouseConverter>(projection, view, m_scrennSize);
+	m_screenMouse = mkShare<GE::Input::MouseConverter>(m_camera->getProjection(), m_camera->getView(), m_scrennSize);
 }
 
 Application::~Application()
@@ -276,11 +278,10 @@ void Application::draw()
 		
 		m_screenMouse->update(mousePos);
 		glm::vec3 mouseRay = m_screenMouse->getRay();
+		glm::vec3 cameraOrigin(m_camera->getPosition());
 
 		for (size_t object = 0; object < m_gameObjects.size(); object++)
 		{
-			glm::vec3 cameraOrigin(0.0f, 0.0f, 0.0f);
-
 			transform = m_gameObjects.at(object)->getComponent<GE::Transform>(GE::kTransform);
 			boxCollider = m_gameObjects.at(object)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
 			sphereCollider = m_gameObjects.at(object)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
@@ -332,7 +333,6 @@ void Application::draw()
 
 						m_gameObjects.at(object)->setSelected();
 						printf("selected %d \n", object);
-						std::cout << mouseRay.x << " " << mouseRay.y << mouseRay.z << std::endl;
 					}
 				}
 
@@ -340,11 +340,9 @@ void Application::draw()
 			else if (sphereCollider != NULL)
 			{
 				// based on: https://capnramses.github.io//opengl/raycasting.html [accessed 06/12/2016]
-
 				bool objectHit = false;
 				float sphereRadius = sphereCollider->getRadius();
 				glm::vec3 sphereCenter(sphereCollider->getCenter());
-				glm::vec3 cameraOrigin(0.0f, 0.0f, 0.0f);
 
 				// the direction of the ray firing from the camera to the clicked position
 				glm::vec3 rayDirection(mouseRay - cameraOrigin);
@@ -387,7 +385,6 @@ void Application::draw()
 
 					m_gameObjects.at(object)->setSelected();
 					printf("selected %d \n", object);
-					std::cout << mouseRay.x << " " << mouseRay.y << mouseRay.z << std::endl;
 				}
 			}
 		}
