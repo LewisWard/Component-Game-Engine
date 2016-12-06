@@ -74,15 +74,15 @@ Application::Application()
 	meshRenderer->setMesh(m_sphereObject);
 	meshRenderer->setTexture(m_texture);
 	meshRenderer->setProgram(m_shaderProgram);
-	m_gameObjects.at(1)->addComponent<GE::SphereCollider>();
-	sphereCollider = m_gameObjects.at(1)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
-	sphereCollider->boundToObject(m_planeObject);
-	sphereCollider->setCenter(transform->getPosition());
-	sphereCollider->setRadius(transform->getScale().x);
-	//m_gameObjects.at(1)->addComponent<GE::BoxCollider>();
-	//boxCollider = m_gameObjects.at(1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-	//boxCollider->boundToObject(m_sphereObject);
-	//boxCollider->setScreenRes(m_scrennSize);
+	//m_gameObjects.at(1)->addComponent<GE::SphereCollider>();
+	//sphereCollider = m_gameObjects.at(1)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+	//sphereCollider->boundToObject(m_planeObject);
+	//sphereCollider->setCenter(transform->getPosition());
+	//sphereCollider->setRadius(transform->getScale().x);
+	m_gameObjects.at(1)->addComponent<GE::BoxCollider>();
+	boxCollider = m_gameObjects.at(1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider->boundToObject(m_sphereObject);
+	boxCollider->setScreenRes(m_scrennSize);
 	
 	m_gameObjects.at(0)->setSelected();
 
@@ -279,62 +279,117 @@ void Application::draw()
 
 		for (size_t object = 0; object < m_gameObjects.size(); object++)
 		{
-			// based on: https://capnramses.github.io//opengl/raycasting.html [accessed 06/12/2016]
+			glm::vec3 cameraOrigin(0.0f, 0.0f, 0.0f);
+
 			transform = m_gameObjects.at(object)->getComponent<GE::Transform>(GE::kTransform);
 			boxCollider = m_gameObjects.at(object)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
 			sphereCollider = m_gameObjects.at(object)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
 
-			bool objectHit = false;
-			float sphereRadius = sphereCollider->getRadius();
-			glm::vec3 sphereCenter(sphereCollider->getCenter());
-			glm::vec3 cameraOrigin(0.0f, 0.0f, 0.0f);
-
+			// based on: http://gamedev.stackexchange.com/questions/18436/most-efficient-aabb-vs-ray-collision-algorithms [accessed 06/12/2016]
 			// the direction of the ray firing from the camera to the clicked position
 			glm::vec3 rayDirection(mouseRay - cameraOrigin);
+			rayDirection = glm::normalize(rayDirection);
 
-			// t is the distance from the ray origin to a point on the surface of the sphere (center + radius)
-			float t = glm::distance(glm::abs(sphereCenter + sphereRadius), cameraOrigin);
-			glm::vec3 pointOnSphere = glm::abs(cameraOrigin + rayDirection * t - sphereCenter) - sphereRadius;
-
-			float B = glm::dot(rayDirection, cameraOrigin - sphereCenter);
-			float C = glm::dot((cameraOrigin - sphereCenter), (cameraOrigin - sphereCenter)) - (sphereRadius * sphereRadius);
-
-			float result = (B*B) - C;
-			float detA = 0.0f;
-			float detB = 0.0f;
-			float detC = (t*t) + 2.0f * t * B + C;
-
-			if (result == 0.0f)
+			// test ray vs AABB otherwise vs Sphere
+			if (boxCollider != NULL)
 			{
-				detA = -B - glm::sqrt(result);
-				objectHit = true;
-			}
+				glm::vec3 min(boxCollider->m_boundingBox.min);
+				glm::vec3 max(boxCollider->m_boundingBox.max);
 
-			if (result > 0.0f)
-			{
-				detA = -B - glm::sqrt(result);
-				detB = -B + glm::sqrt(result);
-				objectHit = true;
-			}
-			
-			// now an object has been hit, need to do something
-			if (objectHit)
-			{
-				// find the currently selected object and change it to another object
-				for (size_t i = 0; i < m_gameObjects.size(); ++i)
+				// computer where the ray intersects with each plane
+				float minX = (min.x - cameraOrigin.x) / rayDirection.x;
+				float maxX = (max.x - cameraOrigin.x) / rayDirection.x;
+				float minY = (min.y - cameraOrigin.y) / rayDirection.y;
+				float maxY = (max.y - cameraOrigin.y) / rayDirection.y;
+				float minZ = (min.z - cameraOrigin.z) / rayDirection.z;
+				float maxZ = (max.z - cameraOrigin.z) / rayDirection.z;
+				bool objectHit = true;
+
+				// find the greatest t value
+				float tmin = glm::max(glm::max(glm::min(minX, maxX), glm::min(minY, maxY)), glm::min(minZ, minZ));
+				float tmax = glm::min(glm::min(glm::max(minX, maxX), glm::max(minY, maxY)), glm::max(minZ, minZ));
+
+				// if any ray < 0 there was an intersection but behind the camera
+				if (tmax < 0)
+					objectHit = false;
+
+				// ray didn't intersect
+				if (tmin > tmax)
+					objectHit = false;
+
+				if (objectHit)
 				{
-					if (m_gameObjects.at(i)->isSelected())
+					// now an object has been hit, need to do something
+					if (objectHit)
 					{
-						m_gameObjects.at(i)->unselected();
-						break;
+						// find the currently selected object and change it to another object
+						for (size_t i = 0; i < m_gameObjects.size(); ++i)
+							if (m_gameObjects.at(i)->isSelected())
+							{
+								m_gameObjects.at(i)->unselected();
+								break;
+							}
+
+						m_gameObjects.at(object)->setSelected();
+						printf("selected %d \n", object);
+						std::cout << mouseRay.x << " " << mouseRay.y << mouseRay.z << std::endl;
 					}
 				}
 
-				m_gameObjects.at(object)->setSelected();
-				printf("selected %d \n", object);
-				std::cout << mouseRay.x << " " << mouseRay.y << mouseRay.z << std::endl;
 			}
-			
+			else if (sphereCollider != NULL)
+			{
+				// based on: https://capnramses.github.io//opengl/raycasting.html [accessed 06/12/2016]
+
+				bool objectHit = false;
+				float sphereRadius = sphereCollider->getRadius();
+				glm::vec3 sphereCenter(sphereCollider->getCenter());
+				glm::vec3 cameraOrigin(0.0f, 0.0f, 0.0f);
+
+				// the direction of the ray firing from the camera to the clicked position
+				glm::vec3 rayDirection(mouseRay - cameraOrigin);
+				rayDirection = glm::normalize(rayDirection);
+
+				// t is the distance from the ray origin to a point on the surface of the sphere (center + radius)
+				float t = glm::distance(glm::abs(sphereCenter + sphereRadius), cameraOrigin);
+				glm::vec3 pointOnSphere = glm::abs(cameraOrigin + rayDirection * t - sphereCenter) - sphereRadius;
+
+				float B = glm::dot(rayDirection, cameraOrigin - sphereCenter);
+				float C = glm::dot((cameraOrigin - sphereCenter), (cameraOrigin - sphereCenter)) - (sphereRadius * sphereRadius);
+
+				float result = (B*B) - C;
+				float detA = 0.0f;
+				float detB = 0.0f;
+
+				if (result == 0.0f)
+				{
+					detA = -B - glm::sqrt(result);
+					objectHit = true;
+				}
+
+				if (result > 0.0f)
+				{
+					detA = -B - glm::sqrt(result);
+					detB = -B + glm::sqrt(result);
+					objectHit = true;
+				}
+
+				// now an object has been hit, need to do something
+				if (objectHit)
+				{
+					// find the currently selected object and change it to another object
+					for (size_t i = 0; i < m_gameObjects.size(); ++i)
+						if (m_gameObjects.at(i)->isSelected())
+						{
+							m_gameObjects.at(i)->unselected();
+							break;
+						}
+
+					m_gameObjects.at(object)->setSelected();
+					printf("selected %d \n", object);
+					std::cout << mouseRay.x << " " << mouseRay.y << mouseRay.z << std::endl;
+				}
+			}
 		}
 	}
 
