@@ -22,6 +22,6 @@ private:
 	shared<GE::Program> m_shaderProgram;
 	shared<GE::Program> m_shaderProgramCollision;
 	shared<GE::Input::InputManager> m_input;
+	shared<GE::Input::MouseConverter> m_screenMouse;
 	glm::vec2 m_scrennSize;
-
 };

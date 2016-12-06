@@ -3,6 +3,7 @@
 // Date    : 09/10/2016
 #pragma once
 #include "Configurations.h"
+#include "ObjObject.h"
 #include "Window.h"
 #define MULTIKEYMASK 0xFF
 #define BSPACE 8
@@ -71,6 +72,67 @@ namespace GE
 			int m_mouseKeysDown[3];
 			int m_mouseKeysHeld[3];
 			Mouse m_mouse;
+		};
+
+		class MouseConverter
+		{
+		public:
+
+			MouseConverter(glm::mat4 projection, glm::mat4 view, glm::vec2 screen)
+			{
+				m_viewMatrix = view;
+				m_projectionMatrix = projection;
+				m_screenSize = screen;
+			}
+
+			~MouseConverter()
+			{
+
+			}
+
+			void update(GE::Input::Mouse mouse)
+			{
+				m_currentRay = calculateMouseRay((float)mouse.x, (float)mouse.y);
+			}
+
+			inline glm::vec3 getRay() { return m_currentRay; }
+
+		private:
+
+			glm::vec3 calculateMouseRay(float mouseX, float mouseY)
+			{
+				glm::vec2 normalisedCoords = getNormalDeviceCoords(mouseX, mouseY);
+				glm::vec4 clipCoords(normalisedCoords.x, normalisedCoords.y, -1.0f, 1.0f);
+				glm::vec4 eyeCoords = toEyeCoords(clipCoords);
+				glm::vec3 worldRay = toWorldCoords(eyeCoords);
+
+				return worldRay;
+			}
+
+			glm::vec3 toWorldCoords(glm::vec4 eyeCoords)
+			{
+				glm::vec4 inversed(glm::inverse(m_viewMatrix) * eyeCoords);
+				glm::vec3 mouseRay(inversed.x, inversed.y, inversed.z);
+				return glm::normalize(mouseRay);
+			}
+
+			glm::vec4 toEyeCoords(glm::vec4 clipCoords)
+			{
+				glm::vec4 inversed(glm::inverse(m_projectionMatrix) * clipCoords);
+				return glm::vec4(inversed.x, inversed.y, -1.0f, 0.0f);
+			}
+
+			glm::vec2 getNormalDeviceCoords(float mouseX, float mouseY)
+			{
+				float clipX = (2.0f * mouseX) / m_screenSize.x - 1.0;
+				float clipY = (2.0f * mouseY) / m_screenSize.y - 1.0;
+				return glm::vec2(clipX, -clipY);
+			}
+
+			glm::vec2 m_screenSize;
+			glm::vec3 m_currentRay;
+			glm::mat4 m_projectionMatrix;
+			glm::mat4 m_viewMatrix;
 		};
 	};
 };
