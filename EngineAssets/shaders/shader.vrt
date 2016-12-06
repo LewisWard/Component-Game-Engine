@@ -12,6 +12,8 @@ uniform mat4 viewMatrix;
 uniform mat4 projectionlMatrix;
 
 out vec2 vs_uv;
+out vec3 vs_normal;
+out vec3 vs_worldPosition;
 
 void main()
 {
@@ -21,4 +23,6 @@ void main()
 
   gl_Position = clipPos;
   vs_uv = uv;
+  vs_normal = normalize(normal);
+  vs_worldPosition = worldPos.xyz;
 }

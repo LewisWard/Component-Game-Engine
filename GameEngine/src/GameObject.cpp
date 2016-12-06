@@ -50,7 +50,7 @@ namespace GE
 			if (kMeshRenderer == m_components.at(i).get()->m_type)
 			{
 				MeshRenderer* renderer = dynamic_cast<MeshRenderer*>(m_components.at(i).get());
-				glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 25.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+				glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 15.0f, 25.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 				glm::mat4 projection = glm::perspective(45.0f, renderer->m_screenRes.x / renderer->m_screenRes.y, 0.1f, 100.0f);
 				renderer->setMVPUniforms(model, view, projection);
 				m_components[i]->onDraw();
@@ -59,7 +59,7 @@ namespace GE
 			if (kBoxCollider == m_components.at(i).get()->m_type)
 			{
 				BoxCollider* collider = dynamic_cast<BoxCollider*>(m_components.at(i).get());
-				glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 25.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+				glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 15.0f, 25.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 				glm::mat4 projection = glm::perspective(45.0f, collider->m_screenRes.x / collider->m_screenRes.y, 0.1f, 100.0f);
 				collider->setMVPUniforms(model, view, projection);
 				m_components[i]->onDraw();

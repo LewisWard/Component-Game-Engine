@@ -21,7 +21,7 @@ Application::Application()
 
 	m_texture = mkShare<GEC::Texture>(std::string(assetPath + config.data.texturePaths[0]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
 	m_sphereObject = mkShare<GEC::ObjObject>(std::string(assetPath + config.data.modelPaths[0]).c_str());
-	m_planeObject = mkShare<GEC::ObjObject>(std::string(assetPath + config.data.modelPaths[0]).c_str());
+	m_planeObject = mkShare<GEC::ObjObject>(std::string(assetPath + config.data.modelPaths[1]).c_str());
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -44,12 +44,9 @@ Application::Application()
 	GE::BoxCollider* boxCollider;
 	GE::SphereCollider* sphereCollider;
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////
-	// TODO: turn AABB points into world space points! Otherwise collision detection will never work
-	///////////////////////////////////////////////////////////////////////////////////////////////////
 	transform = m_gameObjects.at(0)->getComponent<GE::Transform>(GE::kTransform);
-	transform->setScale(glm::vec3(1.0f));
-	transform->setPosition(glm::vec3(0.0f, 2.5f, 0.0f));
+	transform->setScale(glm::vec3(8.0f));
+	transform->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	m_gameObjects.at(0)->addComponent<GE::MeshRenderer>();
 	meshRenderer = m_gameObjects.at(0)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
@@ -67,16 +64,9 @@ Application::Application()
 	boxCollider->recomputeBounds(transform->getPosition());
 	boxCollider->setScreenRes(m_scrennSize);
 
-	//GE::BoxCollider A = *boxCollider;
-
-	//sphereCollider->setCenter(transform->getPosition());
-	//sphereCollider->setRadius(transform->getScale().x);
-	//GE::SphereCollider A;
-	//A.setCenter(sphereCollider->getCenter());
-	//A.setRadius(sphereCollider->getRadius());
-
 	transform = m_gameObjects.at(1)->getComponent<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f));
+	transform->setPosition(glm::vec3(0.0f, 2.5f, 0.0f));
 	m_gameObjects.at(1)->addComponent<GE::MeshRenderer>();
 	meshRenderer = m_gameObjects.at(1)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
@@ -94,16 +84,6 @@ Application::Application()
 	//boxCollider->setScreenRes(m_scrennSize);
 
 	m_gameObjects.at(1)->setSelected();
-
-
-	//sphereCollider->setCenter(transform->getPosition());
-	//sphereCollider->setRadius(transform->getScale().x);
-	//GE::SphereCollider B;
-	//B.setCenter(sphereCollider->getCenter());
-	//B.setRadius(sphereCollider->getRadius());
-	//
-	//std::cout << A.collision(B) << std::endl;
-
 }
 
 Application::~Application()

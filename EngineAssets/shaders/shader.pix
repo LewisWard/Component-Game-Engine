@@ -4,13 +4,23 @@
 #version 330
 
 uniform sampler2D texture;
+uniform vec3 lightPosition = vec3(0.0, 25.0, 0.0);
+uniform vec3 eyePosition = vec3(0.0, 15.0, 25.0);
 
 in vec2 vs_uv;
+in vec3 vs_normal;
+in vec3 vs_worldPosition;
 out vec4 output_colour;
 
 void main()
 {
   vec4 diffuse = texture2D(texture, vs_uv);
-  output_colour = diffuse;
+
+  vec3 lightDir = vec3(lightPosition - vs_worldPosition);
+  float lightDis = length(lightDir);
+  lightDir = lightDir / lightDis; // same as normalize
+  float diff = max(0.0, dot(vs_normal, lightDir));
+
+  output_colour = diffuse * diff;
 }
 
