@@ -53,16 +53,16 @@ Application::Application()
 	meshRenderer->setMesh(m_planeObject);
 	meshRenderer->setTexture(m_texture);
 	meshRenderer->setProgram(m_shaderProgram);
-	m_gameObjects.at(0)->addComponent<GE::SphereCollider>();
-	sphereCollider = m_gameObjects.at(0)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
-	sphereCollider->boundToObject(m_planeObject);
-	sphereCollider->setCenter(transform->getPosition());
-	sphereCollider->setRadius(transform->getScale().x);
-	//m_gameObjects.at(0)->addComponent<GE::BoxCollider>();
-	//boxCollider = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-	//boxCollider->boundToObject(m_planeObject);
-	//boxCollider->recomputeBounds(transform->getPosition());
-	//boxCollider->setScreenRes(m_scrennSize);
+	//m_gameObjects.at(0)->addComponent<GE::SphereCollider>();
+	//sphereCollider = m_gameObjects.at(0)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+	//sphereCollider->boundToObject(m_planeObject);
+	//sphereCollider->setCenter(transform->getPosition());
+	//sphereCollider->setRadius(transform->getScale().x);
+	m_gameObjects.at(0)->addComponent<GE::BoxCollider>();
+	boxCollider = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider->boundToObject(m_planeObject);
+	boxCollider->recomputeBounds(transform->getPosition());
+	boxCollider->setScreenRes(m_scrennSize);
 	m_gameObjects.at(0)->setChild(m_gameObjects.at(1));
 
 	transform = m_gameObjects.at(1)->getComponent<GE::Transform>(GE::kTransform);
@@ -264,36 +264,53 @@ void Application::draw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(28.0f / 255.0f, 28.0f / 255.0f, 28.0f / 255.0f, 1.0f);
 
-#if RELEASEINBUILD 1
+#if RELEASEINBUILD == 0
+	GE::SphereCollider* sphereCollider;
 	GE::BoxCollider* boxCollider;
 	GE::Transform* transform;
 
 	transform = m_gameObjects.at(1)->getComponent<GE::Transform>(GE::kTransform);
 	boxCollider = m_gameObjects.at(1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-
-	glm::mat4 model(transform->createTransform());
-	glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 15.0f, 55.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 projection = glm::perspective(45.0f, m_scrennSize.x / m_scrennSize.y, 0.1f, 100.0f);
+	sphereCollider = m_gameObjects.at(1)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
 	GE::Input::Mouse mousePos = m_input->getMousePosition();
 
 
-	float x = (2.0f * mousePos.x) / m_scrennSize.x - 1.0f;
-	float y = 1.0f - (2.0f * mousePos.y) / m_scrennSize.y;
-	float z = 1.0f;
-	glm::vec3 ray_nds(x, y, z);
-	glm::vec4 ray_clip(ray_nds.x, ray_nds.y, -1.0f, 1.0f);
-	glm::vec4 ray_eye = glm::inverse(projection) * ray_clip;
-	ray_eye = glm::vec4(ray_eye.x, ray_eye.y, -1.0f, 0.0f);
-	glm::vec3 ray_wor = (glm::inverse(model) * ray_eye);
-	ray_wor = glm::normalize(ray_wor);
-	//std::cout << ray_clip.x << " " << ray_clip.y << " " << ray_clip.z << std::endl;
-
 	if (m_input->getMouseDown(GE::Input::kLeftButton))
 	{
-		std::cout << ray_wor.x << " " << ray_wor.y << " " << ray_wor.z << std::endl;
+		// based on: http://stackoverflow.com/questions/13078243/ray-tracing-camera [access 06/12/206]
+		// and     : http://www.gamedev.net/topic/476158-ray-sphere-intersection/ [access 06/12/206]
+		bool objectHit = false;
+		float sphereRadius = sphereCollider->getRadius();
+		glm::vec3 sphereCenter(sphereCollider->getCenter());
+		glm::vec3 cameraOrigin(0.0f, 0.0f, 25.0f);
+		glm::vec3 cameraDirection(0.0f, 0.0f, -1.0f);
+		glm::vec3 cameraUp(0.0f, 1.0f, 0.0f);
 
-		if (boxCollider->m_boundingBox.contains(ray_wor))
-			printf("HIT!\n");
+		// normalise the mouse into screen position and find where abouts in the screen user has clicked
+		float normalisedX = (mousePos.x / m_scrennSize.x) - 0.5;
+		float normalisedY = (mousePos.y / m_scrennSize.y) - 0.5;
+		glm::vec3 clickedPoint(normalisedX * glm::cross(cameraDirection, cameraUp) + normalisedY *
+			cameraUp + cameraOrigin + cameraDirection);
+
+		// the direction of the ray firing from the camera to the clicked position
+		glm::vec3 rayDirection(clickedPoint - cameraOrigin);
+
+		// line from the camera to sphere center
+		glm::vec3 originToCenter(cameraOrigin - sphereCenter);
+
+		// quadratic equation to see if user has clicked on a object (sphere) in the scene 
+		float A = glm::dot(rayDirection, rayDirection);
+		float B = 2 * glm::dot(originToCenter, rayDirection);
+		float C = glm::dot(originToCenter, originToCenter) - sphereRadius * sphereRadius;
+		float D = B*B - 4.0f*A*C;
+
+		// if true, they have selected a object. Don't need to perform all of the equation as we just need 
+		// to know if we hit a sphere rather then where or how many times
+		if (D >= 0.0f)
+		{
+			objectHit = true;
+			printf("HIT! %d\n", objectHit);
+		}
 	}
 
 #endif
