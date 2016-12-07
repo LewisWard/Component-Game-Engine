@@ -404,6 +404,13 @@ void Application::update(float& dt)
 				meshRenderer->setScreenRes(m_scrennSize);
 				meshRenderer->setMainCamera(m_camera);
 
+				// changes depending on what the user defined in the config file
+				if (m_config.data.gameObjects[i].modelID == 0)
+					meshRenderer->setMesh(m_sphereObject);
+				else
+					meshRenderer->setMesh(m_cubeObject);
+
+
 				if (m_config.data.gameObjects[i].hasCollider)
 				{
 					if (m_config.data.gameObjects[i].sphereCollider == false)
@@ -415,15 +422,9 @@ void Application::update(float& dt)
 
 						// changes depending on what the user defined in the config file
 						if (m_config.data.gameObjects[i].modelID == 0)
-						{
-							meshRenderer->setMesh(m_sphereObject);
 							boxCollider->boundToObject(m_sphereObject);
-						}
 						else
-						{
-							meshRenderer->setMesh(m_cubeObject);
 							boxCollider->boundToObject(m_cubeObject);
-						}
 					}
 					else
 					{
@@ -432,15 +433,9 @@ void Application::update(float& dt)
 
 						// changes depending on what the user defined in the config file
 						if (m_config.data.gameObjects[i].modelID == 0)
-						{
-							meshRenderer->setMesh(m_sphereObject);
 							sphereCollider->boundToObject(m_sphereObject);
-						}
 						else
-						{
-							meshRenderer->setMesh(m_cubeObject);
 							sphereCollider->boundToObject(m_cubeObject);
-						}
 
 						sphereCollider->setCenter(transform->getPosition());
 						sphereCollider->setRadius(transform->getScale().x);
