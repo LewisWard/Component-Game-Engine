@@ -5,7 +5,7 @@
 
 uniform sampler2D texture;
 uniform vec3 lightPosition = vec3(0.0, 25.0, 0.0);
-uniform vec3 eyePosition = vec3(0.0, 15.0, 25.0);
+uniform vec3 eyePosition = vec3(0.0, 0.0, 0.0);
 uniform vec3 selectedColour = vec3(0.0, 0.0, 0.0);
 uniform vec3 collisionColour = vec3(0.0, 0.0, 0.0);
 
@@ -18,11 +18,27 @@ void main()
 {
   vec4 diffuse = texture2D(texture, vs_uv);
 
-  vec3 lightDir = vec3(lightPosition - vs_worldPosition);
-  float lightDis = length(lightDir);
-  lightDir = lightDir / lightDis; // same as normalize
-  float diff = max(0.0, dot(vs_normal, lightDir));
+  // get the direction and distance of the light to the point in world space
+  vec3 lightDirection = vec3(lightPosition - vs_worldPosition);
+  float lightDistance = length(lightDirection);
+  lightDirection = lightDirection / lightDistance; // same as normalize
 
-  output_colour = diffuse * diff + vec4(selectedColour + collisionColour, 1.0);
+  // compute the half vector
+  vec3 halfVector = normalize(lightDirection + eyePosition);
+
+  float diff = max(0.0, dot(vs_normal, lightDirection));
+  float specular = max(0.0, dot(vs_normal, halfVector));
+
+  // make sure specular isn't visable somewhere we don't have any diffuse lighting
+  if(diff == 0)
+    specular = 0;
+  else
+    specular = pow(specular, 90.0); // hard coding the shininess factor from the light
+
+  // clamp the value
+  diffuse = diffuse * diff;
+  diffuse = clamp(diffuse, 0, 1);
+
+  output_colour = (diffuse + specular) + vec4(selectedColour + collisionColour, 1.0);
 }
 
