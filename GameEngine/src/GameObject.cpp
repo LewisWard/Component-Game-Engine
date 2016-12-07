@@ -7,6 +7,7 @@ namespace GE
 {
 	GameObject::GameObject()
 	{
+		m_active = true;
 		m_hasParent = false;
 		m_isSelected = false;
 		m_hasCollided = false;

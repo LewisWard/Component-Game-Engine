@@ -87,6 +87,7 @@ Application::Application()
 	boxCollider = m_gameObjects.at(1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
 	boxCollider->boundToObject(m_sphereObject);
 	boxCollider->setScreenRes(m_scrennSize);
+	//m_gameObjects.at(1)->isActive(false);
 	
 	m_gameObjects.at(0)->setSelected();
 
@@ -138,148 +139,151 @@ void Application::update(float& dt)
 	// update GameObjects
 	for (size_t i = 0; i < m_gameObjects.size(); ++i)
 	{
-		if (m_gameObjects.at(i)->isSelected())
+		if (m_gameObjects.at(i)->isActive())
 		{
-			if (m_input->getKeyHeld("movementVert") == MULTI_KEY_HIGHER)
+			if (m_gameObjects.at(i)->isSelected())
 			{
-				// get the current gameobject components
-				GE::Transform* transform = m_gameObjects.at(i)->getComponent<GE::Transform>(GE::kTransform);
-				GE::BoxCollider* boxCollider = m_gameObjects.at(i)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-				GE::SphereCollider* sphereCollider = m_gameObjects.at(i)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
-
-				// set movement speed
-				glm::vec3 movement = glm::vec3(0, 1.0f, 0) * dt;
-				bool collision = false;
-
-				// loop over all gameojects in the scene
-				for (size_t object = 0; object < m_gameObjects.size(); ++object)
+				if (m_input->getKeyHeld("movementVert") == MULTI_KEY_HIGHER)
 				{
-					m_gameObjects.at(object)->hasCollided(collision);
+					// get the current gameobject components
+					GE::Transform* transform = m_gameObjects.at(i)->getComponent<GE::Transform>(GE::kTransform);
+					GE::BoxCollider* boxCollider = m_gameObjects.at(i)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+					GE::SphereCollider* sphereCollider = m_gameObjects.at(i)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
 
-					// make sure we don't test this object vs itself (I think this wouldn't make a difference but just in case)
-					if (object != i)
+					// set movement speed
+					glm::vec3 movement = glm::vec3(0, 1.0f, 0) * dt;
+					bool collision = false;
+
+					// loop over all gameojects in the scene
+					for (size_t object = 0; object < m_gameObjects.size(); ++object)
 					{
-						// get the components of the object we are going to test
-						GE::Transform* objectTransform = m_gameObjects.at(object)->getComponent<GE::Transform>(GE::kTransform);
-						GE::BoxCollider* objectBoxCollider = m_gameObjects.at(object)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-						GE::SphereCollider* objectSphereCollider = m_gameObjects.at(object)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
-						
+						m_gameObjects.at(object)->hasCollided(collision);
 
-						// AABB vs AABB test
-						if (boxCollider != NULL && objectBoxCollider != NULL)
+						// make sure we don't test this object vs itself (I think this wouldn't make a difference but just in case)
+						if (object != i)
 						{
-							std::cout << "AABB vs AABB - Result: ";
-							collision = boxCollider->collision(*objectBoxCollider);
-							std::cout << collision << std::endl;
+							// get the components of the object we are going to test
+							GE::Transform* objectTransform = m_gameObjects.at(object)->getComponent<GE::Transform>(GE::kTransform);
+							GE::BoxCollider* objectBoxCollider = m_gameObjects.at(object)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+							GE::SphereCollider* objectSphereCollider = m_gameObjects.at(object)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
 
-							m_gameObjects.at(i)->hasCollided(collision);
-						}
 
-						// Sphere vs AABB test
-						// AABB's can only test vs Sphere so we need to work out which box collider is valid
-						if (boxCollider != NULL && objectSphereCollider != NULL)
-						{
-							std::cout << "Sphere vs AABB - Result: ";
-							collision = boxCollider->collision(*objectSphereCollider);
-							std::cout << collision << std::endl;
+							// AABB vs AABB test
+							if (boxCollider != NULL && objectBoxCollider != NULL)
+							{
+								std::cout << "AABB vs AABB - Result: ";
+								collision = boxCollider->collision(*objectBoxCollider);
+								std::cout << collision << std::endl;
 
-							m_gameObjects.at(i)->hasCollided(collision);
-						}
-						else if (sphereCollider != NULL && objectBoxCollider != NULL)
-						{
-							std::cout << "Sphere vs AABB - Result: ";
-							collision = objectBoxCollider->collision(*sphereCollider);
-							std::cout << collision << std::endl;
+								m_gameObjects.at(i)->hasCollided(collision);
+							}
 
-							m_gameObjects.at(i)->hasCollided(collision);
-						}
+							// Sphere vs AABB test
+							// AABB's can only test vs Sphere so we need to work out which box collider is valid
+							if (boxCollider != NULL && objectSphereCollider != NULL)
+							{
+								std::cout << "Sphere vs AABB - Result: ";
+								collision = boxCollider->collision(*objectSphereCollider);
+								std::cout << collision << std::endl;
 
-						// Sphere vs Sphere test
-						if (sphereCollider != NULL && objectSphereCollider != NULL)
-						{
-							std::cout << "Sphere vs Sphere - Result: ";
-							collision = objectSphereCollider->collision(*sphereCollider);
-							std::cout << collision << std::endl;
+								m_gameObjects.at(i)->hasCollided(collision);
+							}
+							else if (sphereCollider != NULL && objectBoxCollider != NULL)
+							{
+								std::cout << "Sphere vs AABB - Result: ";
+								collision = objectBoxCollider->collision(*sphereCollider);
+								std::cout << collision << std::endl;
 
-							m_gameObjects.at(i)->hasCollided(collision);
+								m_gameObjects.at(i)->hasCollided(collision);
+							}
+
+							// Sphere vs Sphere test
+							if (sphereCollider != NULL && objectSphereCollider != NULL)
+							{
+								std::cout << "Sphere vs Sphere - Result: ";
+								collision = objectSphereCollider->collision(*sphereCollider);
+								std::cout << collision << std::endl;
+
+								m_gameObjects.at(i)->hasCollided(collision);
+							}
 						}
 					}
+
+					// update the position of the gameobject as no collision detected
+					m_gameObjects.at(i)->translate(movement);
+
 				}
-
-				// update the position of the gameobject as no collision detected
-				m_gameObjects.at(i)->translate(movement);
-
-			}
-			else if (m_input->getKeyHeld("movementVert") == MULTI_KEY_LOWER)
-			{
-				// get the current gameobject components
-				GE::Transform* transform = m_gameObjects.at(i)->getComponent<GE::Transform>(GE::kTransform);
-				GE::BoxCollider* boxCollider = m_gameObjects.at(i)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-				GE::SphereCollider* sphereCollider = m_gameObjects.at(i)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
-
-				// set movement speed
-				glm::vec3 movement = glm::vec3(0, -1.0f, 0) * dt;
-				bool collision = false;
-
-				// loop over all gameojects in the scene
-				for (size_t object = 0; object < m_gameObjects.size(); ++object)
+				else if (m_input->getKeyHeld("movementVert") == MULTI_KEY_LOWER)
 				{
-					m_gameObjects.at(i)->hasCollided(collision);
-					// make sure we don't test this object vs itself (I think this wouldn't make a difference but just in case)
-					if (object != i)
+					// get the current gameobject components
+					GE::Transform* transform = m_gameObjects.at(i)->getComponent<GE::Transform>(GE::kTransform);
+					GE::BoxCollider* boxCollider = m_gameObjects.at(i)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+					GE::SphereCollider* sphereCollider = m_gameObjects.at(i)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+
+					// set movement speed
+					glm::vec3 movement = glm::vec3(0, -1.0f, 0) * dt;
+					bool collision = false;
+
+					// loop over all gameojects in the scene
+					for (size_t object = 0; object < m_gameObjects.size(); ++object)
 					{
-						// get the components of the object we are going to test
-						GE::Transform* objectTransform = m_gameObjects.at(object)->getComponent<GE::Transform>(GE::kTransform);
-						GE::BoxCollider* objectBoxCollider = m_gameObjects.at(object)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-						GE::SphereCollider* objectSphereCollider = m_gameObjects.at(object)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
-
-
-						// AABB vs AABB test
-						if (boxCollider != NULL && objectBoxCollider != NULL)
+						m_gameObjects.at(i)->hasCollided(collision);
+						// make sure we don't test this object vs itself (I think this wouldn't make a difference but just in case)
+						if (object != i)
 						{
-							std::cout << "AABB vs AABB - Result: ";
-							collision = boxCollider->collision(*objectBoxCollider);
-							std::cout << collision << std::endl;
+							// get the components of the object we are going to test
+							GE::Transform* objectTransform = m_gameObjects.at(object)->getComponent<GE::Transform>(GE::kTransform);
+							GE::BoxCollider* objectBoxCollider = m_gameObjects.at(object)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+							GE::SphereCollider* objectSphereCollider = m_gameObjects.at(object)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
 
-							m_gameObjects.at(i)->hasCollided(collision);
-						}
 
-						// Sphere vs AABB test
-						// AABB's can only test vs Sphere so we need to work out which box collider is valid
-						if (boxCollider != NULL && objectSphereCollider != NULL)
-						{
-							std::cout << "Sphere vs AABB - Result: ";
-							collision = boxCollider->collision(*objectSphereCollider);
-							std::cout << collision << std::endl;
+							// AABB vs AABB test
+							if (boxCollider != NULL && objectBoxCollider != NULL)
+							{
+								std::cout << "AABB vs AABB - Result: ";
+								collision = boxCollider->collision(*objectBoxCollider);
+								std::cout << collision << std::endl;
 
-							m_gameObjects.at(i)->hasCollided(collision);
-						}
-						else if (sphereCollider != NULL && objectBoxCollider != NULL)
-						{
-							std::cout << "Sphere vs AABB - Result: ";
-							collision = objectBoxCollider->collision(*sphereCollider);
-							std::cout << collision << std::endl;
+								m_gameObjects.at(i)->hasCollided(collision);
+							}
 
-							m_gameObjects.at(i)->hasCollided(collision);
-						}
+							// Sphere vs AABB test
+							// AABB's can only test vs Sphere so we need to work out which box collider is valid
+							if (boxCollider != NULL && objectSphereCollider != NULL)
+							{
+								std::cout << "Sphere vs AABB - Result: ";
+								collision = boxCollider->collision(*objectSphereCollider);
+								std::cout << collision << std::endl;
 
-						// Sphere vs Sphere test
-						if (sphereCollider != NULL && objectSphereCollider != NULL)
-						{
-							std::cout << "Sphere vs Sphere - Result: ";
-							collision = objectSphereCollider->collision(*sphereCollider);
-							std::cout << collision << std::endl;
+								m_gameObjects.at(i)->hasCollided(collision);
+							}
+							else if (sphereCollider != NULL && objectBoxCollider != NULL)
+							{
+								std::cout << "Sphere vs AABB - Result: ";
+								collision = objectBoxCollider->collision(*sphereCollider);
+								std::cout << collision << std::endl;
 
-							m_gameObjects.at(i)->hasCollided(collision);
+								m_gameObjects.at(i)->hasCollided(collision);
+							}
+
+							// Sphere vs Sphere test
+							if (sphereCollider != NULL && objectSphereCollider != NULL)
+							{
+								std::cout << "Sphere vs Sphere - Result: ";
+								collision = objectSphereCollider->collision(*sphereCollider);
+								std::cout << collision << std::endl;
+
+								m_gameObjects.at(i)->hasCollided(collision);
+							}
 						}
 					}
-				}
 
-				m_gameObjects.at(i)->translate(movement);
+					m_gameObjects.at(i)->translate(movement);
+				}
 			}
+			m_gameObjects.at(i)->setInput(m_input);
+			m_gameObjects.at(i)->update(dt);
 		}
-		m_gameObjects.at(i)->setInput(m_input);
-		m_gameObjects.at(i)->update(dt);
 	}
 }
 
@@ -294,51 +298,105 @@ void Application::draw()
 		GE::BoxCollider* boxCollider;
 		GE::Transform* transform;
 		GE::Input::Mouse mousePos = m_input->getMousePosition();
-		
+
 		m_screenMouse->update(mousePos);
 		glm::vec3 mouseRay = m_screenMouse->getRay();
 		glm::vec3 cameraOrigin(m_camera->getPosition());
 
 		for (size_t object = 0; object < m_gameObjects.size(); object++)
 		{
-			transform = m_gameObjects.at(object)->getComponent<GE::Transform>(GE::kTransform);
-			boxCollider = m_gameObjects.at(object)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
-			sphereCollider = m_gameObjects.at(object)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
-
-			// based on: http://gamedev.stackexchange.com/questions/18436/most-efficient-aabb-vs-ray-collision-algorithms [accessed 06/12/2016]
-			// the direction of the ray firing from the camera to the clicked position
-			glm::vec3 rayDirection(mouseRay - cameraOrigin);
-			rayDirection = glm::normalize(rayDirection);
-
-			// test ray vs AABB otherwise vs Sphere
-			if (boxCollider != NULL)
+			if (m_gameObjects.at(object)->isActive())
 			{
-				glm::vec3 min(boxCollider->m_boundingBox.min);
-				glm::vec3 max(boxCollider->m_boundingBox.max);
+				transform = m_gameObjects.at(object)->getComponent<GE::Transform>(GE::kTransform);
+				boxCollider = m_gameObjects.at(object)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+				sphereCollider = m_gameObjects.at(object)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
 
-				// computer where the ray intersects with each plane
-				float minX = (min.x - cameraOrigin.x) / rayDirection.x;
-				float maxX = (max.x - cameraOrigin.x) / rayDirection.x;
-				float minY = (min.y - cameraOrigin.y) / rayDirection.y;
-				float maxY = (max.y - cameraOrigin.y) / rayDirection.y;
-				float minZ = (min.z - cameraOrigin.z) / rayDirection.z;
-				float maxZ = (max.z - cameraOrigin.z) / rayDirection.z;
-				bool objectHit = true;
+				// based on: http://gamedev.stackexchange.com/questions/18436/most-efficient-aabb-vs-ray-collision-algorithms [accessed 06/12/2016]
+				// the direction of the ray firing from the camera to the clicked position
+				glm::vec3 rayDirection(mouseRay - cameraOrigin);
+				rayDirection = glm::normalize(rayDirection);
 
-				// find the greatest t value
-				float tmin = glm::max(glm::max(glm::min(minX, maxX), glm::min(minY, maxY)), glm::min(minZ, minZ));
-				float tmax = glm::min(glm::min(glm::max(minX, maxX), glm::max(minY, maxY)), glm::max(minZ, minZ));
-
-				// if any ray < 0 there was an intersection but behind the camera
-				if (tmax < 0)
-					objectHit = false;
-
-				// ray didn't intersect
-				if (tmin > tmax)
-					objectHit = false;
-
-				if (objectHit)
+				// test ray vs AABB otherwise vs Sphere
+				if (boxCollider != NULL)
 				{
+					glm::vec3 min(boxCollider->m_boundingBox.min);
+					glm::vec3 max(boxCollider->m_boundingBox.max);
+
+					// computer where the ray intersects with each plane
+					float minX = (min.x - cameraOrigin.x) / rayDirection.x;
+					float maxX = (max.x - cameraOrigin.x) / rayDirection.x;
+					float minY = (min.y - cameraOrigin.y) / rayDirection.y;
+					float maxY = (max.y - cameraOrigin.y) / rayDirection.y;
+					float minZ = (min.z - cameraOrigin.z) / rayDirection.z;
+					float maxZ = (max.z - cameraOrigin.z) / rayDirection.z;
+					bool objectHit = true;
+
+					// find the greatest t value
+					float tmin = glm::max(glm::max(glm::min(minX, maxX), glm::min(minY, maxY)), glm::min(minZ, minZ));
+					float tmax = glm::min(glm::min(glm::max(minX, maxX), glm::max(minY, maxY)), glm::max(minZ, minZ));
+
+					// if any ray < 0 there was an intersection but behind the camera
+					if (tmax < 0)
+						objectHit = false;
+
+					// ray didn't intersect
+					if (tmin > tmax)
+						objectHit = false;
+
+					if (objectHit)
+					{
+						// now an object has been hit, need to do something
+						if (objectHit)
+						{
+							// find the currently selected object and change it to another object
+							for (size_t i = 0; i < m_gameObjects.size(); ++i)
+								if (m_gameObjects.at(i)->isSelected())
+								{
+									m_gameObjects.at(i)->unselected();
+									break;
+								}
+
+							m_gameObjects.at(object)->setSelected();
+							printf("selected %d \n", object);
+						}
+					}
+
+				}
+				else if (sphereCollider != NULL)
+				{
+					// based on: https://capnramses.github.io//opengl/raycasting.html [accessed 06/12/2016]
+					bool objectHit = false;
+					float sphereRadius = sphereCollider->getRadius();
+					glm::vec3 sphereCenter(sphereCollider->getCenter());
+
+					// the direction of the ray firing from the camera to the clicked position
+					glm::vec3 rayDirection(mouseRay - cameraOrigin);
+					rayDirection = glm::normalize(rayDirection);
+
+					// t is the distance from the ray origin to a point on the surface of the sphere (center + radius)
+					float t = glm::distance(glm::abs(sphereCenter + sphereRadius), cameraOrigin);
+					glm::vec3 pointOnSphere = glm::abs(cameraOrigin + rayDirection * t - sphereCenter) - sphereRadius;
+
+					float B = glm::dot(rayDirection, cameraOrigin - sphereCenter);
+					float C = glm::dot((cameraOrigin - sphereCenter), (cameraOrigin - sphereCenter)) - (sphereRadius * sphereRadius);
+
+					float result = (B*B) - C;
+					float detA = 0.0f;
+					float detB = 0.0f;
+
+					if (result == 0.0f)
+					{
+						detA = -B - glm::sqrt(result);
+						objectHit = true;
+					}
+
+					if (result > 0.0f)
+					{
+						detA = -B - glm::sqrt(result);
+						detB = -B + glm::sqrt(result);
+						objectHit = true;
+					}
+
 					// now an object has been hit, need to do something
 					if (objectHit)
 					{
@@ -354,64 +412,14 @@ void Application::draw()
 						printf("selected %d \n", object);
 					}
 				}
-
-			}
-			else if (sphereCollider != NULL)
-			{
-				// based on: https://capnramses.github.io//opengl/raycasting.html [accessed 06/12/2016]
-				bool objectHit = false;
-				float sphereRadius = sphereCollider->getRadius();
-				glm::vec3 sphereCenter(sphereCollider->getCenter());
-
-				// the direction of the ray firing from the camera to the clicked position
-				glm::vec3 rayDirection(mouseRay - cameraOrigin);
-				rayDirection = glm::normalize(rayDirection);
-
-				// t is the distance from the ray origin to a point on the surface of the sphere (center + radius)
-				float t = glm::distance(glm::abs(sphereCenter + sphereRadius), cameraOrigin);
-				glm::vec3 pointOnSphere = glm::abs(cameraOrigin + rayDirection * t - sphereCenter) - sphereRadius;
-
-				float B = glm::dot(rayDirection, cameraOrigin - sphereCenter);
-				float C = glm::dot((cameraOrigin - sphereCenter), (cameraOrigin - sphereCenter)) - (sphereRadius * sphereRadius);
-
-				float result = (B*B) - C;
-				float detA = 0.0f;
-				float detB = 0.0f;
-
-				if (result == 0.0f)
-				{
-					detA = -B - glm::sqrt(result);
-					objectHit = true;
-				}
-
-				if (result > 0.0f)
-				{
-					detA = -B - glm::sqrt(result);
-					detB = -B + glm::sqrt(result);
-					objectHit = true;
-				}
-
-				// now an object has been hit, need to do something
-				if (objectHit)
-				{
-					// find the currently selected object and change it to another object
-					for (size_t i = 0; i < m_gameObjects.size(); ++i)
-						if (m_gameObjects.at(i)->isSelected())
-						{
-							m_gameObjects.at(i)->unselected();
-							break;
-						}
-
-					m_gameObjects.at(object)->setSelected();
-					printf("selected %d \n", object);
-				}
 			}
 		}
 	}
 
 	for (size_t i = 0; i < m_gameObjects.size(); ++i)
 	{
-		m_gameObjects.at(i)->draw();
+		if (m_gameObjects.at(i)->isActive())
+			m_gameObjects.at(i)->draw();
 	}
 
 	glutSwapBuffers();

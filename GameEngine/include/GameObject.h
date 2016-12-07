@@ -93,6 +93,10 @@ namespace GE
 
 		void rotate(glm::vec3& rotate);
 
+		inline void isActive(bool state) { m_active = state; }
+
+		inline bool isActive() { return m_active; }
+
 	private:
 		std::vector<shared<Component>> m_components;
 		std::vector<shared<GameObject>> m_childern;
@@ -101,5 +105,6 @@ namespace GE
 		bool m_isSelected;
 		bool m_hasCollided;
 		bool m_hasParent;
+		bool m_active;
 	};
 };
