@@ -135,11 +135,11 @@ Application::Application()
 	boxCollider->boundToObject(m_sphereObject);
 	boxCollider->recomputeBounds(transform->getPosition());
 	boxCollider->setScreenRes(m_scrennSize);
-
-	
 	m_gameObjects.at(0)->setSelected();
 
 	m_screenMouse = mkShare<GE::Input::MouseConverter>(m_camera->getProjection(), m_camera->getView(), m_scrennSize);
+
+	m_activeLevel = 0;
 }
 
 Application::~Application()
@@ -151,9 +151,6 @@ void Application::update(float& dt)
 {
 	static float refreshDT = 0.0f;
 	refreshDT += dt;
-
-	GE::SphereCollider* sphereColliderA = m_gameObjects.at(0)->getComponent<GE::SphereCollider>(GE::kSphereCollider);;
-	GE::SphereCollider* sphereColliderB = m_gameObjects.at(1)->getComponent<GE::SphereCollider>(GE::kSphereCollider);;
 
 	// update input
 	m_input->update();
@@ -181,6 +178,219 @@ void Application::update(float& dt)
 				}
 			}
 		}
+
+		// change the active level
+		if (m_input->getKeyDown("levelA"))
+		{
+			m_activeLevel = 0;
+			system("cls");
+			std::cout << "LOADING LEVEL " << m_activeLevel << "\n";
+
+			m_gameObjects.clear();
+
+			m_gameObjects.push_back(mkShare<GE::GameObject>());
+			m_gameObjects.push_back(mkShare<GE::GameObject>());
+			m_gameObjects.push_back(mkShare<GE::GameObject>());
+			m_gameObjects.push_back(mkShare<GE::GameObject>());
+			m_gameObjects.push_back(mkShare<GE::GameObject>());
+
+			GE::Transform* transform;
+			GE::MeshRenderer* meshRenderer;
+			GE::BoxCollider* boxCollider;
+			GE::SphereCollider* sphereCollider;
+
+			// CUBE
+			transform = m_gameObjects.at(0)->getComponent<GE::Transform>(GE::kTransform);
+			transform->setScale(glm::vec3(1.0f));
+			transform->setPosition(glm::vec3(-5.0f, -2.0f, -21.0f));
+			m_gameObjects.at(0)->addComponent<GE::MeshRenderer>();
+			meshRenderer = m_gameObjects.at(0)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+			meshRenderer->setScreenRes(m_scrennSize);
+			meshRenderer->setMesh(m_cubeObject);
+			meshRenderer->setTexture(m_texture);
+			meshRenderer->setProgram(m_shaderProgram);
+			meshRenderer->setMainCamera(m_camera);
+			m_gameObjects.at(0)->addComponent<GE::BoxCollider>();
+			boxCollider = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+			boxCollider->boundToObject(m_cubeObject);
+			boxCollider->recomputeBounds(transform->getPosition());
+			boxCollider->setScreenRes(m_scrennSize);
+			m_gameObjects.at(0)->setChild(m_gameObjects.at(1));
+
+			// SPHERE
+			transform = m_gameObjects.at(1)->getComponent<GE::Transform>(GE::kTransform);
+			transform->setScale(glm::vec3(1.0f));
+			transform->setPosition(glm::vec3(-8.0f, -3.0f, -20.0f));
+			m_gameObjects.at(1)->addComponent<GE::MeshRenderer>();
+			meshRenderer = m_gameObjects.at(1)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+			meshRenderer->setScreenRes(m_scrennSize);
+			meshRenderer->setMesh(m_sphereObject);
+			meshRenderer->setTexture(m_texture);
+			meshRenderer->setProgram(m_shaderProgram);
+			meshRenderer->setMainCamera(m_camera);
+			m_gameObjects.at(1)->addComponent<GE::SphereCollider>();
+			sphereCollider = m_gameObjects.at(1)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+			sphereCollider->boundToObject(m_sphereObject);
+			sphereCollider->setCenter(transform->getPosition());
+			sphereCollider->setRadius(transform->getScale().x);
+
+			// CUBE
+			transform = m_gameObjects.at(2)->getComponent<GE::Transform>(GE::kTransform);
+			transform->setScale(glm::vec3(1.0f));
+			transform->setPosition(glm::vec3(3.0f, 0.0f, -20.0f));
+			m_gameObjects.at(2)->addComponent<GE::MeshRenderer>();
+			meshRenderer = m_gameObjects.at(2)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+			meshRenderer->setScreenRes(m_scrennSize);
+			meshRenderer->setMesh(m_cubeObject);
+			meshRenderer->setTexture(m_texture);
+			meshRenderer->setProgram(m_shaderProgram);
+			meshRenderer->setMainCamera(m_camera);
+			m_gameObjects.at(2)->addComponent<GE::BoxCollider>();
+			boxCollider = m_gameObjects.at(2)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+			boxCollider->boundToObject(m_cubeObject);
+			boxCollider->recomputeBounds(transform->getPosition());
+			boxCollider->setScreenRes(m_scrennSize);
+			m_gameObjects.at(2)->setChild(m_gameObjects.at(3));
+
+			// SPHERE
+			transform = m_gameObjects.at(3)->getComponent<GE::Transform>(GE::kTransform);
+			transform->setScale(glm::vec3(1.0f));
+			transform->setPosition(glm::vec3(4.5f, 4.50f, -20.0f));
+			m_gameObjects.at(3)->addComponent<GE::MeshRenderer>();
+			meshRenderer = m_gameObjects.at(3)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+			meshRenderer->setScreenRes(m_scrennSize);
+			meshRenderer->setMesh(m_sphereObject);
+			meshRenderer->setTexture(m_texture);
+			meshRenderer->setProgram(m_shaderProgram);
+			meshRenderer->setMainCamera(m_camera);
+			m_gameObjects.at(3)->addComponent<GE::SphereCollider>();
+			sphereCollider = m_gameObjects.at(3)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+			sphereCollider->boundToObject(m_sphereObject);
+			sphereCollider->setCenter(transform->getPosition());
+			sphereCollider->setRadius(transform->getScale().x);
+
+			// SPHERE
+			transform = m_gameObjects.at(4)->getComponent<GE::Transform>(GE::kTransform);
+			transform->setScale(glm::vec3(1.0f));
+			transform->setPosition(glm::vec3(0.0f, 0.0f, -20.0f));
+			m_gameObjects.at(4)->addComponent<GE::MeshRenderer>();
+			meshRenderer = m_gameObjects.at(4)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+			meshRenderer->setScreenRes(m_scrennSize);
+			meshRenderer->setMesh(m_sphereObject);
+			meshRenderer->setTexture(m_texture);
+			meshRenderer->setProgram(m_shaderProgram);
+			meshRenderer->setMainCamera(m_camera);
+			m_gameObjects.at(4)->addComponent<GE::BoxCollider>();
+			boxCollider = m_gameObjects.at(4)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+			boxCollider->boundToObject(m_sphereObject);
+			boxCollider->recomputeBounds(transform->getPosition());
+			boxCollider->setScreenRes(m_scrennSize);
+			m_gameObjects.at(0)->setSelected();
+
+
+			std::cout << "LOADED LEVEL " << m_activeLevel << "\n";
+		}
+		else if (m_input->getKeyDown("levelB"))
+		{
+			m_activeLevel = 1;
+			system("cls");
+			std::cout << "LOADING LEVEL " << m_activeLevel << "\n";
+
+			// delete all gameobjects and create new ones
+			m_gameObjects.clear();
+			m_gameObjects.push_back(mkShare<GE::GameObject>());
+			m_gameObjects.push_back(mkShare<GE::GameObject>());
+			m_gameObjects.push_back(mkShare<GE::GameObject>());
+			m_gameObjects.push_back(mkShare<GE::GameObject>());
+
+			GE::Transform* transform;
+			GE::MeshRenderer* meshRenderer;
+			GE::BoxCollider* boxCollider;
+			GE::SphereCollider* sphereCollider;
+
+			// CUBE
+			transform = m_gameObjects.at(0)->getComponent<GE::Transform>(GE::kTransform);
+			transform->setScale(glm::vec3(1.0f));
+			transform->setPosition(glm::vec3(-5.0f, 0.0f, -20.0f));
+			m_gameObjects.at(0)->addComponent<GE::MeshRenderer>();
+			meshRenderer = m_gameObjects.at(0)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+			meshRenderer->setScreenRes(m_scrennSize);
+			meshRenderer->setMesh(m_cubeObject);
+			meshRenderer->setTexture(m_texture);
+			meshRenderer->setProgram(m_shaderProgram);
+			meshRenderer->setMainCamera(m_camera);
+			m_gameObjects.at(0)->addComponent<GE::BoxCollider>();
+			boxCollider = m_gameObjects.at(0)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+			boxCollider->boundToObject(m_cubeObject);
+			boxCollider->recomputeBounds(transform->getPosition());
+			boxCollider->setScreenRes(m_scrennSize);
+
+			// CUBE
+			transform = m_gameObjects.at(1)->getComponent<GE::Transform>(GE::kTransform);
+			transform->setScale(glm::vec3(1.0f));
+			transform->setPosition(glm::vec3(-1.5f, 0.0f, -20.0f));
+			m_gameObjects.at(1)->addComponent<GE::MeshRenderer>();
+			meshRenderer = m_gameObjects.at(1)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+			meshRenderer->setScreenRes(m_scrennSize);
+			meshRenderer->setMesh(m_cubeObject);
+			meshRenderer->setTexture(m_texture);
+			meshRenderer->setProgram(m_shaderProgram);
+			meshRenderer->setMainCamera(m_camera);
+			m_gameObjects.at(1)->addComponent<GE::BoxCollider>();
+			boxCollider = m_gameObjects.at(1)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+			boxCollider->boundToObject(m_cubeObject);
+			boxCollider->recomputeBounds(transform->getPosition());
+			boxCollider->setScreenRes(m_scrennSize);
+			m_gameObjects.at(1)->setSelected();
+
+			// SPHERE
+			transform = m_gameObjects.at(2)->getComponent<GE::Transform>(GE::kTransform);
+			transform->setScale(glm::vec3(1.0f));
+			transform->setPosition(glm::vec3(1.5f, 0.0f, -20.0f));
+			m_gameObjects.at(2)->addComponent<GE::MeshRenderer>();
+			meshRenderer = m_gameObjects.at(2)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+			meshRenderer->setScreenRes(m_scrennSize);
+			meshRenderer->setMesh(m_sphereObject);
+			meshRenderer->setTexture(m_texture);
+			meshRenderer->setProgram(m_shaderProgram);
+			meshRenderer->setMainCamera(m_camera);
+			m_gameObjects.at(2)->addComponent<GE::SphereCollider>();
+			sphereCollider = m_gameObjects.at(2)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+			sphereCollider->boundToObject(m_sphereObject);
+			sphereCollider->setCenter(transform->getPosition());
+			sphereCollider->setRadius(transform->getScale().x);
+			
+			// SPHERE
+			transform = m_gameObjects.at(3)->getComponent<GE::Transform>(GE::kTransform);
+			transform->setScale(glm::vec3(1.0f));
+			transform->setPosition(glm::vec3(5.0f, 0.0f, -20.0f));
+			m_gameObjects.at(3)->addComponent<GE::MeshRenderer>();
+			meshRenderer = m_gameObjects.at(3)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+			meshRenderer->setScreenRes(m_scrennSize);
+			meshRenderer->setMesh(m_sphereObject);
+			meshRenderer->setTexture(m_texture);
+			meshRenderer->setProgram(m_shaderProgram);
+			meshRenderer->setMainCamera(m_camera);
+			m_gameObjects.at(3)->addComponent<GE::SphereCollider>();
+			sphereCollider = m_gameObjects.at(3)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+			sphereCollider->boundToObject(m_sphereObject);
+			sphereCollider->setCenter(transform->getPosition());
+			sphereCollider->setRadius(transform->getScale().x);
+
+			std::cout << "LOADED LEVEL " << m_activeLevel << "\n";
+		}
+		else if (m_input->getKeyDown("levelC"))
+		{
+			m_activeLevel = 2;
+			system("cls");
+			std::cout << "LOADING LEVEL " << m_activeLevel << "\n";
+
+			m_gameObjects.clear();
+
+			std::cout << "LOADED LEVEL " << m_activeLevel << "\n";
+		}
+
+
 		refreshDT = 0.0f;
 	}
 
