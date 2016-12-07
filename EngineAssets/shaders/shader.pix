@@ -12,6 +12,8 @@ uniform vec3 collisionColour = vec3(0.0, 0.0, 0.0);
 in vec2 vs_uv;
 in vec3 vs_normal;
 in vec3 vs_worldPosition;
+in mat3 vs_normalMatrix;
+
 out vec4 output_colour;
 
 void main()
@@ -26,8 +28,10 @@ void main()
   // compute the half vector
   vec3 halfVector = normalize(lightDirection + eyePosition);
 
-  float diff = max(0.0, dot(vs_normal, lightDirection));
-  float specular = max(0.0, dot(vs_normal, halfVector));
+  vec3 normal = normalize(vs_normalMatrix * vs_normal);
+
+  float diff = max(0.0, dot(normal, lightDirection));
+  float specular = max(0.0, dot(normal, halfVector));
 
   // make sure specular isn't visable somewhere we don't have any diffuse lighting
   if(diff == 0)
