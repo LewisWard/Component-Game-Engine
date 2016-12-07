@@ -188,6 +188,32 @@ namespace GE
 		program->unbind();
 	}
 
+	void MeshRenderer::setColourOnCollision(glm::vec3 colour, bool collision)
+	{
+		shared<GE::Program> program(m_shaderProgram);
+		program->bind();
+
+		if (collision)
+			program->uniform3f("collisionColour", colour.x / 255.0f, colour.y / 255.0f, colour.z / 255.0f);
+		else
+			program->uniform3f("collisionColour", 0.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f);
+
+		program->unbind();
+	}
+
+	void MeshRenderer::setColourOnSelection(glm::vec3 colour, bool selected)
+	{
+		shared<GE::Program> program(m_shaderProgram);
+		program->bind();
+
+		if (selected)
+			program->uniform3f("selectedColour", colour.x / 255.0f, colour.y / 255.0f, colour.z / 255.0f);
+		else
+			program->uniform3f("selectedColour", 0.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f);
+		
+		program->unbind();
+	}
+
 	SphereCollider::SphereCollider()
 	{
 		m_type = kSphereCollider;

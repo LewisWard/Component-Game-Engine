@@ -9,6 +9,7 @@ namespace GE
 	{
 		m_hasParent = false;
 		m_isSelected = false;
+		m_hasCollided = false;
 		addComponent<Transform>();
 	}
 
@@ -67,6 +68,11 @@ namespace GE
 				view = camera->getView();
 				projection = camera->getProjection();
 				renderer->setMVPUniforms(model);
+				
+				// if this gameobject is selected, apply a highlight colour
+				renderer->setColourOnSelection(glm::vec3(64.0f, 64.0f, 64.0f), m_isSelected);
+				renderer->setColourOnCollision(glm::vec3(128.0f, 0.0f, 0.0f), m_hasCollided);
+
 				m_components[i]->onDraw();
 			}
 

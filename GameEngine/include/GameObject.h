@@ -83,6 +83,10 @@ namespace GE
 
 		inline void unselected() { m_isSelected = false; }
 
+		inline bool hasCollided() { return m_hasCollided; }
+
+		inline void hasCollided(bool collided) { m_hasCollided = collided; }
+
 		void translate(glm::vec3& translate);
 
 		void scale(glm::vec3& scale);
@@ -95,6 +99,7 @@ namespace GE
 		weak<GE::Input::InputManager> m_input;
 		weak<GameObject> m_parent;
 		bool m_isSelected;
+		bool m_hasCollided;
 		bool m_hasParent;
 	};
 };

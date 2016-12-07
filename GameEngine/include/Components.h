@@ -91,6 +91,10 @@ namespace GE
 
 		void setMVPUniforms(glm::mat4 M);
 
+		void setColourOnSelection(glm::vec3 colour, bool collision);
+
+		void setColourOnCollision(glm::vec3 colour, bool selected);
+
 	public:
 		weak<GE::Program> m_shaderProgram;
 		weak<GE::Camera> m_mainCamera;
