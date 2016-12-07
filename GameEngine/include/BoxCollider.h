@@ -1,106 +1,124 @@
 // Author  : Lewis Ward (i7212443)
 // Program : Game Engine
-// Date    : 10/10/2016
+// Date    : 07/12/2016
 #pragma once
-#include "Texture.h"
-#include "ObjParser.h"
-#include <algorithm>
+#include "Components.h"
+#include "SphereCollider.h"
 
-namespace GEC
+namespace GE
 {
 	//----------------------------------------------------------------------------------------------------------------------
-	/// \brief  loads a obj file
+	/// \brief Box (AABB) collision detection
 	//----------------------------------------------------------------------------------------------------------------------
-	class ObjObject
+	class BoxCollider : public Component
 	{
+		friend class AABB;
 	public:
+
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  Constructor
-		/// prama		char* filename
 		//----------------------------------------------------------------------------------------------------------------------
-		ObjObject(const char* objFilename);
+		BoxCollider();
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  Destructor 
+		/// \brief  Constructor
+		/// prama glm::vec3 center
+		/// prama glm::vec3 radius
 		//----------------------------------------------------------------------------------------------------------------------
-		~ObjObject();
+		BoxCollider(glm::vec3 center, glm::vec3 size);
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  gets the model matrix
-		/// \return	math::Mat4 
+		/// \brief  Destructor
 		//----------------------------------------------------------------------------------------------------------------------
-		inline glm::mat4 getMatrix() { return m_modelMatrix; }
+		~BoxCollider();
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  sets the model matrix
-		/// prama	math::Mat4 
+		/// \brief  draw the AABB around the attached object - useful for testing
 		//----------------------------------------------------------------------------------------------------------------------
-		inline void setMatrix(glm::mat4& matrix) { m_modelMatrix = matrix; }
+		void onDraw();
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  gets the Vertex Buffer
-		/// \return	gl::VertexBuffer*
+		/// \brief  create the boundary based on the object
+		/// prama shared<GEC::ObjObject>
 		//----------------------------------------------------------------------------------------------------------------------
-		inline VertexBuffer* getVertexBuffer() { return m_vertexBuffer; }
+		void boundToObject(shared<GEC::ObjObject> obj);
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  gets the number of indices the object has
-		/// \return	int
+		/// \brief  set min
+		/// prama glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
-		inline size_t getIndicesCount() { return m_indices.size(); }
+		void setMin(glm::vec3 min) { m_boundingBox.min = min; m_boundingBox.center = ((m_boundingBox.max - m_boundingBox.min) / 2.0f) + m_boundingBox.min; };
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  gets the texture
-		/// \return gl::Texture*
+		/// \brief  set max
+		/// prama glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
-		inline Texture* getLinkedTexture() { return m_linkedTexture; }
+		void setMax(glm::vec3 max) { m_boundingBox.max = max; m_boundingBox.center = ((m_boundingBox.max - m_boundingBox.min) / 2.0f) + m_boundingBox.min; };
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  sets the texture
-		/// prama  gl::Texture*
+		/// \brief  get min
+		/// prama glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
-		inline void setLinkedTexture(Texture* texture) { m_linkedTexture = texture; }
+		inline glm::vec3 getMin() { return m_boundingBox.min; }
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  sets the position of the vertices that are the greatest distance away from the center of the model
-		/// prama  glm::vec2 X axis
-		/// prama  glm::vec2 Y axis
-		/// prama  glm::vec2 Z axis
+		/// \brief get max
+		/// prama glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
-		void getVertexRange(glm::vec2& X, glm::vec2& Y, glm::vec2& Z);
+		inline glm::vec3 getMax() { return m_boundingBox.max; }
 
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief get center
+		/// prama glm::vec3
+		//----------------------------------------------------------------------------------------------------------------------
+		inline glm::vec3 getCenter() { return m_boundingBox.center; }
+
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  check if a collision has occurred between another GE::BoxCollider
+		/// prama GE::BoxCollider
+		//----------------------------------------------------------------------------------------------------------------------
+		bool collision(BoxCollider other);
+
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  check if a collision has occurred between a GE::SphereCollider
+		/// prama GE::SphereCollider
+		//----------------------------------------------------------------------------------------------------------------------
+		bool collision(GE::SphereCollider sphere);
+
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  set radius
+		/// prama float
+		//----------------------------------------------------------------------------------------------------------------------
+		inline void setScreenRes(glm::vec2 screen) { m_screenRes = screen; }
+
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  set radius
+		/// prama float
+		//----------------------------------------------------------------------------------------------------------------------
+		void setMVPUniforms(glm::mat4 M, glm::mat4 V, glm::mat4 P);
+
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  recompute bounds after AABB has been moved
+		/// prama glm::vec3
+		//----------------------------------------------------------------------------------------------------------------------
+		void recomputeBounds(glm::vec3& newPosition);
+
+
+	public:
+		GEC::AABB m_boundingBox;
+		glm::vec2 m_screenRes;
 
 	private:
-		std::vector<vertexNormalUV> m_vertices; ///< store the vertices
-		std::vector<int> m_indices; ///< store the indices
-		glm::mat4 m_modelMatrix; ///< model matrix
-		VertexBuffer* m_vertexBuffer; ///< Vertex Buffer (VBO/IBO)
-		Texture* m_linkedTexture; ///< points to the texture that should be bound
-		const char* m_objectName; ///< objects name
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  makes a vertex buffer for the AABB
+		//----------------------------------------------------------------------------------------------------------------------
+		void makeVertexBuffer();
 
-		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief finds the two vertices on the X axis at that are the greatest distance any from the origin (local space)
-		/// prama  vertexNormalUV a
-		/// prama  vertexNormalUV b
-		/// \return  bool
-		//----------------------------------------------------------------------------------------------------------------------
-		static bool vertexCompareX(vertexNormalUV a, vertexNormalUV b) { return (a.v.x < b.v.x); }
-
-		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief finds the two vertices on the Y axis at that are the greatest distance any from the origin (local space)
-		/// prama  vertexNormalUV a
-		/// prama  vertexNormalUV b
-		/// \return  bool
-		//----------------------------------------------------------------------------------------------------------------------
-		static bool vertexCompareY(vertexNormalUV a, vertexNormalUV b) { return (a.v.y < b.v.y); }
-
-		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief finds the two vertices on the Z axis at that are the greatest distance any from the origin (local space)
-		/// prama  vertexNormalUV a
-		/// prama  vertexNormalUV b
-		/// \return  bool
-		//----------------------------------------------------------------------------------------------------------------------
-		static bool vertexCompareZ(vertexNormalUV a, vertexNormalUV b) { return (a.v.z < b.v.z); }
+		shared<GEC::VertexBuffer> m_vertexBuffer;
+		shared<GE::Program> m_shaderProgram;
+		int m_indexCount;
 	};
-}; ///< end of namespace
+};
+
+
 

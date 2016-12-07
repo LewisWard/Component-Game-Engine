@@ -43,81 +43,81 @@ float updateTimerDT(); ///< update, return delta time
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief  Uses the current Delta Time to compute the current Frames Per Second (FPS)
-/// \parma	float delta time
+/// prama	float delta time
 /// \return	FPS
 //----------------------------------------------------------------------------------------------------------------------
 float currentFPS(float& dt);
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief  When a key is pressed down
-/// \parma  unsigned char key
-/// \parma  int
-/// \parma  int
+/// prama  unsigned char key
+/// prama  int
+/// prama  int
 //----------------------------------------------------------------------------------------------------------------------
 void keyboardOnPress(unsigned char key, int, int);
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief  When a key is pressed released
-/// \parma  unsigned char key
-/// \parma  int
-/// \parma  int
+/// prama  unsigned char key
+/// prama  int
+/// prama  int
 //---------------------------------------------------------------------------------------------------------------------
 void keyboardOnRelease(unsigned char key, int, int);
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief  When a special key is pressed
-/// \parma  int key
-/// \parma  int
-/// \parma  int
+/// prama  int key
+/// prama  int
+/// prama  int
 //---------------------------------------------------------------------------------------------------------------------
 void keyboardSpecialKeys(int key, int, int);
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief  Has the key been pressed
-/// \parma  short key
+/// prama  short key
 //----------------------------------------------------------------------------------------------------------------------
 bool isKeyPressed(short key);
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief  Toggle full screen mode
-/// \parma  bool
+/// prama  bool
 //----------------------------------------------------------------------------------------------------------------------
 void toggleFullScreen(const bool& s);
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief  Handles mouse input
-/// \parma  int (GLUT_LEFT_BUTTON, GLUT_MIDDLE_BUTTON, GLUT_RIGHT_BUTTON)
-/// \parma  int (GLUT_DOWN, GLUT_UP)
-/// \parma  int mouse X position (from upper left)
-/// \parma  int mouse Y position (from upper left)
+/// prama  int (GLUT_LEFT_BUTTON, GLUT_MIDDLE_BUTTON, GLUT_RIGHT_BUTTON)
+/// prama  int (GLUT_DOWN, GLUT_UP)
+/// prama  int mouse X position (from upper left)
+/// prama  int mouse Y position (from upper left)
 //----------------------------------------------------------------------------------------------------------------------
 void mouseInput(int button, int state, int x, int y);
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief  is a mouse key pressed
-/// \parma  short (GLUT_LEFT_BUTTON, GLUT_MIDDLE_BUTTON, GLUT_RIGHT_BUTTON)
+/// prama  short (GLUT_LEFT_BUTTON, GLUT_MIDDLE_BUTTON, GLUT_RIGHT_BUTTON)
 /// \return bool
 //----------------------------------------------------------------------------------------------------------------------
 bool isMouseKeyPressed(short key);
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief  gets the mouse position
-/// \parma  int X
-/// \parma  int Y
+/// prama  int X
+/// prama  int Y
 //----------------------------------------------------------------------------------------------------------------------
 void mousePosition(int& x, int& y);
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief  gets the mouse position when a mouse button was clicked and moving
-/// \parma  int X
-/// \parma  int Y
+/// prama  int X
+/// prama  int Y
 //----------------------------------------------------------------------------------------------------------------------
 void mouseMotion(int x, int y);
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief  gets the mouse position when a mouse is just moving
-/// \parma  int X
-/// \parma  int Y
+/// prama  int X
+/// prama  int Y
 //----------------------------------------------------------------------------------------------------------------------
 void mousePassiveMotion(int x, int y);
 
@@ -129,18 +129,22 @@ bool isFullScreen();
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief  What to resize the screen to
-/// \parma  int width
-/// \parma  int height
+/// prama  int width
+/// prama  int height
 //----------------------------------------------------------------------------------------------------------------------
 void onResize(int width, int height);
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief  get the screen size
-/// \parma  int width
-/// \parma  int height
+/// prama  int width
+/// prama  int height
 //----------------------------------------------------------------------------------------------------------------------
 void getSize(int& newWidth, int& newHeight);
 
+//----------------------------------------------------------------------------------------------------------------------
+/// \brief  rename the window once it has been created
+/// prama  char* new title
+//----------------------------------------------------------------------------------------------------------------------
 inline void windowRename(const char* name) { glutSetWindowTitle(name); }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -1,71 +1,72 @@
 // Author  : Lewis Ward (i7212443)
 // Program : Game Engine
-// Date    : 26/10/2016
+// Date    : 07/12/2016
 #pragma once
-#include "Program.h"
-#include "Camera.h"
-#include "Log.h"
-#include "AABB.h"
-#include <vector>
-#include <memory>
+#include "Components.h"
 
 namespace GE
 {
-	// forward declear, see GameObject.h
-	class GameObject;
-
 	//----------------------------------------------------------------------------------------------------------------------
-	/// \brief Type of components
+	/// \brief Sphere collision detection
 	//----------------------------------------------------------------------------------------------------------------------
-	enum ComponentType
+	class SphereCollider : public Component
 	{
-		kTransform,
-		kMeshRenderer,
-		kBoxCollider,
-		kSphereCollider,
-	};
-
-	//----------------------------------------------------------------------------------------------------------------------
-	/// \brief Component base class, GE::GameObjects can have many components attached to them
-	//----------------------------------------------------------------------------------------------------------------------
-	class Component
-	{
-	friend class GameObject;
-
 	public:
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  Constructor
 		//----------------------------------------------------------------------------------------------------------------------
-		Component();
+		SphereCollider();
+
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  Constructor
+		/// prama glm::vec3 center
+		/// prama glm::vec3 radius
+		//----------------------------------------------------------------------------------------------------------------------
+		SphereCollider(glm::vec3 center, glm::vec3 radius);
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  Destructor
 		//----------------------------------------------------------------------------------------------------------------------
-		virtual ~Component();
+		~SphereCollider();
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  When the component is loaded first time
+		/// \brief  create the boundary based on the object
+		/// prama shared<GEC::ObjObject>
 		//----------------------------------------------------------------------------------------------------------------------
-		virtual void onLoad();
+		void boundToObject(shared<GEC::ObjObject> obj);
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  Update
-		/// prama		float delta time
+		/// \brief  get radius
+		/// \return float
 		//----------------------------------------------------------------------------------------------------------------------
-		virtual void onUpdate(float dt);
+		inline float getRadius() { return m_radius; }
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  Draw
+		/// \brief  get center
+		/// \return glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
-		virtual void onDraw();
+		inline glm::vec3 getCenter() { return m_center; }
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  When deleted
+		/// \brief  set radius
+		/// prama float
 		//----------------------------------------------------------------------------------------------------------------------
-		virtual void onDelete();
+		inline void setRadius(float r) { m_radius = r; }
 
-	protected:
-		GameObject* m_parent; ///< the gameobject this is attached to
-		ComponentType m_type; ///< the type of component this is
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  set center
+		/// prama glm::vec3
+		//----------------------------------------------------------------------------------------------------------------------
+		inline void setCenter(glm::vec3 c) { m_center = c; }
+
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  check if a collision has occurred between another GE::SphereCollider
+		/// prama GE::SphereCollider
+		//----------------------------------------------------------------------------------------------------------------------
+		bool collision(SphereCollider& other);
+
+	private:
+		glm::vec3 m_center;
+		float m_radius;
 	};
 };

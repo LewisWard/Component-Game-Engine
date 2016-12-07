@@ -1,106 +1,93 @@
 // Author  : Lewis Ward (i7212443)
 // Program : Game Engine
-// Date    : 10/10/2016
+// Date    : 07/12/2016
 #pragma once
-#include "Texture.h"
-#include "ObjParser.h"
-#include <algorithm>
+#include "Components.h"
 
-namespace GEC
+namespace GE
 {
 	//----------------------------------------------------------------------------------------------------------------------
-	/// \brief  loads a obj file
+	/// \brief Renders a mesh
 	//----------------------------------------------------------------------------------------------------------------------
-	class ObjObject
+	class MeshRenderer : public Component
 	{
 	public:
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  Constructor
-		/// prama		char* filename
 		//----------------------------------------------------------------------------------------------------------------------
-		ObjObject(const char* objFilename);
+		MeshRenderer();
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  Destructor 
+		/// \brief  Destructor
 		//----------------------------------------------------------------------------------------------------------------------
-		~ObjObject();
+		~MeshRenderer();
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  gets the model matrix
-		/// \return	math::Mat4 
+		/// \brief  draws mesh using attached texture, shaders etc.
 		//----------------------------------------------------------------------------------------------------------------------
-		inline glm::mat4 getMatrix() { return m_modelMatrix; }
+		void onDraw();
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  sets the model matrix
-		/// prama	math::Mat4 
+		/// \brief  draws mesh, doesn't use textures etc.
 		//----------------------------------------------------------------------------------------------------------------------
-		inline void setMatrix(glm::mat4& matrix) { m_modelMatrix = matrix; }
+		void Draw();
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  gets the Vertex Buffer
-		/// \return	gl::VertexBuffer*
+		/// \brief  attach a texture
+		/// prama shared<GEC::Texture> 
 		//----------------------------------------------------------------------------------------------------------------------
-		inline VertexBuffer* getVertexBuffer() { return m_vertexBuffer; }
+		void setTexture(shared<GEC::Texture>& texture) { m_texture = texture; }
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  gets the number of indices the object has
-		/// \return	int
+		/// \brief attach the mesh to render
+		/// prama shared<GEC::ObjObject> 
 		//----------------------------------------------------------------------------------------------------------------------
-		inline size_t getIndicesCount() { return m_indices.size(); }
+		void setMesh(shared<GEC::ObjObject>& mesh) { m_mesh = mesh; }
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  gets the texture
-		/// \return gl::Texture*
+		/// \brief  attach a shader program
+		/// prama shared<GEC::Program> 
 		//----------------------------------------------------------------------------------------------------------------------
-		inline Texture* getLinkedTexture() { return m_linkedTexture; }
+		void setProgram(shared<GE::Program>& program) { m_shaderProgram = program; }
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  sets the texture
-		/// prama  gl::Texture*
+		/// \brief  set the screen size
+		/// prama glm::vec2 
 		//----------------------------------------------------------------------------------------------------------------------
-		inline void setLinkedTexture(Texture* texture) { m_linkedTexture = texture; }
+		inline void setScreenRes(glm::vec2 screen) { m_screenRes = screen; }
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  sets the position of the vertices that are the greatest distance away from the center of the model
-		/// prama  glm::vec2 X axis
-		/// prama  glm::vec2 Y axis
-		/// prama  glm::vec2 Z axis
+		/// \brief  set the camera to use
+		/// prama shared<GE::Camera>
 		//----------------------------------------------------------------------------------------------------------------------
-		void getVertexRange(glm::vec2& X, glm::vec2& Y, glm::vec2& Z);
-
-
-	private:
-		std::vector<vertexNormalUV> m_vertices; ///< store the vertices
-		std::vector<int> m_indices; ///< store the indices
-		glm::mat4 m_modelMatrix; ///< model matrix
-		VertexBuffer* m_vertexBuffer; ///< Vertex Buffer (VBO/IBO)
-		Texture* m_linkedTexture; ///< points to the texture that should be bound
-		const char* m_objectName; ///< objects name
+		void setMainCamera(shared<GE::Camera> mainCamera) { m_mainCamera = mainCamera; }
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief finds the two vertices on the X axis at that are the greatest distance any from the origin (local space)
-		/// prama  vertexNormalUV a
-		/// prama  vertexNormalUV b
-		/// \return  bool
+		/// \brief  sets up the model, view and projection matrices for the shader uniforms
+		/// prama glm::mat4 model
 		//----------------------------------------------------------------------------------------------------------------------
-		static bool vertexCompareX(vertexNormalUV a, vertexNormalUV b) { return (a.v.x < b.v.x); }
+		void setMVPUniforms(glm::mat4 M);
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief finds the two vertices on the Y axis at that are the greatest distance any from the origin (local space)
-		/// prama  vertexNormalUV a
-		/// prama  vertexNormalUV b
-		/// \return  bool
+		/// \brief set highlighting colour if a object is selected
+		/// prama glm::vec3 colour
+		/// prama bool if the object is selected or not
 		//----------------------------------------------------------------------------------------------------------------------
-		static bool vertexCompareY(vertexNormalUV a, vertexNormalUV b) { return (a.v.y < b.v.y); }
+		void setColourOnSelection(glm::vec3 colour, bool collision);
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief finds the two vertices on the Z axis at that are the greatest distance any from the origin (local space)
-		/// prama  vertexNormalUV a
-		/// prama  vertexNormalUV b
-		/// \return  bool
+		/// \brief set highlighting colour if a object has collided with another object
+		/// prama glm::vec3 colour
+		/// prama bool if a collision was detection
 		//----------------------------------------------------------------------------------------------------------------------
-		static bool vertexCompareZ(vertexNormalUV a, vertexNormalUV b) { return (a.v.z < b.v.z); }
+		void setColourOnCollision(glm::vec3 colour, bool selected);
+
+	public:
+		weak<GE::Program> m_shaderProgram;
+		weak<GE::Camera> m_mainCamera;
+		weak<GEC::Texture> m_texture;
+		weak<GEC::ObjObject> m_mesh;
+		glm::vec2 m_screenRes;
+		bool m_usingVertexBuffer;
 	};
-}; ///< end of namespace
-
+};

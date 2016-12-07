@@ -38,10 +38,10 @@ namespace GEC
 	public:
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief Constructor, will create a glTexture.
-		/// \parma char* filename
-		/// \parma int  channels. SOIL_LOAD_AUTO | SOIL_LOAD_L | SOIL_LOAD_LA | SOIL_LOAD_RGB | SOIL_LOAD_RGBA
-		/// \parma uint32_t texture ID, SOIL_CREATE_NEW_ID to make a new texture or pass ID to replace with new texture
-		/// \parma uint32_t SOIL flags. SOIL_FLAG_POWER_OF_TWO | SOIL_FLAG_MIPMAPS | SOIL_FLAG_TEXTURE_REPEATS | 
+		/// prama char* filename
+		/// prama int  channels. SOIL_LOAD_AUTO | SOIL_LOAD_L | SOIL_LOAD_LA | SOIL_LOAD_RGB | SOIL_LOAD_RGBA
+		/// prama uint32_t texture ID, SOIL_CREATE_NEW_ID to make a new texture or pass ID to replace with new texture
+		/// prama uint32_t SOIL flags. SOIL_FLAG_POWER_OF_TWO | SOIL_FLAG_MIPMAPS | SOIL_FLAG_TEXTURE_REPEATS | 
 		///								SOIL_FLAG_MULTIPLY_ALPHA | SOIL_FLAG_INVERT_Y | SOIL_FLAG_COMPRESS_TO_DXT | 
 		///								SOIL_FLAG_DDS_LOAD_DIRECT
 		//----------------------------------------------------------------------------------------------------------------------
@@ -49,10 +49,10 @@ namespace GEC
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief Constructor, will create a glTexture.
-		/// \parma int number of textures
-		/// \parma GLenum type (i.e. GL_TEXTURE_2D)
-		/// \parma textureDesc	Texture Descriptor
-		/// \parma GLvoid* data
+		/// prama int number of textures
+		/// prama GLenum type (i.e. GL_TEXTURE_2D)
+		/// prama textureDesc	Texture Descriptor
+		/// prama GLvoid* data
 		//----------------------------------------------------------------------------------------------------------------------
 		Texture(int number, GLenum type, const textureDesc& descriptor, const GLvoid* data);
 
@@ -63,7 +63,7 @@ namespace GEC
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief Binds this texture to a slot
-		/// \parma int slot
+		/// prama int slot
 		//----------------------------------------------------------------------------------------------------------------------
 		void bind(const int& slot);
 
@@ -74,9 +74,9 @@ namespace GEC
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief Sets a texture parameter
-		/// \parma GLenum target
-		/// \parma GLenum param name
-		/// \parma int32_t param
+		/// prama GLenum target
+		/// prama GLenum param name
+		/// prama int32_t param
 		//----------------------------------------------------------------------------------------------------------------------
 		void parameteri(const GLenum& target, const GLenum& paramName, const int32_t& param);
 
@@ -90,6 +90,4 @@ namespace GEC
 		uint32_t m_id; ///< handle to the id
 		int m_count; ///< the number of texture objects
 	};
-
-
 }; ///< end of namespace

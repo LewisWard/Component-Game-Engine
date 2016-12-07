@@ -3,7 +3,9 @@
 // Date    : 26/10/2016
 #pragma once
 #include "InputManager.h"
-#include "Components.h"
+#include "Transform.h"
+#include "MeshRenderer.h"
+#include "BoxCollider.h"
 #include <algorithm>
 
 namespace GE

@@ -5,6 +5,16 @@
 
 namespace GEC
 {
+	ObjParser::ObjParser()
+	{
+
+	}
+
+	ObjParser::~ObjParser()
+	{
+
+	}
+
 	// based upon: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/ [accessed 21/11/2016]
 	bool ObjParser::load(const char* filename)
 	{

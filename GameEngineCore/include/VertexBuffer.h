@@ -55,14 +55,14 @@ namespace GEC
 	public:
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  Constructor
-		/// \parma	std::vector vertexNormalUV vertices
-		/// \parma	std::vector int indices
+		/// prama	std::vector vertexNormalUV vertices
+		/// prama	std::vector int indices
 		//----------------------------------------------------------------------------------------------------------------------
 		VertexBuffer(const std::vector<vertexNormalUV>& vertices, const std::vector<int>& indices);
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  Constructor
-		/// \parma	std::vector vertexNormalUV vertices
+		/// prama	std::vector vertexNormalUV vertices
 		//----------------------------------------------------------------------------------------------------------------------
 		VertexBuffer(const std::vector<vertexNormalUV>& vertices);
 

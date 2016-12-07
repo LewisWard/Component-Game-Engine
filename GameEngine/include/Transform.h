@@ -1,106 +1,83 @@
 // Author  : Lewis Ward (i7212443)
 // Program : Game Engine
-// Date    : 10/10/2016
+// Date    : 07/12/2016
 #pragma once
-#include "Texture.h"
-#include "ObjParser.h"
-#include <algorithm>
+#include "Components.h"
 
-namespace GEC
+namespace GE
 {
 	//----------------------------------------------------------------------------------------------------------------------
-	/// \brief  loads a obj file
+	/// \brief Stores the position, scale and rotation
 	//----------------------------------------------------------------------------------------------------------------------
-	class ObjObject
+	class Transform : public Component
 	{
 	public:
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  Constructor
-		/// prama		char* filename
 		//----------------------------------------------------------------------------------------------------------------------
-		ObjObject(const char* objFilename);
+		Transform();
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  Destructor 
+		/// \brief  Copy Constructor
 		//----------------------------------------------------------------------------------------------------------------------
-		~ObjObject();
+		Transform(const Transform& t);
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  gets the model matrix
-		/// \return	math::Mat4 
+		/// \brief  Desstructor
 		//----------------------------------------------------------------------------------------------------------------------
-		inline glm::mat4 getMatrix() { return m_modelMatrix; }
+		~Transform();
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  sets the model matrix
-		/// prama	math::Mat4 
+		/// \brief  get current position
+		/// \return	glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
-		inline void setMatrix(glm::mat4& matrix) { m_modelMatrix = matrix; }
+		inline glm::vec3 getPosition() { return m_position; }
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  gets the Vertex Buffer
-		/// \return	gl::VertexBuffer*
+		/// \brief  get current scale
+		/// \return	glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
-		inline VertexBuffer* getVertexBuffer() { return m_vertexBuffer; }
+		inline glm::vec3 getScale() { return m_scale; }
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  gets the number of indices the object has
-		/// \return	int
+		/// \brief  get current rotation
+		/// \return	glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
-		inline size_t getIndicesCount() { return m_indices.size(); }
+		inline glm::vec3 getRotation() { return m_rotation; }
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  gets the texture
-		/// \return gl::Texture*
+		/// \brief  set current position
+		/// prama		glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
-		inline Texture* getLinkedTexture() { return m_linkedTexture; }
+		inline void setPosition(glm::vec3& p) { m_position = p; }
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  sets the texture
-		/// prama  gl::Texture*
+		/// \brief  set current scale
+		/// prama		glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
-		inline void setLinkedTexture(Texture* texture) { m_linkedTexture = texture; }
+		inline void setScale(glm::vec3& s) { m_scale = s; }
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  sets the position of the vertices that are the greatest distance away from the center of the model
-		/// prama  glm::vec2 X axis
-		/// prama  glm::vec2 Y axis
-		/// prama  glm::vec2 Z axis
+		/// \brief  set current rotation
+		/// prama		glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
-		void getVertexRange(glm::vec2& X, glm::vec2& Y, glm::vec2& Z);
+		inline void setRotation(glm::vec3& r) { m_rotation = r; }
 
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  translate
+		/// prama		glm::vec3
+		//----------------------------------------------------------------------------------------------------------------------
+		inline void translate(glm::vec3& p) { m_position += p; }
+
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  creates a 4x4 matrix with current position, scale and rotation
+		/// \return	glm::mat4 
+		//----------------------------------------------------------------------------------------------------------------------
+		glm::mat4 createTransform();
 
 	private:
-		std::vector<vertexNormalUV> m_vertices; ///< store the vertices
-		std::vector<int> m_indices; ///< store the indices
-		glm::mat4 m_modelMatrix; ///< model matrix
-		VertexBuffer* m_vertexBuffer; ///< Vertex Buffer (VBO/IBO)
-		Texture* m_linkedTexture; ///< points to the texture that should be bound
-		const char* m_objectName; ///< objects name
-
-		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief finds the two vertices on the X axis at that are the greatest distance any from the origin (local space)
-		/// prama  vertexNormalUV a
-		/// prama  vertexNormalUV b
-		/// \return  bool
-		//----------------------------------------------------------------------------------------------------------------------
-		static bool vertexCompareX(vertexNormalUV a, vertexNormalUV b) { return (a.v.x < b.v.x); }
-
-		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief finds the two vertices on the Y axis at that are the greatest distance any from the origin (local space)
-		/// prama  vertexNormalUV a
-		/// prama  vertexNormalUV b
-		/// \return  bool
-		//----------------------------------------------------------------------------------------------------------------------
-		static bool vertexCompareY(vertexNormalUV a, vertexNormalUV b) { return (a.v.y < b.v.y); }
-
-		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief finds the two vertices on the Z axis at that are the greatest distance any from the origin (local space)
-		/// prama  vertexNormalUV a
-		/// prama  vertexNormalUV b
-		/// \return  bool
-		//----------------------------------------------------------------------------------------------------------------------
-		static bool vertexCompareZ(vertexNormalUV a, vertexNormalUV b) { return (a.v.z < b.v.z); }
+		glm::vec3 m_position;
+		glm::vec3 m_scale;
+		glm::vec3 m_rotation;
 	};
-}; ///< end of namespace
-
+};
