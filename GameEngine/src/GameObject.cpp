@@ -24,9 +24,9 @@ namespace GE
 		glm::mat4 model;
 		shared<GE::Input::InputManager> input(m_input);
 
-		Transform* trs = getComponent<GE::Transform>(GE::kTransform);
-		GE::BoxCollider* boxCollider = getComponent<GE::BoxCollider>(GE::kBoxCollider);
-		GE::SphereCollider* sphereCollider = getComponent<GE::SphereCollider>(GE::kSphereCollider);
+		shared<GE::Transform> trs = getComponentShared<GE::Transform>(GE::kTransform);
+		shared<GE::BoxCollider> boxCollider = getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
+		shared<GE::SphereCollider> sphereCollider = getComponentShared<GE::SphereCollider>(GE::kSphereCollider);
 
 		//m_components[i]->onUpdate(dt);
 
@@ -58,13 +58,13 @@ namespace GE
 		{
 			if (kTransform == m_components.at(i).get()->m_type)
 			{
-				Transform* trs = dynamic_cast<Transform*>(m_components.at(i).get());
+				shared<GE::Transform> trs = getComponentShared<GE::Transform>(kTransform);
 				model = trs->createTransform();
 			}
 
 			if (kMeshRenderer == m_components.at(i).get()->m_type)
 			{
-				MeshRenderer* renderer = dynamic_cast<MeshRenderer*>(m_components.at(i).get());
+				shared<GE::MeshRenderer> renderer = getComponentShared<GE::MeshRenderer>(kMeshRenderer);
 				shared<GE::Camera> camera(renderer->m_mainCamera);
 				view = camera->getView();
 				projection = camera->getProjection();
@@ -79,7 +79,7 @@ namespace GE
 
 			if (kBoxCollider == m_components.at(i).get()->m_type)
 			{
-				BoxCollider* collider = dynamic_cast<BoxCollider*>(m_components.at(i).get());
+				shared<GE::BoxCollider> collider = getComponentShared<GE::BoxCollider>(kBoxCollider);
 				collider->setMVPUniforms(model, view, projection);
 				m_components[i]->onDraw();
 			}
@@ -118,7 +118,7 @@ namespace GE
 	void GameObject::translate(glm::vec3& translate)
 	{
 		// get the transform and update it
-		GE::Transform* transform = getComponent<GE::Transform>(GE::kTransform);
+		shared<GE::Transform> transform = getComponentShared<GE::Transform>(GE::kTransform);
 		transform->translate(translate);
 
 		// if there are childern update them too
@@ -131,7 +131,7 @@ namespace GE
 	void GameObject::scale(glm::vec3& scale)
 	{
 		// get the transform and update it
-		GE::Transform* transform = getComponent<GE::Transform>(GE::kTransform);
+		shared<GE::Transform> transform = getComponentShared<GE::Transform>(GE::kTransform);
 		transform->setScale(scale);
 
 		// if there are childern update them too
@@ -144,7 +144,7 @@ namespace GE
 	void GameObject::rotate(glm::vec3& rotate)
 	{
 		// get the transform and update it
-		GE::Transform* transform = getComponent<GE::Transform>(GE::kTransform);
+		shared<GE::Transform> transform = getComponentShared<GE::Transform>(GE::kTransform);
 		transform->setRotation(rotate);
 
 		// if there are childern update them too

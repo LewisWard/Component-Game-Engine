@@ -19,6 +19,22 @@ namespace GE
 		void draw();
 
 		template <class T>
+		shared<T> getComponentShared(ComponentType type)
+		{
+			for (size_t i = 0; i < m_components.size(); i++)
+			{
+				if (type == m_components.at(i).get()->m_type)
+				{
+
+					return std::dynamic_pointer_cast<T>(m_components.at(i));
+				}
+			}
+
+			// it failed
+			return NULL;
+		}
+
+		template <class T>
 		T* getComponent(ComponentType type)
 		{
 			for (size_t i = 0; i < m_components.size(); i++)
