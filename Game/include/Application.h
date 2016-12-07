@@ -17,7 +17,7 @@ public:
 private:
 	std::vector<shared<GE::GameObject>> m_gameObjects;
 	shared<GEC::Texture> m_texture;
-	shared<GEC::ObjObject> m_planeObject;
+	shared<GEC::ObjObject> m_cubeObject;
 	shared<GEC::ObjObject> m_sphereObject;
 	shared<GE::Program> m_shaderProgram;
 	shared<GE::Program> m_shaderProgramCollision;

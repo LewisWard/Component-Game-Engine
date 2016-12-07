@@ -58,10 +58,10 @@ namespace GE
 	{
 		glm::mat4 m;
 		m = glm::scale(m, m_scale);
-		m = glm::translate(m, m_position);
 		m = glm::rotate(m, m_rotation.x, glm::vec3(1, 0, 0));
 		m = glm::rotate(m, m_rotation.y, glm::vec3(0, 1, 0));
 		m = glm::rotate(m, m_rotation.z, glm::vec3(0, 0, 1));
+		m = glm::translate(m, m_position);
 		m[3][3] = 1.0f;
 		return m;
 	}
