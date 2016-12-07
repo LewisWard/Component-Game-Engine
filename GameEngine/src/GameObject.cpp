@@ -107,4 +107,43 @@ namespace GE
 		m_parent.reset();
 		m_hasParent = false;
 	}
+
+	void GameObject::translate(glm::vec3& translate)
+	{
+		// get the transform and update it
+		GE::Transform* transform = getComponent<GE::Transform>(GE::kTransform);
+		transform->translate(translate);
+
+		// if there are childern update them too
+		size_t childCount = m_childern.size();
+		if (childCount)
+			for (size_t i = 0; i < childCount; i++)
+				m_childern.at(i)->translate(translate);
+	}
+
+	void GameObject::scale(glm::vec3& scale)
+	{
+		// get the transform and update it
+		GE::Transform* transform = getComponent<GE::Transform>(GE::kTransform);
+		transform->setScale(scale);
+
+		// if there are childern update them too
+		size_t childCount = m_childern.size();
+		if (childCount)
+			for (size_t i = 0; i < childCount; i++)
+				m_childern.at(i)->scale(scale);
+	}
+
+	void GameObject::rotate(glm::vec3& rotate)
+	{
+		// get the transform and update it
+		GE::Transform* transform = getComponent<GE::Transform>(GE::kTransform);
+		transform->setRotation(rotate);
+
+		// if there are childern update them too
+		size_t childCount = m_childern.size();
+		if (childCount)
+			for (size_t i = 0; i < childCount; i++)
+				m_childern.at(i)->rotate(rotate);
+	}
 };

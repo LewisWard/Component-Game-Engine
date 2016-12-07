@@ -67,24 +67,7 @@ namespace GEC
 		/// \parma  glm::vec2 Y axis
 		/// \parma  glm::vec2 Z axis
 		//----------------------------------------------------------------------------------------------------------------------
-		void getVertexRange(glm::vec2& X, glm::vec2& Y, glm::vec2& Z)
-		{
-			std::vector<vertexNormalUV>::iterator result, resultmax;
-			result = std::min_element(m_vertices.begin(), m_vertices.end(), vertexCompareX);
-			resultmax = std::max_element(m_vertices.begin(), m_vertices.end(), vertexCompareX);
-			X.x = result->v.x;
-			X.y = resultmax->v.x;
-
-			result = std::min_element(m_vertices.begin(), m_vertices.end(), vertexCompareY);
-			resultmax = std::max_element(m_vertices.begin(), m_vertices.end(), vertexCompareY);
-			Y.x = result->v.y;
-			Y.y = resultmax->v.y;
-
-			result = std::min_element(m_vertices.begin(), m_vertices.end(), vertexCompareZ);
-			resultmax = std::max_element(m_vertices.begin(), m_vertices.end(), vertexCompareZ);
-			Z.x = result->v.z;
-			Z.y = resultmax->v.z;
-		}
+		void getVertexRange(glm::vec2& X, glm::vec2& Y, glm::vec2& Z);
 
 
 	private:
@@ -95,20 +78,11 @@ namespace GEC
 		VertexBuffer* m_vertexBuffer; ///< Vertex Buffer (VBO/IBO)
 		Texture* m_linkedTexture; ///< points to the texture that should be bound
 
-		static bool vertexCompareX(vertexNormalUV a, vertexNormalUV b)
-		{
-			return (a.v.x < b.v.x);
-		}
+		static bool vertexCompareX(vertexNormalUV a, vertexNormalUV b) { return (a.v.x < b.v.x); }
 
-		static bool vertexCompareY(vertexNormalUV a, vertexNormalUV b)
-		{
-			return (a.v.y < b.v.y);
-		}
+		static bool vertexCompareY(vertexNormalUV a, vertexNormalUV b) { return (a.v.y < b.v.y); }
 
-		static bool vertexCompareZ(vertexNormalUV a, vertexNormalUV b)
-		{
-			return (a.v.z < b.v.z);
-		}
+		static bool vertexCompareZ(vertexNormalUV a, vertexNormalUV b) { return (a.v.z < b.v.z); }
 	};
 }; ///< end of namespace
 

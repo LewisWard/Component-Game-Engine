@@ -42,3 +42,22 @@ GEC::ObjObject::~ObjObject()
 	m_vertices.clear();
 	m_indices.clear();
 }
+
+void GEC::ObjObject::getVertexRange(glm::vec2& X, glm::vec2& Y, glm::vec2& Z)
+{
+	std::vector<vertexNormalUV>::iterator result, resultmax;
+	result = std::min_element(m_vertices.begin(), m_vertices.end(), vertexCompareX);
+	resultmax = std::max_element(m_vertices.begin(), m_vertices.end(), vertexCompareX);
+	X.x = result->v.x;
+	X.y = resultmax->v.x;
+
+	result = std::min_element(m_vertices.begin(), m_vertices.end(), vertexCompareY);
+	resultmax = std::max_element(m_vertices.begin(), m_vertices.end(), vertexCompareY);
+	Y.x = result->v.y;
+	Y.y = resultmax->v.y;
+
+	result = std::min_element(m_vertices.begin(), m_vertices.end(), vertexCompareZ);
+	resultmax = std::max_element(m_vertices.begin(), m_vertices.end(), vertexCompareZ);
+	Z.x = result->v.z;
+	Z.y = resultmax->v.z;
+}

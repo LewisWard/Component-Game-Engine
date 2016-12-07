@@ -368,5 +368,53 @@ namespace GE
 			return 1;
 		}
 
+
+
+		MouseConverter::MouseConverter(glm::mat4 projection, glm::mat4 view, glm::vec2 screen)
+		{
+			m_viewMatrix = view;
+			m_projectionMatrix = projection;
+			m_screenSize = screen;
+		}
+
+		MouseConverter::~MouseConverter()
+		{
+
+		}
+
+		void MouseConverter::update(GE::Input::Mouse mouse)
+		{
+			m_currentRay = calculateMouseRay((float)mouse.x, (float)mouse.y);
+		}
+
+		glm::vec3 MouseConverter::calculateMouseRay(float mouseX, float mouseY)
+		{
+			glm::vec2 normalisedCoords = getNormalDeviceCoords(mouseX, mouseY);
+			glm::vec4 clipCoords(normalisedCoords.x, normalisedCoords.y, -1.0f, 1.0f);
+			glm::vec4 eyeCoords = toEyeCoords(clipCoords);
+			glm::vec3 worldRay = toWorldCoords(eyeCoords);
+
+			return worldRay;
+		}
+
+		glm::vec3 MouseConverter::toWorldCoords(glm::vec4 eyeCoords)
+		{
+			glm::vec4 inversed(glm::inverse(m_viewMatrix) * eyeCoords);
+			glm::vec3 mouseRay(inversed.x, inversed.y, inversed.z);
+			return glm::normalize(mouseRay);
+		}
+
+		glm::vec4 MouseConverter::toEyeCoords(glm::vec4 clipCoords)
+		{
+			glm::vec4 inversed(glm::inverse(m_projectionMatrix) * clipCoords);
+			return glm::vec4(inversed.x, inversed.y, -1.0f, 0.0f);
+		}
+
+		glm::vec2 MouseConverter::getNormalDeviceCoords(float mouseX, float mouseY)
+		{
+			float clipX = (2.0f * mouseX) / m_screenSize.x - 1.0;
+			float clipY = (2.0f * mouseY) / m_screenSize.y - 1.0;
+			return glm::vec2(clipX, -clipY);
+		}
 	};
 };
