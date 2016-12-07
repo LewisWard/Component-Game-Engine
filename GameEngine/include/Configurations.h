@@ -5,6 +5,7 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include "Texture.h"
 
 /*
 ---------------------------------------------------------------------
@@ -19,18 +20,32 @@ string									- texture file from EngineAssets directory (i.e. textures/grid.pn
 string									- model file from EngineAssets directory (i.e. models/sphere.obj)
 string									- shader file from EngineAssets directory (i.e. shaders/shader.vrt)
 float float float float - GameObject[0] positionX, positionY, positionZ, scale
-int int int							- GameObject[0] textureID, ModelID, TextureID (ID based on order in this file)
+int int int	int					- GameObject[0] textureID, ModelID, vertexShaderID, fragmentShaderID (ID based on order in this file)
 bool bool								- GameObject[0] if true use a collider, if true use Sphere Collider - default Box Collider
 ...
-... GameObject[n]				- List all GameObject positions
+... GameObject[n]				- List all GameObject 
 */
+
+struct gameObjectData
+{
+	glm::vec3 position;
+	float scale;
+	int fragmentShaderID;
+	int vertexShaderID;
+	int textureID;
+	int modelID;
+	bool hasCollider;
+	bool sphereCollider;
+};
 
 struct gameINI
 {
+	std::vector<gameObjectData> gameObjects;
 	std::vector<std::string> texturePaths;
 	std::vector<std::string> shaderPaths;
 	std::vector<std::string> modelPaths;
 	std::string windowTitle;
+	int gameObjectCount;
 	int textureCount;
 	int shaderCount;
 	int modelCount;

@@ -6,8 +6,7 @@
 
 Application::Application()
 {
-	Configurations config;
-	config.readINIFile(ENGINEASSETS"game.ini");
+	m_config.readINIFile(ENGINEASSETS"game.ini");
 	std::string assetPath(ENGINEASSETS);
 
 	m_input = mkShare<GE::Input::InputManager>();
@@ -16,12 +15,11 @@ Application::Application()
 	m_scrennSize.y = RES_LOW_Y;
 	onResize((int)m_scrennSize.x, (int)m_scrennSize.y);
 	glViewport(0, 0, (int)m_scrennSize.x, (int)m_scrennSize.y);
-	windowRename(std::string(config.data.windowTitle).c_str());
+	windowRename(std::string(m_config.data.windowTitle).c_str());
 
-
-	m_texture = mkShare<GEC::Texture>(std::string(assetPath + config.data.texturePaths[0]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
-	m_sphereObject = mkShare<GEC::ObjObject>(std::string(assetPath + config.data.modelPaths[0]).c_str());
-	m_cubeObject = mkShare<GEC::ObjObject>(std::string(assetPath + config.data.modelPaths[1]).c_str());
+	m_texture = mkShare<GEC::Texture>(std::string(assetPath + m_config.data.texturePaths[0]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
+	m_sphereObject = mkShare<GEC::ObjObject>(std::string(assetPath + m_config.data.modelPaths[0]).c_str());
+	m_cubeObject = mkShare<GEC::ObjObject>(std::string(assetPath + m_config.data.modelPaths[1]).c_str());
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -30,8 +28,8 @@ Application::Application()
 
 	m_camera = mkShare<GE::Camera>(glm::vec3(0, 0, 0), glm::vec3(0, 0, -1.0f), m_scrennSize, 45.0f, 0.1f, 100.0f);
 
-	GE::Shader vertexShader(std::string(assetPath + config.data.shaderPaths[0]).c_str(), kVertexShader);
-	GE::Shader pixelShader(std::string(assetPath + config.data.shaderPaths[1]).c_str(), kPixelShader);
+	GE::Shader vertexShader(std::string(assetPath + m_config.data.shaderPaths[0]).c_str(), kVertexShader);
+	GE::Shader pixelShader(std::string(assetPath + m_config.data.shaderPaths[1]).c_str(), kPixelShader);
 	m_shaderProgram = mkShare<GE::Program>(vertexShader, pixelShader);
 
 	GE::Shader vertexShader2(std::string(assetPath + "shaders/collisionWireframe.vrt").c_str(), kVertexShader);
@@ -139,6 +137,8 @@ Application::Application()
 
 	m_screenMouse = mkShare<GE::Input::MouseConverter>(m_camera->getProjection(), m_camera->getView(), m_scrennSize);
 
+	// level 0 and level 1 are demo levels. Level 2 is the user defined level that uses the gameobjects listed
+	// in the game.ini
 	m_activeLevel = 0;
 }
 
@@ -287,7 +287,6 @@ void Application::update(float& dt)
 			boxCollider->setScreenRes(m_scrennSize);
 			m_gameObjects.at(0)->setSelected();
 
-
 			std::cout << "LOADED LEVEL " << m_activeLevel << "\n";
 		}
 		else if (m_input->getKeyDown("levelB"))
@@ -385,7 +384,79 @@ void Application::update(float& dt)
 			system("cls");
 			std::cout << "LOADING LEVEL " << m_activeLevel << "\n";
 
+			GE::Transform* transform;
+			GE::MeshRenderer* meshRenderer;
+			GE::BoxCollider* boxCollider;
+			GE::SphereCollider* sphereCollider;
+
 			m_gameObjects.clear();
+			std::string assetPath(ENGINEASSETS);
+
+			for (size_t i = 0; i < m_config.data.gameObjectCount; i++)
+			{
+				m_gameObjects.push_back(mkShare<GE::GameObject>());
+
+				transform = m_gameObjects.at(i)->getComponent<GE::Transform>(GE::kTransform);
+				transform->setScale(glm::vec3(m_config.data.gameObjects[i].scale));
+				transform->setPosition(m_config.data.gameObjects[i].position);
+				m_gameObjects.at(i)->addComponent<GE::MeshRenderer>();
+				meshRenderer = m_gameObjects.at(i)->getComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+				meshRenderer->setScreenRes(m_scrennSize);
+				meshRenderer->setMainCamera(m_camera);
+
+				if (m_config.data.gameObjects[i].hasCollider)
+				{
+					if (m_config.data.gameObjects[i].sphereCollider == false)
+					{
+						m_gameObjects.at(i)->addComponent<GE::BoxCollider>();
+						boxCollider = m_gameObjects.at(i)->getComponent<GE::BoxCollider>(GE::kBoxCollider);
+						boxCollider->recomputeBounds(transform->getPosition());
+						boxCollider->setScreenRes(m_scrennSize);
+
+						// changes depending on what the user defined in the config file
+						if (m_config.data.gameObjects[i].modelID == 0)
+						{
+							meshRenderer->setMesh(m_sphereObject);
+							boxCollider->boundToObject(m_sphereObject);
+						}
+						else
+						{
+							meshRenderer->setMesh(m_cubeObject);
+							boxCollider->boundToObject(m_cubeObject);
+						}
+					}
+					else
+					{
+						m_gameObjects.at(i)->addComponent<GE::SphereCollider>();
+						sphereCollider = m_gameObjects.at(i)->getComponent<GE::SphereCollider>(GE::kSphereCollider);
+
+						// changes depending on what the user defined in the config file
+						if (m_config.data.gameObjects[i].modelID == 0)
+						{
+							meshRenderer->setMesh(m_sphereObject);
+							sphereCollider->boundToObject(m_sphereObject);
+						}
+						else
+						{
+							meshRenderer->setMesh(m_cubeObject);
+							sphereCollider->boundToObject(m_cubeObject);
+						}
+
+						sphereCollider->setCenter(transform->getPosition());
+						sphereCollider->setRadius(transform->getScale().x);
+					}
+				}
+
+				if (m_config.data.gameObjects[i].textureID == 0)
+					meshRenderer->setTexture(m_texture);
+
+				if (m_config.data.gameObjects[i].vertexShaderID == 0 && m_config.data.gameObjects[i].fragmentShaderID == 1)
+					meshRenderer->setProgram(m_shaderProgram);
+			}
+
+			// in case there was a user error with game.ini
+			if(m_gameObjects.size())
+				m_gameObjects.at(0)->setSelected();
 
 			std::cout << "LOADED LEVEL " << m_activeLevel << "\n";
 		}
@@ -656,8 +727,7 @@ void Application::update(float& dt)
 			}
 
 
-			// active gameobject general update (doesn't have to be selected
-
+			// active gameobject general update (doesn't have to be selected)
 			m_gameObjects.at(i)->setInput(m_input);
 			m_gameObjects.at(i)->update(dt);
 		}

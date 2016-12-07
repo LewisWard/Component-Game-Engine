@@ -24,6 +24,7 @@ private:
 	shared<GE::Input::InputManager> m_input;
 	shared<GE::Input::MouseConverter> m_screenMouse;
 	shared<GE::Camera> m_camera;
+	Configurations m_config;
 	glm::vec2 m_scrennSize;
 	int m_activeLevel;
 };
