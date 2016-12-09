@@ -7,7 +7,7 @@ namespace GE
 {
 	Component::Component()
 	{
-
+		m_parent = nullptr;
 	}
 
 	Component::~Component()

@@ -113,7 +113,7 @@ namespace GE
 		/// \brief  set if this gameobject will have a child gameobject (can have more then one)
 		/// prama		shared<GE::GameObject>
 		//----------------------------------------------------------------------------------------------------------------------
-		inline void setChild(shared<GE::GameObject> GameObject) { m_childern.push_back(GameObject); }
+		void setChild(shared<GE::GameObject> GameObject);
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  does it have childern GameObjects

@@ -103,6 +103,12 @@ namespace GE
 		m_components.clear();
 	}
 
+	void GameObject::setChild(shared<GE::GameObject> GameObject)
+	{
+		m_childern.push_back(GameObject);
+		m_childern.at(m_childern.size() - 1)->setParent(*this);
+	}
+
 	void GameObject::setParent(GameObject Go)
 	{
 		m_parent = mkShare<GameObject>(Go);
