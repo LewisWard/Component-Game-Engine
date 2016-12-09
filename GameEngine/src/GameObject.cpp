@@ -28,8 +28,6 @@ namespace GE
 		shared<GE::BoxCollider> boxCollider = getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
 		shared<GE::SphereCollider> sphereCollider = getComponentShared<GE::SphereCollider>(GE::kSphereCollider);
 
-		//m_components[i]->onUpdate(dt);
-
 		if (trs != NULL)
 		{
 			model = trs->createTransform();
@@ -48,8 +46,6 @@ namespace GE
 
 	void GameObject::draw()
 	{
-		// transform and meshrenderer components provide these for other components to use
-		// TODO: improved checking on component order, so we don't access a NULL ptr
 		glm::mat4 model;
 		glm::mat4 view;
 		glm::mat4 projection;
