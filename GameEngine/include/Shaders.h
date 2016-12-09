@@ -19,6 +19,7 @@ enum kShaderType
 
 namespace GE
 {
+	// this function is based on the function I wrote for PGAG assignment 2 in Level I
 	//----------------------------------------------------------------------------------------------------------------------
 	/// \brief  gets OpenGL error
 	/// prama		tag to print with error message
