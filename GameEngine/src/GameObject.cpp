@@ -159,6 +159,7 @@ namespace GE
 				glm::mat4 tmp = childTransform->createTransform();
 				glm::mat4 result;
 
+				// which axis to rotate on
 				if (rotate.x)
 				{
 					result += glm::translate(-pivot) *
@@ -178,9 +179,46 @@ namespace GE
 						glm::translate(pivot);
 				}
 
-
 				glm::vec3 finalPos = result[3];
 				childTransform->setPosition(finalPos);
+
+				// do this child's children if it has any
+				if (m_childern.at(i)->hasChildern())
+				{
+					size_t childCountR = m_childern.at(i)->m_childern.size();
+					shared<GE::Transform> transformR = getComponentShared<GE::Transform>(GE::kTransform);
+				
+					for (size_t ii = 0; ii < childCountR; ii++)
+					{
+						shared<GE::Transform> childTransformR = m_childern.at(i)->m_childern.at(ii)->getComponentShared<GE::Transform>(GE::kTransform);
+						glm::vec3 pivot = childTransformR->getPosition() - transformR->getPosition();
+						glm::mat4 tmp = childTransformR->createTransform();
+						glm::mat4 result;
+				
+						// which axis to rotate on
+						if (rotate.x)
+						{
+							result += glm::translate(-pivot) *
+								glm::rotate(tmp, glm::radians(rotate.x), glm::vec3(1, 0, 0)) *
+								glm::translate(pivot);
+						}
+						if (rotate.y)
+						{
+							result += glm::translate(-pivot) *
+								glm::rotate(tmp, glm::radians(rotate.y), glm::vec3(0, 1, 0)) *
+								glm::translate(pivot);
+						}
+						if (rotate.z)
+						{
+							result += glm::translate(-pivot) *
+								glm::rotate(tmp, glm::radians(rotate.z), glm::vec3(0, 0, 1)) *
+								glm::translate(pivot);
+						}
+				
+						glm::vec3 finalPos = result[3];
+						childTransformR->setPosition(finalPos);
+					}
+				}
 			}
 	}
 };

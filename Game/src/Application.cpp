@@ -240,7 +240,7 @@ void Application::update(float& dt)
 			// SPHERE
 			transform = m_gameObjects.at(1)->getComponentShared<GE::Transform>(GE::kTransform);
 			transform->setScale(glm::vec3(1.0f));
-			transform->setPosition(glm::vec3(-8.0f, -3.0f, -20.0f));
+			transform->setPosition(glm::vec3(-8.0f, 0.0f, -20.0f));
 			m_gameObjects.at(1)->addComponent<GE::MeshRenderer>();
 			meshRenderer = m_gameObjects.at(1)->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 			meshRenderer->setScreenRes(m_scrennSize);
@@ -258,7 +258,7 @@ void Application::update(float& dt)
 			// SPHERE
 			transform = m_gameObjects.at(2)->getComponentShared<GE::Transform>(GE::kTransform);
 			transform->setScale(glm::vec3(1.0f));
-			transform->setPosition(glm::vec3(-8.0f, 3.0f, -20.0f));
+			transform->setPosition(glm::vec3(-10.0f, 3.0f, -20.0f));
 			m_gameObjects.at(2)->addComponent<GE::MeshRenderer>();
 			meshRenderer = m_gameObjects.at(2)->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 			meshRenderer->setScreenRes(m_scrennSize);
@@ -754,7 +754,6 @@ void Application::update(float& dt)
 				}
 			}
 
-
 			// active gameobject general update (doesn't have to be selected)
 			if (m_activeLevel == 0)
 			{
@@ -763,7 +762,6 @@ void Application::update(float& dt)
 				rotation.y = 7.0f * dt;
 				m_gameObjects.at(1)->rotate(rotation);
 			}
-
 
 			m_gameObjects.at(i)->setInput(m_input);
 			m_gameObjects.at(i)->update(dt);
