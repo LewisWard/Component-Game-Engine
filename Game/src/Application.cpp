@@ -18,8 +18,12 @@ Application::Application()
 	windowRename(std::string(m_config.data.windowTitle).c_str());
 
 	m_texture = mkShare<GEC::Texture>(std::string(assetPath + m_config.data.texturePaths[0]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
+	m_worldTexture = mkShare<GEC::Texture>(std::string(assetPath + m_config.data.texturePaths[1]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
+	m_moonTexture = mkShare<GEC::Texture>(std::string(assetPath + m_config.data.texturePaths[2]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
 	m_sphereObject = mkShare<GEC::ObjObject>(std::string(assetPath + m_config.data.modelPaths[0]).c_str());
 	m_cubeObject = mkShare<GEC::ObjObject>(std::string(assetPath + m_config.data.modelPaths[1]).c_str());
+	m_worldObject = mkShare<GEC::ObjObject>(std::string(assetPath + m_config.data.modelPaths[2]).c_str());
+	m_moonObject = mkShare<GEC::ObjObject>(std::string(assetPath + m_config.data.modelPaths[3]).c_str());
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -443,10 +447,19 @@ void Application::update(float& dt)
 				meshRenderer->setMainCamera(m_camera);
 
 				// changes depending on what the user defined in the config file
-				if (m_config.data.gameObjects[i].modelID == 0)
-					meshRenderer->setMesh(m_sphereObject);
-				else
-					meshRenderer->setMesh(m_cubeObject);
+				switch (m_config.data.gameObjects[i].modelID)
+				{
+				case 0: meshRenderer->setMesh(m_sphereObject);
+					break;
+				case 1: meshRenderer->setMesh(m_cubeObject);
+					break;
+				case 2: meshRenderer->setMesh(m_worldObject);
+					break;
+				case 3: meshRenderer->setMesh(m_moonObject);
+					break;
+				default: meshRenderer->setMesh(m_sphereObject);
+					break;
+				}
 
 
 				if (m_config.data.gameObjects[i].hasCollider)
@@ -459,10 +472,20 @@ void Application::update(float& dt)
 						boxCollider->setScreenRes(m_scrennSize);
 
 						// changes depending on what the user defined in the config file
-						if (m_config.data.gameObjects[i].modelID == 0)
-							boxCollider->boundToObject(m_sphereObject);
-						else
-							boxCollider->boundToObject(m_cubeObject);
+						switch (m_config.data.gameObjects[i].modelID)
+						{
+						case 0: boxCollider->boundToObject(m_sphereObject);
+							break;
+						case 1: boxCollider->boundToObject(m_cubeObject);
+							break;
+						case 2: boxCollider->boundToObject(m_worldObject);
+							break;
+						case 3: boxCollider->boundToObject(m_moonObject);
+							break;
+						default: boxCollider->boundToObject(m_sphereObject);
+							break;
+						}
+
 					}
 					else
 					{
@@ -470,26 +493,46 @@ void Application::update(float& dt)
 						sphereCollider = m_gameObjects.at(i)->getComponentShared<GE::SphereCollider>(GE::kSphereCollider);
 
 						// changes depending on what the user defined in the config file
-						if (m_config.data.gameObjects[i].modelID == 0)
-							sphereCollider->boundToObject(m_sphereObject);
-						else
-							sphereCollider->boundToObject(m_cubeObject);
+						switch (m_config.data.gameObjects[i].modelID)
+						{
+						case 0: sphereCollider->boundToObject(m_sphereObject);
+							break;
+						case 1: sphereCollider->boundToObject(m_cubeObject);
+							break;
+						case 2: sphereCollider->boundToObject(m_worldObject);
+							break;
+						case 3: sphereCollider->boundToObject(m_moonObject);
+							break;
+						default: sphereCollider->boundToObject(m_sphereObject);
+							break;
+						}
 
 						sphereCollider->setCenter(transform->getPosition());
 						sphereCollider->setRadius(transform->getScale().x);
 					}
 				}
 
-				if (m_config.data.gameObjects[i].textureID == 0)
-					meshRenderer->setTexture(m_texture);
+				// which texture to use
+				switch (m_config.data.gameObjects[i].textureID)
+				{
+				case 0: meshRenderer->setTexture(m_texture);
+					break;
+				case 1: meshRenderer->setTexture(m_worldTexture);
+					break;
+				case 2: meshRenderer->setTexture(m_moonTexture);
+					break;
+				default: meshRenderer->setTexture(m_texture);
+					break;
+				}
 
 				if (m_config.data.gameObjects[i].vertexShaderID == 0 && m_config.data.gameObjects[i].fragmentShaderID == 1)
 					meshRenderer->setProgram(m_shaderProgram);
 			}
 
-			// in case there was a user error with game.ini
-			if(m_gameObjects.size())
-				m_gameObjects.at(0)->setSelected();
+			// code for demo
+			m_gameObjects.at(2)->setSelected(); ///< cube with no colliders
+			m_gameObjects.at(0)->setChild(m_gameObjects.at(1));
+			m_gameObjects.at(2)->setSelected(); 
 
 			std::cout << "LOADED LEVEL " << m_activeLevel << "\n";
 		}
@@ -761,6 +804,18 @@ void Application::update(float& dt)
 				glm::vec3 rotation(transform->getRotation());
 				rotation.y = 7.0f * dt;
 				m_gameObjects.at(1)->rotate(rotation);
+			}
+			else if (m_activeLevel == 2)
+			{
+				shared<GE::Transform> transform = m_gameObjects.at(0)->getComponentShared<GE::Transform>(GE::kTransform);
+				glm::vec3 rotation(transform->getRotation());
+				rotation.y = 1.0f * dt;
+				m_gameObjects.at(0)->rotate(rotation);
+
+				transform = m_gameObjects.at(1)->getComponentShared<GE::Transform>(GE::kTransform);
+				rotation = transform->getRotation();
+				rotation.y += 20.0f * dt;
+				transform->setRotation(rotation);
 			}
 
 			m_gameObjects.at(i)->setInput(m_input);
