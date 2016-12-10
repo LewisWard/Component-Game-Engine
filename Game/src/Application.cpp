@@ -192,7 +192,7 @@ void Application::update(float& dt)
 					else
 						m_gameObjects.at(0)->setSelected();
 
-					printf("selected %d \n", i);
+					printf("selected %d \n", (int)i);
 					break;
 				}
 			}
@@ -814,8 +814,8 @@ void Application::draw()
 					bool objectHit = true;
 
 					// find the greatest t value
-					float tmin = glm::max(glm::max(glm::min(minX, maxX), glm::min(minY, maxY)), glm::min(minZ, minZ));
-					float tmax = glm::min(glm::min(glm::max(minX, maxX), glm::max(minY, maxY)), glm::max(minZ, minZ));
+					float tmin = glm::max(glm::max(glm::min(minX, maxX), glm::min(minY, maxY)), glm::min(minZ, maxZ));
+					float tmax = glm::min(glm::min(glm::max(minX, maxX), glm::max(minY, maxY)), glm::max(minZ, maxZ));
 
 					// if any ray < 0 there was an intersection but behind the camera
 					if (tmax < 0)
@@ -839,7 +839,7 @@ void Application::draw()
 								}
 
 							m_gameObjects.at(object)->setSelected();
-							printf("selected %d \n", object);
+							printf("selected %d \n", (int)object);
 						}
 					}
 
@@ -852,8 +852,8 @@ void Application::draw()
 					glm::vec3 sphereCenter(sphereCollider->getCenter());
 
 					// the direction of the ray firing from the camera to the clicked position
-					glm::vec3 rayDirection(mouseRay - cameraOrigin);
-					rayDirection = glm::normalize(rayDirection);
+					//glm::vec3 rayDirection(mouseRay - cameraOrigin);
+					//rayDirection = glm::normalize(rayDirection);
 
 					// t is the distance from the ray origin to a point on the surface of the sphere (center + radius)
 					float t = glm::distance(glm::abs(sphereCenter + sphereRadius), cameraOrigin);
@@ -891,7 +891,7 @@ void Application::draw()
 							}
 
 						m_gameObjects.at(object)->setSelected();
-						printf("selected %d \n", object);
+						printf("selected %d \n", (int)object);
 					}
 				}
 			}

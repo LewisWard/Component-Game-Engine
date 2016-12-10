@@ -120,7 +120,7 @@ namespace GE
 		/// \brief  does it have childern GameObjects
 		/// \return bool true if so
 		//----------------------------------------------------------------------------------------------------------------------
-		bool hasChildern() { return m_childern.size();  }
+		bool hasChildern() { return m_childern.size() >= 1 ? 1 : 0;  }
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief if this GameObject has a parent

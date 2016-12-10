@@ -10,9 +10,11 @@ namespace GE
 		m_type = kSphereCollider;
 	}
 
-	SphereCollider::SphereCollider(glm::vec3 center, glm::vec3 radius)
+	SphereCollider::SphereCollider(glm::vec3 center, float radius)
 	{
 		m_type = kSphereCollider;
+		m_center = center;
+		m_radius = radius;
 	}
 
 	SphereCollider::~SphereCollider() {}

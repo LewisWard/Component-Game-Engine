@@ -89,7 +89,7 @@ namespace GE
 		program->unbind();
 	}
 
-	void BoxCollider::recomputeBounds(glm::vec3& newPosition)
+	void BoxCollider::recomputeBounds(const glm::vec3& newPosition)
 	{
 		m_boundingBox = GEC::AABB(newPosition, m_boundingBox.size);
 	}
@@ -156,7 +156,7 @@ namespace GE
 		indices.push_back(6);
 		indices.push_back(0);
 
-		m_indexCount = indices.size();
+		m_indexCount = (int)indices.size();
 		m_vertexBuffer = mkShare<GEC::VertexBuffer>(vertices, indices);
 	}
 };

@@ -191,32 +191,32 @@ namespace GE
 					for (size_t ii = 0; ii < childCountR; ii++)
 					{
 						shared<GE::Transform> childTransformR = m_childern.at(i)->m_childern.at(ii)->getComponentShared<GE::Transform>(GE::kTransform);
-						glm::vec3 pivot = childTransformR->getPosition() - transformR->getPosition();
-						glm::mat4 tmp = childTransformR->createTransform();
-						glm::mat4 result;
+						glm::vec3 pivotR = childTransformR->getPosition() - transformR->getPosition();
+						glm::mat4 tmpR = childTransformR->createTransform();
+						glm::mat4 resultR;
 				
 						// which axis to rotate on
 						if (rotate.x)
 						{
-							result += glm::translate(-pivot) *
-								glm::rotate(tmp, glm::radians(rotate.x), glm::vec3(1, 0, 0)) *
-								glm::translate(pivot);
+							resultR += glm::translate(-pivotR) *
+								glm::rotate(tmpR, glm::radians(rotate.x), glm::vec3(1, 0, 0)) *
+								glm::translate(pivotR);
 						}
 						if (rotate.y)
 						{
-							result += glm::translate(-pivot) *
-								glm::rotate(tmp, glm::radians(rotate.y), glm::vec3(0, 1, 0)) *
-								glm::translate(pivot);
+							resultR += glm::translate(-pivotR) *
+								glm::rotate(tmpR, glm::radians(rotate.y), glm::vec3(0, 1, 0)) *
+								glm::translate(pivotR);
 						}
 						if (rotate.z)
 						{
-							result += glm::translate(-pivot) *
-								glm::rotate(tmp, glm::radians(rotate.z), glm::vec3(0, 0, 1)) *
-								glm::translate(pivot);
+							resultR += glm::translate(-pivotR) *
+								glm::rotate(tmpR, glm::radians(rotate.z), glm::vec3(0, 0, 1)) *
+								glm::translate(pivotR);
 						}
 				
-						glm::vec3 finalPos = result[3];
-						childTransformR->setPosition(finalPos);
+						glm::vec3 finalPosR = result[3];
+						childTransformR->setPosition(finalPosR);
 					}
 				}
 			}

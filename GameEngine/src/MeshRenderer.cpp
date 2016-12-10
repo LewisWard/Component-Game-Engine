@@ -35,7 +35,7 @@ namespace GE
 			glEnableVertexAttribArray(1);
 			glVertexAttribPointer(2, 2, GL_FLOAT, true, sizeof(vertexNormalUV), offset + 6);
 			glEnableVertexAttribArray(2);
-			glDrawArrays(GL_TRIANGLES, 0, mesh->getIndicesCount());
+			glDrawArrays(GL_TRIANGLES, 0, (GLsizei)mesh->getIndicesCount());
 			glDisableVertexAttribArray(2);
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(0);
@@ -83,7 +83,7 @@ namespace GE
 			glEnableVertexAttribArray(1);
 			glVertexAttribPointer(2, 2, GL_FLOAT, true, sizeof(vertexNormalUV), offset + 6);
 			glEnableVertexAttribArray(2);
-			glDrawArrays(GL_TRIANGLES, 0, mesh->getIndicesCount());
+			glDrawArrays(GL_TRIANGLES, 0, (GLsizei)mesh->getIndicesCount());
 			glDisableVertexAttribArray(2);
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(0);

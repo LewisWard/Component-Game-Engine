@@ -101,7 +101,7 @@ namespace GE
 		/// \brief  recompute bounds after AABB has been moved
 		/// prama glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
-		void recomputeBounds(glm::vec3& newPosition);
+		void recomputeBounds(const glm::vec3& newPosition);
 
 
 	public:

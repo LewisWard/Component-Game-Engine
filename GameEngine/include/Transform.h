@@ -49,25 +49,25 @@ namespace GE
 		/// \brief  set current position
 		/// prama		glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
-		inline void setPosition(glm::vec3& p) { m_position = p; }
+		inline void setPosition(const glm::vec3& p) { m_position = p; }
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  set current scale
 		/// prama		glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
-		inline void setScale(glm::vec3& s) { m_scale = s; }
+		inline void setScale(const glm::vec3& s) { m_scale = s; }
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  set current rotation
 		/// prama		glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
-		inline void setRotation(glm::vec3& r) { m_rotation = r; }
+		inline void setRotation(const glm::vec3& r) { m_rotation = r; }
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  translate
 		/// prama		glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
-		inline void translate(glm::vec3& p) { m_position += p; }
+		inline void translate(const glm::vec3& p) { m_position += p; }
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  creates a 4x4 matrix with current position, scale and rotation
