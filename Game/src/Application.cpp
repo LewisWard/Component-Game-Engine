@@ -69,7 +69,7 @@ Application::Application()
 	// SPHERE
 	transform = m_gameObjects.at(1)->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f));
-	transform->setPosition(glm::vec3(-8.0f, -3.0f, -20.0f));
+	transform->setPosition(glm::vec3(-8.0f, 0.0f, -20.0f));
 	m_gameObjects.at(1)->addComponent<GE::MeshRenderer>();
 	meshRenderer = m_gameObjects.at(1)->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
@@ -87,7 +87,7 @@ Application::Application()
 	// SPHERE
 	transform = m_gameObjects.at(2)->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f));
-	transform->setPosition(glm::vec3(-8.0f, 3.0f, -20.0f));
+	transform->setPosition(glm::vec3(-10.0f, 3.0f, -20.0f));
 	m_gameObjects.at(2)->addComponent<GE::MeshRenderer>();
 	meshRenderer = m_gameObjects.at(2)->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
@@ -760,7 +760,7 @@ void Application::update(float& dt)
 			{
 				shared<GE::Transform> transform = m_gameObjects.at(1)->getComponentShared<GE::Transform>(GE::kTransform);
 				glm::vec3 rotation(transform->getRotation());
-				rotation.y += 8.0f * dt;
+				rotation.y = 7.0f * dt;
 				m_gameObjects.at(1)->rotate(rotation);
 			}
 

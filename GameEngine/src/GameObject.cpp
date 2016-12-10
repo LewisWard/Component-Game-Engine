@@ -147,12 +147,40 @@ namespace GE
 	{
 		// get the transform and update it
 		shared<GE::Transform> transform = getComponentShared<GE::Transform>(GE::kTransform);
-		transform->setRotation(rotate);
+		transform->setRotation(transform->getRotation() + rotate);
 
 		// if there are childern update them too
 		size_t childCount = m_childern.size();
 		if (childCount)
 			for (size_t i = 0; i < childCount; i++)
-				m_childern.at(i)->rotate(rotate);
+			{
+				shared<GE::Transform> childTransform = m_childern.at(i)->getComponentShared<GE::Transform>(GE::kTransform);
+				glm::vec3 pivot = childTransform->getPosition() - transform->getPosition();
+				glm::mat4 tmp = childTransform->createTransform();
+				glm::mat4 result;
+
+				if (rotate.x)
+				{
+					result += glm::translate(-pivot) *
+						glm::rotate(tmp, glm::radians(rotate.x), glm::vec3(1, 0, 0)) *
+						glm::translate(pivot);
+				}
+				if (rotate.y)
+				{
+					result += glm::translate(-pivot) *
+						glm::rotate(tmp, glm::radians(rotate.y), glm::vec3(0, 1, 0)) *
+						glm::translate(pivot);
+				}
+				if (rotate.z)
+				{
+					result += glm::translate(-pivot) *
+						glm::rotate(tmp, glm::radians(rotate.z), glm::vec3(0, 0, 1)) *
+						glm::translate(pivot);
+				}
+
+
+				glm::vec3 finalPos = result[3];
+				childTransform->setPosition(finalPos);
+			}
 	}
 };
