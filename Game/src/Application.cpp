@@ -163,6 +163,8 @@ Application::Application()
 	// level 0 and level 1 are demo levels. Level 2 is the user defined level that uses the gameobjects listed
 	// in the game.ini
 	m_activeLevel = 0;
+
+	std::cout << "ESC key to quit the program\nKey1: Level 1, Key2: Level 2, Key3: Level 3\n";
 }
 
 Application::~Application()
@@ -330,6 +332,8 @@ void Application::update(float& dt)
 			m_gameObjects.at(0)->setSelected();
 
 			std::cout << "LOADED LEVEL " << m_activeLevel << "\n";
+			std::cout << "ESC key to quit the program. Key1: Level 1, Key2: Level 2, Key3: Level 3\n";
+			std::cout << "Movement Keys: W/A/S/D, select objects with mouse (disabled in Level 3) or with the E key\n";
 		}
 		else if (m_input->getKeyDown("levelB"))
 		{
@@ -419,6 +423,8 @@ void Application::update(float& dt)
 			sphereCollider->setRadius(transform->getScale().x);
 
 			std::cout << "LOADED LEVEL " << m_activeLevel << "\n";
+			std::cout << "ESC key to quit the program. Key1: Level 1, Key2: Level 2, Key3: Level 3\n";
+			std::cout << "Movement Keys: W/A/S/D, select objects with mouse (disabled in Level 3) or with the E key\n";
 		}
 		else if (m_input->getKeyDown("levelC"))
 		{
@@ -535,6 +541,8 @@ void Application::update(float& dt)
 			m_gameObjects.at(2)->setSelected(); 
 
 			std::cout << "LOADED LEVEL " << m_activeLevel << "\n";
+			std::cout << "ESC key to quit the program. Key1: Level 1, Key2: Level 2, Key3: Level 3\n";
+			std::cout << "Movement Keys: W/A/S/D, select objects with mouse (disabled in Level 3) or with the E key\n";
 		}
 
 		refreshDT = 0.0f;
