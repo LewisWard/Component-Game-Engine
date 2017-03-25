@@ -34,12 +34,9 @@ public:
 private:
 	std::unordered_map<std::string, shared<GE::GameObject>> m_gameObjects;
 	shared<GEC::Texture> m_texture;
-	shared<GEC::Texture> m_worldTexture;
-	shared<GEC::Texture> m_moonTexture;
-	shared<GEC::ObjObject> m_cubeObject;
+	shared<GEC::Texture> m_paddleTexture;
+	shared<GEC::ObjObject> m_paddleObject;
 	shared<GEC::ObjObject> m_sphereObject;
-	shared<GEC::ObjObject> m_worldObject;
-	shared<GEC::ObjObject> m_moonObject;
 	shared<GE::Program> m_shaderProgram;
 	shared<GE::Program> m_shaderProgramCollision;
 	shared<GE::Input::InputManager> m_input;
