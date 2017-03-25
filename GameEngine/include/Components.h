@@ -23,6 +23,7 @@ namespace GE
 		kMeshRenderer,
 		kBoxCollider,
 		kSphereCollider,
+		kCollisionShape,
 	};
 
 	//----------------------------------------------------------------------------------------------------------------------

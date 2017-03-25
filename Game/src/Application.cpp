@@ -69,12 +69,12 @@ Application::Application()
 	shared<GE::MeshRenderer> meshRenderer;
 	shared<GE::BoxCollider> boxCollider;
 	shared<GE::SphereCollider> sphereCollider;
-
+	shared<GE::CollisionShape> collisionShape;
 
 	// player1Paddle
 	transform = m_gameObjects.at("player1Paddle")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f, 1.0f, 1.0f));
-	transform->setPosition(glm::vec3(0.0f, -5.0f, -10.0f));
+	transform->setPosition(glm::vec3(0.0f, -5.0f, -20.0f));
 	transform->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	m_gameObjects.at("player1Paddle")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("player1Paddle")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -88,6 +88,9 @@ Application::Application()
 	boxCollider->boundToObject(m_paddleObject);
 	boxCollider->recomputeBounds(transform->getPosition());
 	boxCollider->setScreenRes(m_scrennSize);
+	m_gameObjects.at("player1Paddle")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape = m_gameObjects.at("player1Paddle")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape->createShape(btBoxShape(btVector3(btScalar(transform->getScale().x), btScalar(transform->getScale().y), btScalar(transform->getScale().z))));
 
 	// player2Paddle
 	transform = m_gameObjects.at("player2Paddle")->getComponentShared<GE::Transform>(GE::kTransform);
@@ -128,8 +131,9 @@ Application::Application()
 	// ------------------- BULLET GAMEOBJECTS CONFIG ------------------- //
 	{
 		transform = m_gameObjects.at("player1Paddle")->getComponentShared<GE::Transform>(GE::kTransform);
-		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(transform->getScale().x), btScalar(transform->getScale().y), btScalar(transform->getScale().z)));
-		collisionShapes.push_back(groundShape);
+		shared<btCollisionShape> paddleShape = m_gameObjects.at("player1Paddle")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape)->getShape();
+		//btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(transform->getScale().x), btScalar(transform->getScale().y), btScalar(transform->getScale().z)));
+		collisionShapes.push_back(paddleShape.get());
 
 		btTransform groundTransform;
 		groundTransform.setIdentity();
@@ -142,11 +146,11 @@ Application::Application()
 
 		btVector3 localInertia(0, 0, 0);
 		if (isDynamic)
-			groundShape->calculateLocalInertia(mass, localInertia);
+			paddleShape->calculateLocalInertia(mass, localInertia);
 
 		//using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, paddleShape.get(), localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
 
 		//add the body to the dynamics world
@@ -158,7 +162,7 @@ Application::Application()
 		groundTransform.setIdentity();
 		groundTransform.setOrigin(btVector3(transform->getPosition().x, transform->getPosition().y, transform->getPosition().z));
 		btDefaultMotionState* myMotionStateTwo= new btDefaultMotionState(groundTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbTwoInfo(mass, myMotionStateTwo, groundShape, localInertia);
+		btRigidBody::btRigidBodyConstructionInfo rbTwoInfo(mass, myMotionStateTwo, paddleShape.get(), localInertia);
 		body = new btRigidBody(rbTwoInfo);
 
 		//add the body to the dynamics world
@@ -199,11 +203,8 @@ Application::Application()
 
 	m_screenMouse = mkShare<GE::Input::MouseConverter>(m_camera->getProjection(), m_camera->getView(), m_scrennSize);
 
-	// level 0 and level 1 are demo levels. Level 2 is the user defined level that uses the gameobjects listed
-	// in the game.ini
+	// which level to start on
 	m_activeLevel = 0;
-
-	std::cout << "ESC key to quit the program\nKey1: Level 1, Key2: Level 2, Key3: Level 3\n";
 }
 
 Application::~Application()
@@ -221,14 +222,7 @@ Application::~Application()
 		delete obj;
 	}
 
-	//delete collision shapes
-	for (int j = 0; j< collisionShapes.size(); j++)
-	{
-		btCollisionShape* shape = collisionShapes[j];
-		collisionShapes[j] = 0;
-		delete shape;
-	}
-
+	// collision shapes are deleted in the CollisionShape component
 
 	delete dynamicsWorld;
 	delete solver;
