@@ -48,4 +48,12 @@ private:
 	Configurations m_config;
 	glm::vec2 m_scrennSize;
 	int m_activeLevel;
+
+
+	btDiscreteDynamicsWorld* dynamicsWorld;
+	btAlignedObjectArray<btCollisionShape*> collisionShapes;
+	btDefaultCollisionConfiguration* collisionConfiguration;
+	btCollisionDispatcher* dispatcher;
+	btBroadphaseInterface* overlappingPairCache;
+	btSequentialImpulseConstraintSolver* solver;
 };

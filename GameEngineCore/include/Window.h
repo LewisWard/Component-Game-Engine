@@ -6,6 +6,7 @@
 #define ENGINEASSETS "../EngineAssets/"
 
 #ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
 #define GLEW_STATIC
@@ -14,6 +15,7 @@
 #include "gl/freeglut_ext.h"
 #include "glFunctions.h"
 #include "soil/SOIL.h"
+#include "bullet3/btBulletDynamicsCommon.h" // BULLET PHYSICS
 #include <iostream>
 #include <memory>
 #define shared std::shared_ptr
