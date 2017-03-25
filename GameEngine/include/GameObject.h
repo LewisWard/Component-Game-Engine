@@ -37,6 +37,8 @@ namespace GE
 		//----------------------------------------------------------------------------------------------------------------------
 		void draw();
 
+		void drawMapped();
+
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  get a attached component as a std::shared_ptr
 		/// prama		ComponentType type
@@ -49,9 +51,32 @@ namespace GE
 			{
 				if (type == m_components.at(i).get()->m_type)
 				{
-
 					return std::dynamic_pointer_cast<T>(m_components.at(i));
 				}
+			}
+
+			// it failed
+			return NULL;
+		}
+
+
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  get a attached component as a std::shared_ptr
+		/// \prama	ComponentType type
+		/// \return shared<T> returns NULL if no component of that type attached
+		//----------------------------------------------------------------------------------------------------------------------
+		template <class T>
+		shared<T> getMappedComponent(ComponentType type)
+		{
+			// make sure this component is attached
+			try
+			{
+				shared<Component> sPtr = m_components2.at(type);
+				return std::dynamic_pointer_cast<T>(sPtr);
+			}
+			catch (const std::out_of_range& error)
+			{
+				std::cerr << "Out of range error: " << error.what() << ". GameObject.h:" << __LINE__ << '\n';
 			}
 
 			// it failed
@@ -78,6 +103,7 @@ namespace GE
 			return NULL;
 		}
 
+
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  add a new component
 		/// \return shared<T> newly created component
@@ -93,11 +119,26 @@ namespace GE
 			return component;
 		}
 
+
+		template <class T>
+		shared<T> addMappedComponent(GE::ComponentType type)
+		{
+			shared<T> component(new T());
+
+			component->m_parent = this;
+			m_components2.insert(std::pair<GE::ComponentType, shared<GE::Component>>(type, component));
+
+			return component;
+		}
+
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  remove component
 		/// \return ComponentType type
 		//----------------------------------------------------------------------------------------------------------------------
 		void removeComponent(ComponentType type);
+
+
+		void removeMappedComponent(ComponentType type);
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  when deleted
@@ -180,17 +221,23 @@ namespace GE
 		//----------------------------------------------------------------------------------------------------------------------
 		void translate(glm::vec3& translate);
 
+		void translateMapped(glm::vec3& translate);
+
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  scale
 		/// prama		glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
 		void scale(glm::vec3& scale);
 
+		void scaleMapped(glm::vec3& scale);
+
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  rotate
 		/// prama		glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
 		void rotate(glm::vec3& rotate);
+
+		void rotateMapped(glm::vec3& rotate);
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief set if this is active, if not it is not updated, drawn or able to be selected
@@ -205,6 +252,7 @@ namespace GE
 		inline bool isActive() { return m_active; }
 
 	private:
+		std::unordered_map<ComponentType, shared<GE::Component>> m_components2;
 		std::vector<shared<Component>> m_components;
 		std::vector<shared<GameObject>> m_childern;
 		weak<GE::Input::InputManager> m_input;
