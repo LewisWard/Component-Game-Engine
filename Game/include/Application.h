@@ -32,7 +32,7 @@ public:
 	void draw();
 
 private:
-	std::vector<shared<GE::GameObject>> m_gameObjects;
+	std::unordered_map<std::string, shared<GE::GameObject>> m_gameObjects;
 	shared<GEC::Texture> m_texture;
 	shared<GEC::Texture> m_worldTexture;
 	shared<GEC::Texture> m_moonTexture;

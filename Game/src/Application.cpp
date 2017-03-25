@@ -62,8 +62,8 @@ Application::Application()
 	GE::Shader pixelShader2(std::string(assetPath + "shaders/collisionWireframe.pix").c_str(), kPixelShader);
 	m_shaderProgramCollision = mkShare<GE::Program>(vertexShader2, pixelShader2);
 
-	m_gameObjects.push_back(mkShare<GE::GameObject>());
-	m_gameObjects.push_back(mkShare<GE::GameObject>());
+	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("cube"), mkShare<GE::GameObject>()));
+	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("sphere"), mkShare<GE::GameObject>()));
 
 	shared<GE::Transform> transform;
 	shared<GE::MeshRenderer> meshRenderer;
@@ -71,35 +71,35 @@ Application::Application()
 	shared<GE::SphereCollider> sphereCollider;
 
 	// CUBE
-	transform = m_gameObjects.at(0)->getComponentShared<GE::Transform>(GE::kTransform);
+	transform = m_gameObjects.at("cube")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f));
 	transform->setPosition(glm::vec3(0.0f, -5.0f, -20.0f));
-	m_gameObjects.at(0)->addComponent<GE::MeshRenderer>();
-	meshRenderer = m_gameObjects.at(0)->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
+	m_gameObjects.at("cube")->addComponent<GE::MeshRenderer>();
+	meshRenderer = m_gameObjects.at("cube")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
 	meshRenderer->setMesh(m_cubeObject);
 	meshRenderer->setTexture(m_texture);
 	meshRenderer->setProgram(m_shaderProgram);
 	meshRenderer->setMainCamera(m_camera);
-	m_gameObjects.at(0)->addComponent<GE::BoxCollider>();
-	boxCollider = m_gameObjects.at(0)->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
+	m_gameObjects.at("cube")->addComponent<GE::BoxCollider>();
+	boxCollider = m_gameObjects.at("cube")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
 	boxCollider->boundToObject(m_cubeObject);
 	boxCollider->recomputeBounds(transform->getPosition());
 	boxCollider->setScreenRes(m_scrennSize);
 
 	// SPHERE
-	transform = m_gameObjects.at(1)->getComponentShared<GE::Transform>(GE::kTransform);
+	transform = m_gameObjects.at("sphere")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f));
 	transform->setPosition(glm::vec3(0.0f, 5.0f, -20.0f));
-	m_gameObjects.at(1)->addComponent<GE::MeshRenderer>();
-	meshRenderer = m_gameObjects.at(1)->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
+	m_gameObjects.at("sphere")->addComponent<GE::MeshRenderer>();
+	meshRenderer = m_gameObjects.at("sphere")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
 	meshRenderer->setMesh(m_sphereObject);
 	meshRenderer->setTexture(m_texture);
 	meshRenderer->setProgram(m_shaderProgram);
 	meshRenderer->setMainCamera(m_camera);
-	m_gameObjects.at(1)->addComponent<GE::SphereCollider>();
-	sphereCollider = m_gameObjects.at(1)->getComponentShared<GE::SphereCollider>(GE::kSphereCollider);
+	m_gameObjects.at("sphere")->addComponent<GE::SphereCollider>();
+	sphereCollider = m_gameObjects.at("sphere")->getComponentShared<GE::SphereCollider>(GE::kSphereCollider);
 	sphereCollider->boundToObject(m_sphereObject);
 	sphereCollider->setCenter(transform->getPosition());
 	sphereCollider->setRadius(transform->getScale().x);
@@ -107,7 +107,7 @@ Application::Application()
 
 	// ------------------- BULLET GAMEOBJECTS CONFIG ------------------- //
 	{
-		transform = m_gameObjects.at(0)->getComponentShared<GE::Transform>(GE::kTransform);
+		transform = m_gameObjects.at("cube")->getComponentShared<GE::Transform>(GE::kTransform);
 		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(transform->getScale().x), btScalar(transform->getScale().y), btScalar(transform->getScale().z)));
 		collisionShapes.push_back(groundShape);
 
@@ -136,7 +136,7 @@ Application::Application()
 
 	{
 		//create a dynamic rigidbody
-		transform = m_gameObjects.at(1)->getComponentShared<GE::Transform>(GE::kTransform);
+		transform = m_gameObjects.at("sphere")->getComponentShared<GE::Transform>(GE::kTransform);
 		btCollisionShape* colShape = new btSphereShape(btScalar(transform->getScale().x));
 		collisionShapes.push_back(colShape);
 
@@ -198,18 +198,13 @@ Application::~Application()
 	}
 
 
-	//delete dynamics world
 	delete dynamicsWorld;
-	//delete solver
 	delete solver;
-	//delete broadphase
 	delete overlappingPairCache;
-	//delete dispatcher
 	delete dispatcher;
 	delete collisionConfiguration;
-	//next line is optional: it will be cleared by the destructor when the array goes out of scope
 	collisionShapes.clear();
-
+	m_gameObjects.clear();
 	std::cout << "Application deleted\n";
 }
 
@@ -224,89 +219,6 @@ void Application::update(float& dt)
 	// cap how often you can change selection - make input update more accurate
 	if (refreshDT >= 0.05f)
 	{
-		// select the next object 
-		if (m_input->getKeyDown("action"))
-		{
-			for (size_t i = 0; i < m_gameObjects.size(); ++i)
-			{
-				if (m_gameObjects.at(i)->isSelected())
-				{
-					m_gameObjects.at(i)->unselected();
-
-					// cycle back to the start if at the end of the vector
-					if (i < m_gameObjects.size() - 1)
-						m_gameObjects.at(i + 1)->setSelected();
-					else
-						m_gameObjects.at(0)->setSelected();
-
-					printf("selected %d \n", (int)i);
-					break;
-				}
-			}
-		}
-
-		// change the active level
-		if (m_input->getKeyDown("levelA"))
-		{
-			m_activeLevel = 0;
-			system("cls");
-			std::cout << "LOADING LEVEL " << m_activeLevel << "\n";
-
-			m_gameObjects.clear();
-
-			m_gameObjects.push_back(mkShare<GE::GameObject>());
-			m_gameObjects.push_back(mkShare<GE::GameObject>());
-			m_gameObjects.push_back(mkShare<GE::GameObject>());
-			m_gameObjects.push_back(mkShare<GE::GameObject>());
-			m_gameObjects.push_back(mkShare<GE::GameObject>());
-			m_gameObjects.push_back(mkShare<GE::GameObject>());
-
-			shared<GE::Transform> transform;
-			shared<GE::MeshRenderer> meshRenderer;
-			shared<GE::BoxCollider> boxCollider;
-			shared<GE::SphereCollider> sphereCollider;
-
-			// CUBE
-			transform = m_gameObjects.at(0)->getComponentShared<GE::Transform>(GE::kTransform);
-			transform->setScale(glm::vec3(1.0f));
-			transform->setPosition(glm::vec3(-5.0f, -2.0f, -21.0f));
-			m_gameObjects.at(0)->addComponent<GE::MeshRenderer>();
-			meshRenderer = m_gameObjects.at(0)->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
-			meshRenderer->setScreenRes(m_scrennSize);
-			meshRenderer->setMesh(m_cubeObject);
-			meshRenderer->setTexture(m_texture);
-			meshRenderer->setProgram(m_shaderProgram);
-			meshRenderer->setMainCamera(m_camera);
-			m_gameObjects.at(0)->addComponent<GE::BoxCollider>();
-			boxCollider = m_gameObjects.at(0)->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
-			boxCollider->boundToObject(m_cubeObject);
-			boxCollider->recomputeBounds(transform->getPosition());
-			boxCollider->setScreenRes(m_scrennSize);
-			m_gameObjects.at(0)->setChild(m_gameObjects.at(1));
-
-			// SPHERE
-			transform = m_gameObjects.at(1)->getComponentShared<GE::Transform>(GE::kTransform);
-			transform->setScale(glm::vec3(1.0f));
-			transform->setPosition(glm::vec3(-8.0f, 0.0f, -20.0f));
-			m_gameObjects.at(1)->addComponent<GE::MeshRenderer>();
-			meshRenderer = m_gameObjects.at(1)->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
-			meshRenderer->setScreenRes(m_scrennSize);
-			meshRenderer->setMesh(m_sphereObject);
-			meshRenderer->setTexture(m_texture);
-			meshRenderer->setProgram(m_shaderProgram);
-			meshRenderer->setMainCamera(m_camera);
-			m_gameObjects.at(1)->addComponent<GE::SphereCollider>();
-			sphereCollider = m_gameObjects.at(1)->getComponentShared<GE::SphereCollider>(GE::kSphereCollider);
-			sphereCollider->boundToObject(m_sphereObject);
-			sphereCollider->setCenter(transform->getPosition());
-			sphereCollider->setRadius(transform->getScale().x);
-			m_gameObjects.at(1)->setChild(m_gameObjects.at(2));
-
-
-			std::cout << "LOADED LEVEL " << m_activeLevel << "\n";
-			std::cout << "ESC key to quit the program. Key1: Level 1, Key2: Level 2, Key3: Level 3\n";
-			std::cout << "Movement Keys: W/A/S/D, select objects with mouse (disabled in Level 3) or with the E key\n";
-		}
 		
 
 		refreshDT = 0.0f;
@@ -332,7 +244,6 @@ void Application::update(float& dt)
 			{
 				trans = obj->getWorldTransform();
 			}
-			printf("world pos object %d = %f,%f,%f\n", j, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
 		}
 	}
 
@@ -352,13 +263,12 @@ void Application::update(float& dt)
 		}
 
 
-		shared<GE::Transform> objectTransform = m_gameObjects.at(1)->getComponentShared<GE::Transform>(GE::kTransform);
+		shared<GE::Transform> objectTransform = m_gameObjects.at("sphere")->getComponentShared<GE::Transform>(GE::kTransform);
 		btVector3 origin = trans.getOrigin();
 		glm::vec3 glmOrigin(origin.getX(), origin.getY(), origin.getZ());
 		objectTransform->setPosition(glmOrigin);
-		GE::consoleLog("glmOrigin ", glmOrigin);
-		m_gameObjects.at(1)->setInput(m_input);
-		m_gameObjects.at(1)->update(dt);
+		m_gameObjects.at("sphere")->setInput(m_input);
+		m_gameObjects.at("sphere")->update(dt);
 
 	}
 }
@@ -379,13 +289,13 @@ void Application::draw()
 		glm::vec3 mouseRay = m_screenMouse->getRay();
 		glm::vec3 cameraOrigin(m_camera->getPosition());
 
-		for (size_t object = 0; object < m_gameObjects.size(); object++)
+		for (std::unordered_map<std::string, shared<GE::GameObject>>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); it++)
 		{
-			if (m_gameObjects.at(object)->isActive())
+			if (it->second->isActive())
 			{
-				transform = m_gameObjects.at(object)->getComponentShared<GE::Transform>(GE::kTransform);
-				boxCollider = m_gameObjects.at(object)->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
-				sphereCollider = m_gameObjects.at(object)->getComponentShared<GE::SphereCollider>(GE::kSphereCollider);
+				transform = it->second->getComponentShared<GE::Transform>(GE::kTransform);
+				boxCollider = it->second->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
+				sphereCollider = it->second->getComponentShared<GE::SphereCollider>(GE::kSphereCollider);
 
 				// based on: http://gamedev.stackexchange.com/questions/18436/most-efficient-aabb-vs-ray-collision-algorithms [accessed 06/12/2016]
 				// the direction of the ray firing from the camera to the clicked position
@@ -425,15 +335,15 @@ void Application::draw()
 						if (objectHit)
 						{
 							// find the currently selected object and change it to another object
-							for (size_t i = 0; i < m_gameObjects.size(); ++i)
-								if (m_gameObjects.at(i)->isSelected())
+							for (std::unordered_map<std::string, shared<GE::GameObject>>::iterator its = m_gameObjects.begin(); its != m_gameObjects.end(); its++)
+								if (its->second->isSelected())
 								{
-									m_gameObjects.at(i)->unselected();
+									its->second->unselected();
 									break;
 								}
 
-							m_gameObjects.at(object)->setSelected();
-							printf("selected %d \n", (int)object);
+							it->second->setSelected();
+							printf("selected %s \n", it->first);
 						}
 					}
 
@@ -477,25 +387,25 @@ void Application::draw()
 					if (objectHit)
 					{
 						// find the currently selected object and change it to another object
-						for (size_t i = 0; i < m_gameObjects.size(); ++i)
-							if (m_gameObjects.at(i)->isSelected())
+						for (std::unordered_map<std::string, shared<GE::GameObject>>::iterator its = m_gameObjects.begin(); its != m_gameObjects.end(); its++)
+							if (its->second->isSelected())
 							{
-								m_gameObjects.at(i)->unselected();
+								its->second->unselected();
 								break;
 							}
 
-						m_gameObjects.at(object)->setSelected();
-						printf("selected %d \n", (int)object);
+						it->second->setSelected();
+						printf("selected %s \n", it->first);
 					}
 				}
 			}
 		}
 	}
 
-	for (size_t i = 0; i < m_gameObjects.size(); ++i)
+	for (std::unordered_map<std::string, shared<GE::GameObject>>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); it++)
 	{
-		if (m_gameObjects.at(i)->isActive())
-			m_gameObjects.at(i)->draw();
+		if (it->second->isActive())
+			it->second->draw();
 	}
 
 	glutSwapBuffers();

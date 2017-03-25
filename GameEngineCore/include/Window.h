@@ -18,6 +18,7 @@
 #include "bullet3/btBulletDynamicsCommon.h" // BULLET PHYSICS
 #include <iostream>
 #include <memory>
+#include <unordered_map>
 #define shared std::shared_ptr
 #define mkShare std::make_shared
 #define weak std::weak_ptr
