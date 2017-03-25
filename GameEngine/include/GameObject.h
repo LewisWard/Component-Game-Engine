@@ -37,7 +37,7 @@ namespace GE
 		//----------------------------------------------------------------------------------------------------------------------
 		void draw();
 
-		void drawMapped();
+		//void drawMapped();
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  get a attached component as a std::shared_ptr
@@ -47,40 +47,17 @@ namespace GE
 		template <class T>
 		shared<T> getComponentShared(ComponentType type)
 		{
-			for (size_t i = 0; i < m_components.size(); i++)
-			{
-				if (type == m_components.at(i).get()->m_type)
-				{
-					return std::dynamic_pointer_cast<T>(m_components.at(i));
-				}
-			}
-
-			// it failed
-			return NULL;
-		}
-
-
-		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  get a attached component as a std::shared_ptr
-		/// \prama	ComponentType type
-		/// \return shared<T> returns NULL if no component of that type attached
-		//----------------------------------------------------------------------------------------------------------------------
-		template <class T>
-		shared<T> getMappedComponent(ComponentType type)
-		{
 			// make sure this component is attached
 			try
 			{
-				shared<Component> sPtr = m_components2.at(type);
+				shared<Component> sPtr = m_components.at(type);
 				return std::dynamic_pointer_cast<T>(sPtr);
 			}
 			catch (const std::out_of_range& error)
 			{
-				std::cerr << "Out of range error: " << error.what() << ". GameObject.h:" << __LINE__ << '\n';
+				// it failed
+				return NULL;
 			}
-
-			// it failed
-			return NULL;
 		}
 
 		//----------------------------------------------------------------------------------------------------------------------
@@ -106,27 +83,16 @@ namespace GE
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  add a new component
+		/// prama		ComponentType type
 		/// \return shared<T> newly created component
 		//----------------------------------------------------------------------------------------------------------------------
 		template <class T>
-		shared<T> addComponent()
-		{
-			shared<T> component(new T());
-
-			m_components.push_back(component);
-			component->m_parent = this;
-
-			return component;
-		}
-
-
-		template <class T>
-		shared<T> addMappedComponent(GE::ComponentType type)
+		shared<T> addComponent(GE::ComponentType type)
 		{
 			shared<T> component(new T());
 
 			component->m_parent = this;
-			m_components2.insert(std::pair<GE::ComponentType, shared<GE::Component>>(type, component));
+			m_components.insert(std::pair<GE::ComponentType, shared<GE::Component>>(type, component));
 
 			return component;
 		}
@@ -137,9 +103,6 @@ namespace GE
 		//----------------------------------------------------------------------------------------------------------------------
 		void removeComponent(ComponentType type);
 
-
-		void removeMappedComponent(ComponentType type);
-
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  when deleted
 		//----------------------------------------------------------------------------------------------------------------------
@@ -147,9 +110,9 @@ namespace GE
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  get all attached components
-		/// \return std::vector<shared<Component>>
+		/// \return std::unordered_map<ComponentType, shared<GE::Component>>
 		//----------------------------------------------------------------------------------------------------------------------
-		std::vector<shared<Component>> getComponents() { return m_components;  }
+		std::unordered_map<ComponentType, shared<GE::Component>> getComponents() { return m_components; }
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  set if this gameobject will have a child gameobject (can have more then one)
@@ -221,23 +184,17 @@ namespace GE
 		//----------------------------------------------------------------------------------------------------------------------
 		void translate(glm::vec3& translate);
 
-		void translateMapped(glm::vec3& translate);
-
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  scale
 		/// prama		glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
 		void scale(glm::vec3& scale);
 
-		void scaleMapped(glm::vec3& scale);
-
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  rotate
 		/// prama		glm::vec3
 		//----------------------------------------------------------------------------------------------------------------------
 		void rotate(glm::vec3& rotate);
-
-		void rotateMapped(glm::vec3& rotate);
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief set if this is active, if not it is not updated, drawn or able to be selected
@@ -252,8 +209,7 @@ namespace GE
 		inline bool isActive() { return m_active; }
 
 	private:
-		std::unordered_map<ComponentType, shared<GE::Component>> m_components2;
-		std::vector<shared<Component>> m_components;
+		std::unordered_map<ComponentType, shared<GE::Component>> m_components;
 		std::vector<shared<GameObject>> m_childern;
 		weak<GE::Input::InputManager> m_input;
 		weak<GameObject> m_parent;

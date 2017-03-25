@@ -72,19 +72,19 @@ Application::Application()
 
 
 	// player1Paddle
-	transform = m_gameObjects.at("player1Paddle")->getMappedComponent<GE::Transform>(GE::kTransform);
+	transform = m_gameObjects.at("player1Paddle")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f, 1.0f, 1.0f));
 	transform->setPosition(glm::vec3(0.0f, -5.0f, -10.0f));
 	transform->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
-	m_gameObjects.at("player1Paddle")->addMappedComponent<GE::MeshRenderer>(GE::kMeshRenderer);
-	meshRenderer = m_gameObjects.at("player1Paddle")->getMappedComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+	m_gameObjects.at("player1Paddle")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer = m_gameObjects.at("player1Paddle")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
 	meshRenderer->setMesh(m_paddleObject);
 	meshRenderer->setTexture(m_paddleTexture);
 	meshRenderer->setProgram(m_shaderProgram);
 	meshRenderer->setMainCamera(m_camera);
-	m_gameObjects.at("player1Paddle")->addMappedComponent<GE::BoxCollider>(GE::kBoxCollider);
-	boxCollider = m_gameObjects.at("player1Paddle")->getMappedComponent<GE::BoxCollider>(GE::kBoxCollider);
+	m_gameObjects.at("player1Paddle")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider = m_gameObjects.at("player1Paddle")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
 	boxCollider->boundToObject(m_paddleObject);
 	boxCollider->recomputeBounds(transform->getPosition());
 	boxCollider->setScreenRes(m_scrennSize);
@@ -94,14 +94,14 @@ Application::Application()
 	transform->setScale(glm::vec3(1.0f, 1.0f, 1.0f));
 	transform->setPosition(glm::vec3(0.0f, -5.0f, -60.0f));
 	transform->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
-	m_gameObjects.at("player2Paddle")->addComponent<GE::MeshRenderer>();
+	m_gameObjects.at("player2Paddle")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("player2Paddle")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
 	meshRenderer->setMesh(m_paddleObject);
 	meshRenderer->setTexture(m_paddleTexture);
 	meshRenderer->setProgram(m_shaderProgram);
 	meshRenderer->setMainCamera(m_camera);
-	m_gameObjects.at("player2Paddle")->addComponent<GE::SphereCollider>();
+	m_gameObjects.at("player2Paddle")->addComponent<GE::SphereCollider>(GE::kSphereCollider);
 	sphereCollider = m_gameObjects.at("player2Paddle")->getComponentShared<GE::SphereCollider>(GE::kSphereCollider);
 	sphereCollider->boundToObject(m_paddleObject);
 	sphereCollider->setCenter(transform->getPosition());
@@ -111,26 +111,18 @@ Application::Application()
 	transform = m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f));
 	transform->setPosition(glm::vec3(0.0f, 5.0f, -20.0f));
-	m_gameObjects.at("ball")->addComponent<GE::MeshRenderer>();
+	m_gameObjects.at("ball")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("ball")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
 	meshRenderer->setMesh(m_sphereObject);
 	meshRenderer->setTexture(m_texture);
 	meshRenderer->setProgram(m_shaderProgram);
 	meshRenderer->setMainCamera(m_camera);
-	m_gameObjects.at("ball")->addComponent<GE::SphereCollider>();
+	m_gameObjects.at("ball")->addComponent<GE::SphereCollider>(GE::kSphereCollider);
 	sphereCollider = m_gameObjects.at("ball")->getComponentShared<GE::SphereCollider>(GE::kSphereCollider);
 	sphereCollider->boundToObject(m_sphereObject);
 	sphereCollider->setCenter(transform->getPosition());
 	sphereCollider->setRadius(transform->getScale().x);
-
-
-	// ------------- test ----------------
-	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("test"), mkShare<GE::GameObject>()));
-	transform = m_gameObjects.at("test")->getMappedComponent<GE::Transform>(GE::kTransform);
-	transform->setPosition(glm::vec3(1.0f, 1.0f, 1.0f));
-	m_gameObjects.at("test")->setChild(m_gameObjects.at("player1Paddle"));
-	// -----------------------------------
 
 
 	// ------------------- BULLET GAMEOBJECTS CONFIG ------------------- //
@@ -265,10 +257,7 @@ void Application::update(float& dt)
 
 	if (m_input->getKeyHeld("action"))
 	{
-		m_gameObjects.at("test")->rotate(glm::vec3(0, 180 * dt, 0));
-		m_gameObjects.at("test")->rotateMapped(glm::vec3(0, 180 * dt, 0));
-		shared<GE::Transform> tmpPtr = m_gameObjects.at("player1Paddle")->getComponentShared<GE::Transform>(GE::kTransform);
-		GE::consoleLog("player1Paddle pos ", tmpPtr->getPosition());
+
 	}
 
 	///-----stepsimulation_start-----
@@ -450,9 +439,6 @@ void Application::draw()
 		if (it->second->isActive())
 			it->second->draw();
 	}
-
-
-	m_gameObjects.at("player1Paddle")->drawMapped();
 
 	glutSwapBuffers();
 }

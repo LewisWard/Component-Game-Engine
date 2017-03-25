@@ -11,8 +11,7 @@ namespace GE
 		m_hasParent = false;
 		m_isSelected = false;
 		m_hasCollided = false;
-		addComponent<Transform>();
-		addMappedComponent<Transform>(GE::kTransform);
+		addComponent<Transform>(GE::kTransform);
 	}
 
 	GameObject::~GameObject()
@@ -51,104 +50,40 @@ namespace GE
 		glm::mat4 view;
 		glm::mat4 projection;
 
-		for (size_t i = 0; i < m_components.size(); i++)
+		shared<GE::Transform> trs = getComponentShared<GE::Transform>(kTransform);
+		model = trs->createTransform();
+		shared<GE::MeshRenderer> renderer = getComponentShared<GE::MeshRenderer>(kMeshRenderer);
+		shared<GE::BoxCollider> collider = getComponentShared<GE::BoxCollider>(kBoxCollider);
+
+		if (renderer != NULL)
 		{
-			if (kTransform == m_components.at(i).get()->m_type)
-			{
-				shared<GE::Transform> trs = getComponentShared<GE::Transform>(kTransform);
-				model = trs->createTransform();
-			}
+			shared<GE::Camera> camera(renderer->m_mainCamera);
+			view = camera->getView();
+			projection = camera->getProjection();
+			renderer->setMVPUniforms(model);
 
-			if (kMeshRenderer == m_components.at(i).get()->m_type)
-			{
-				shared<GE::MeshRenderer> renderer = getComponentShared<GE::MeshRenderer>(kMeshRenderer);
-				shared<GE::Camera> camera(renderer->m_mainCamera);
-				view = camera->getView();
-				projection = camera->getProjection();
-				renderer->setMVPUniforms(model);
-				
-				// if this gameobject is selected, apply a highlight colour
-				renderer->setColourOnSelection(glm::vec3(64.0f, 64.0f, 64.0f), m_isSelected);
-				renderer->setColourOnCollision(glm::vec3(128.0f, 0.0f, 0.0f), m_hasCollided);
+			// if this gameobject is selected, apply a highlight colour
+			renderer->setColourOnSelection(glm::vec3(64.0f, 64.0f, 64.0f), m_isSelected);
+			renderer->setColourOnCollision(glm::vec3(128.0f, 0.0f, 0.0f), m_hasCollided);
+			renderer->onDraw();
+		}
 
-				m_components[i]->onDraw();
-			}
-
-			if (kBoxCollider == m_components.at(i).get()->m_type)
-			{
-				shared<GE::BoxCollider> collider = getComponentShared<GE::BoxCollider>(kBoxCollider);
-				collider->setMVPUniforms(model, view, projection);
-				m_components[i]->onDraw();
-			}
+		if (collider != NULL)
+		{
+			collider->setMVPUniforms(model, view, projection);
+			collider->onDraw();
 		}
 	}
 
-	void GameObject::drawMapped()
-	{
-		glm::mat4 model;
-		glm::mat4 view;
-		glm::mat4 projection;
-
-		shared<GE::Transform> trs = getMappedComponent<GE::Transform>(kTransform);
-		GE::consoleLog("trs ", trs->getPosition());
-		model = trs->createTransform();
-		shared<GE::MeshRenderer> renderer = getMappedComponent<GE::MeshRenderer>(kMeshRenderer);
-		shared<GE::Camera> camera(renderer->m_mainCamera);
-		view = camera->getView();
-		projection = camera->getProjection();
-		renderer->setMVPUniforms(model);
-		
-		// if this gameobject is selected, apply a highlight colour
-		renderer->setColourOnSelection(glm::vec3(64.0f, 64.0f, 64.0f), m_isSelected);
-		renderer->setColourOnCollision(glm::vec3(128.0f, 0.0f, 0.0f), m_hasCollided);
-		renderer->onDraw();
-		//for (std::unordered_map<GE::ComponentType, shared<GE::Component>>::iterator it = m_components2.begin(); it != m_components2.end(); it++)
-		//	it->second->onDraw();
-
-			//if (kMeshRenderer == m_components.at(i).get()->m_type)
-			//{
-			//	shared<GE::MeshRenderer> renderer = getMappedComponent<GE::MeshRenderer>(kMeshRenderer);
-			//	shared<GE::Camera> camera(renderer->m_mainCamera);
-			//	view = camera->getView();
-			//	projection = camera->getProjection();
-			//	renderer->setMVPUniforms(model);
-			//
-			//	// if this gameobject is selected, apply a highlight colour
-			//	renderer->setColourOnSelection(glm::vec3(64.0f, 64.0f, 64.0f), m_isSelected);
-			//	renderer->setColourOnCollision(glm::vec3(128.0f, 0.0f, 0.0f), m_hasCollided);
-			//
-			//	m_components[i]->onDraw();
-			//}
-			//
-			//if (kBoxCollider == m_components.at(i).get()->m_type)
-			//{
-			//	shared<GE::BoxCollider> collider = getMappedComponent<GE::BoxCollider>(kBoxCollider);
-			//	collider->setMVPUniforms(model, view, projection);
-			//	m_components[i]->onDraw();
-			//}
-	}
 
 	void GameObject::removeComponent(ComponentType type)
 	{
-		for (size_t i = 0; i < m_components.size(); i++)
-		{
-			if (type == m_components.at(i).get()->m_type && type != kTransform)
-			{
-				m_components.erase(m_components.begin() + i);
-			}
-		}
-	}
-
-	void GameObject::removeMappedComponent(ComponentType type)
-	{
-		m_components2.erase(type);
+		m_components.erase(type);
 	}
 
 	void GameObject::onDelete()
 	{
-		m_components[0].reset();
 		m_components.clear();
-		m_components2.clear();
 	}
 
 	void GameObject::setChild(shared<GE::GameObject> GameObject)
@@ -182,36 +117,10 @@ namespace GE
 				m_childern.at(i)->translate(translate);
 	}
 
-	void GameObject::translateMapped(glm::vec3& translate)
-	{
-		// get the transform and update it
-		shared<GE::Transform> transform = getMappedComponent<GE::Transform>(GE::kTransform);
-		transform->translate(translate);
-
-		// if there are childern update them too
-		size_t childCount = m_childern.size();
-		if (childCount)
-			for (size_t i = 0; i < childCount; i++)
-				m_childern.at(i)->translate(translate);
-	}
-
 	void GameObject::scale(glm::vec3& scale)
 	{
 		// get the transform and update it
 		shared<GE::Transform> transform = getComponentShared<GE::Transform>(GE::kTransform);
-		transform->setScale(scale);
-
-		// if there are childern update them too
-		size_t childCount = m_childern.size();
-		if (childCount)
-			for (size_t i = 0; i < childCount; i++)
-				m_childern.at(i)->scale(scale);
-	}
-
-	void GameObject::scaleMapped(glm::vec3& scale)
-	{
-		// get the transform and update it
-		shared<GE::Transform> transform = getMappedComponent<GE::Transform>(GE::kTransform);
 		transform->setScale(scale);
 
 		// if there are childern update them too
@@ -265,90 +174,10 @@ namespace GE
 				{
 					size_t childCountR = m_childern.at(i)->m_childern.size();
 					shared<GE::Transform> transformR = getComponentShared<GE::Transform>(GE::kTransform);
-				
+
 					for (size_t ii = 0; ii < childCountR; ii++)
 					{
 						shared<GE::Transform> childTransformR = m_childern.at(i)->m_childern.at(ii)->getComponentShared<GE::Transform>(GE::kTransform);
-						glm::vec3 pivotR = childTransformR->getPosition() - transformR->getPosition();
-						glm::mat4 tmpR = childTransformR->createTransform();
-						glm::mat4 resultR;
-				
-						// which axis to rotate on
-						if (rotate.x)
-						{
-							resultR += glm::translate(-pivotR) *
-								glm::rotate(tmpR, glm::radians(rotate.x), glm::vec3(1, 0, 0)) *
-								glm::translate(pivotR);
-						}
-						if (rotate.y)
-						{
-							resultR += glm::translate(-pivotR) *
-								glm::rotate(tmpR, glm::radians(rotate.y), glm::vec3(0, 1, 0)) *
-								glm::translate(pivotR);
-						}
-						if (rotate.z)
-						{
-							resultR += glm::translate(-pivotR) *
-								glm::rotate(tmpR, glm::radians(rotate.z), glm::vec3(0, 0, 1)) *
-								glm::translate(pivotR);
-						}
-				
-						glm::vec3 finalPosR = result[3];
-						childTransformR->setPosition(finalPosR);
-					}
-				}
-			}
-	}
-
-
-	void GameObject::rotateMapped(glm::vec3& rotate)
-	{
-		// get the transform and update it
-		shared<GE::Transform> transform = getMappedComponent<GE::Transform>(GE::kTransform);
-		transform->setRotation(transform->getRotation() + rotate);
-
-		// if there are childern update them too
-		size_t childCount = m_childern.size();
-		if (childCount)
-			for (size_t i = 0; i < childCount; i++)
-			{
-				shared<GE::Transform> childTransform = m_childern.at(i)->getMappedComponent<GE::Transform>(GE::kTransform);
-				glm::vec3 pivot = childTransform->getPosition() - transform->getPosition();
-				glm::mat4 tmp = childTransform->createTransform();
-				glm::mat4 result;
-
-				// which axis to rotate on
-				if (rotate.x)
-				{
-					result += glm::translate(-pivot) *
-						glm::rotate(tmp, glm::radians(rotate.x), glm::vec3(1, 0, 0)) *
-						glm::translate(pivot);
-				}
-				if (rotate.y)
-				{
-					result += glm::translate(-pivot) *
-						glm::rotate(tmp, glm::radians(rotate.y), glm::vec3(0, 1, 0)) *
-						glm::translate(pivot);
-				}
-				if (rotate.z)
-				{
-					result += glm::translate(-pivot) *
-						glm::rotate(tmp, glm::radians(rotate.z), glm::vec3(0, 0, 1)) *
-						glm::translate(pivot);
-				}
-
-				glm::vec3 finalPos = result[3];
-				childTransform->setPosition(finalPos);
-
-				// do this child's children if it has any
-				if (m_childern.at(i)->hasChildern())
-				{
-					size_t childCountR = m_childern.at(i)->m_childern.size();
-					shared<GE::Transform> transformR = getMappedComponent<GE::Transform>(GE::kTransform);
-
-					for (size_t ii = 0; ii < childCountR; ii++)
-					{
-						shared<GE::Transform> childTransformR = m_childern.at(i)->m_childern.at(ii)->getMappedComponent<GE::Transform>(GE::kTransform);
 						glm::vec3 pivotR = childTransformR->getPosition() - transformR->getPosition();
 						glm::mat4 tmpR = childTransformR->createTransform();
 						glm::mat4 resultR;
