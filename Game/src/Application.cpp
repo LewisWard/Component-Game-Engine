@@ -58,8 +58,8 @@ Application::Application()
 	GE::Shader pixelShader(std::string(assetPath + m_config.data.shaderPaths[1]).c_str(), kPixelShader);
 	m_shaderProgram = mkShare<GE::Program>(vertexShader, pixelShader);
 
-	GE::Shader vertexShader2(std::string(assetPath + "shaders/collisionWireframe.vrt").c_str(), kVertexShader);
-	GE::Shader pixelShader2(std::string(assetPath + "shaders/collisionWireframe.pix").c_str(), kPixelShader);
+	GE::Shader vertexShader2(std::string(assetPath + "shaders/collisionWireframe.vrt.bin").c_str(), kVertexShader);
+	GE::Shader pixelShader2(std::string(assetPath + "shaders/collisionWireframe.pix.bin").c_str(), kPixelShader);
 	m_shaderProgramCollision = mkShare<GE::Program>(vertexShader2, pixelShader2);
 
 	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("cube"), mkShare<GE::GameObject>()));

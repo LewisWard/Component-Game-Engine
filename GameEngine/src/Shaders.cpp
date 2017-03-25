@@ -23,6 +23,7 @@ namespace GE
 
 	Shader::Shader(const char* source, kShaderType type)
 	{
+		// load binary or text file
 		// read in the source
 		m_source = loadShader(source);
 
@@ -107,6 +108,5 @@ namespace GE
 		}
 		return 0;
 	}
-
 
 }; /// end of namespace

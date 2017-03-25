@@ -51,7 +51,7 @@ namespace GE
 		inline uint32_t getShader() { return m_shader; }
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  a single shader
+		/// \brief  a single shader from file
 		/// prama		char* soure filename
 		/// \return	char* soure if successful, 0 if not
 		//----------------------------------------------------------------------------------------------------------------------
