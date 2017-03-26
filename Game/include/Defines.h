@@ -17,3 +17,4 @@
 #define SHOW_MOUSE 1
 #define MULTI_KEY_HIGHER 1
 #define MULTI_KEY_LOWER -1
+#define MULTI_KEY_NONE 0
