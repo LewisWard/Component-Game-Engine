@@ -6,7 +6,7 @@
 #include "Transform.h"
 #include "MeshRenderer.h"
 #include "BoxCollider.h"
-#include "CollisionShape.h"
+#include "RigidBody.h"
 #include "glm\gtx\rotate_vector.hpp"
 #include <algorithm>
 

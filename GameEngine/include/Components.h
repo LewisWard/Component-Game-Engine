@@ -24,6 +24,7 @@ namespace GE
 		kBoxCollider,
 		kSphereCollider,
 		kCollisionShape,
+		kRigidBody,
 	};
 
 	//----------------------------------------------------------------------------------------------------------------------

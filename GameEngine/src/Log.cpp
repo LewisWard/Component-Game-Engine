@@ -22,3 +22,9 @@ void GE::consoleLog(const char * msg, glm::vec4 v)
 {
 	std::cout << msg << " " << v.x << " " << v.y << " " << v.z << " " << v.w << std::endl;
 }
+
+void GE::consoleLog(const char* msg, btVector3 v)
+{
+	std::cout << msg << " " << v.getX() << " " << v.getY() << " " << v.getZ() << std::endl;
+}
+

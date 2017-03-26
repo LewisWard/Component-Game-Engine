@@ -34,12 +34,10 @@ Application::Application()
 
 	// provide a high level interface that manages the physics objects and implements the update of all objects each frame
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
-	dynamicsWorld->setGravity(btVector3(0, -10, 0));
+	dynamicsWorld->setGravity(btVector3(0, 0, 0));
 
 
 	// ------------------- BULLET SET    ------------------- //
-
-
 
 	m_texture = mkShare<GEC::Texture>(std::string(assetPath + m_config.data.texturePaths[0]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
 	m_paddleTexture = mkShare<GEC::Texture>(std::string(assetPath + m_config.data.texturePaths[1]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
@@ -57,8 +55,8 @@ Application::Application()
 	GE::Shader pixelShader(std::string(assetPath + m_config.data.shaderPaths[1]).c_str(), kPixelShader);
 	m_shaderProgram = mkShare<GE::Program>(vertexShader, pixelShader);
 
-	GE::Shader vertexShader2(std::string(assetPath + "shaders/collisionWireframe.vrt.bin").c_str(), kVertexShader);
-	GE::Shader pixelShader2(std::string(assetPath + "shaders/collisionWireframe.pix.bin").c_str(), kPixelShader);
+	GE::Shader vertexShader2(std::string(assetPath + "shaders/collisionWireframe.vrt").c_str(), kVertexShader);
+	GE::Shader pixelShader2(std::string(assetPath + "shaders/collisionWireframe.pix").c_str(), kPixelShader);
 	m_shaderProgramCollision = mkShare<GE::Program>(vertexShader2, pixelShader2);
 
 	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("player1Paddle"), mkShare<GE::GameObject>()));
@@ -70,6 +68,7 @@ Application::Application()
 	shared<GE::BoxCollider> boxCollider;
 	shared<GE::SphereCollider> sphereCollider;
 	shared<GE::CollisionShape> collisionShape;
+	shared<GE::RidigBody> rigidBody;
 
 	// player1Paddle
 	transform = m_gameObjects.at("player1Paddle")->getComponentShared<GE::Transform>(GE::kTransform);
@@ -126,7 +125,12 @@ Application::Application()
 	sphereCollider->boundToObject(m_sphereObject);
 	sphereCollider->setCenter(transform->getPosition());
 	sphereCollider->setRadius(transform->getScale().x);
-
+	m_gameObjects.at("ball")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape = m_gameObjects.at("ball")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape->createShape(btSphereShape(btScalar(transform->getScale().x)));
+	m_gameObjects.at("ball")->addComponent<GE::RidigBody>(GE::kRigidBody);
+	rigidBody = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
+	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 1.0f);
 
 	// ------------------- BULLET GAMEOBJECTS CONFIG ------------------- //
 	{
@@ -171,32 +175,9 @@ Application::Application()
 
 
 	{
-		//create a dynamic rigidbody
-		transform = m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform);
-		btCollisionShape* colShape = new btSphereShape(btScalar(transform->getScale().x));
-		collisionShapes.push_back(colShape);
-
-		/// Create Dynamic Objects
-		btTransform startTransform;
-		startTransform.setIdentity();
-
-		btScalar	mass(1.f);
-
-		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
-
-		btVector3 localInertia(0, 0, 0);
-		if (isDynamic)
-			colShape->calculateLocalInertia(mass, localInertia);
-
-		startTransform.setOrigin(btVector3(transform->getPosition().x, transform->getPosition().y, transform->getPosition().z));
-
-		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-		btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
-		btRigidBody* body = new btRigidBody(rbInfo);
-
-		dynamicsWorld->addRigidBody(body);
+		// set up the ball and add rigidBody to dynamics world
+		m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(btVector3(0, 0, -2));
+		dynamicsWorld->addRigidBody(m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
 	}
 	// ------------------- BULLET GAMEOBJECTS CONFIGED ------------------- //
 
@@ -210,7 +191,7 @@ Application::Application()
 Application::~Application()
 {
 	//remove the rigidbodies from the dynamics world and delete them
-	for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
+	for (int i = dynamicsWorld->getNumCollisionObjects() - 2; i >= 0; i--)
 	{
 		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
 		btRigidBody* body = btRigidBody::upcast(obj);
@@ -237,6 +218,7 @@ Application::~Application()
 void Application::update(float& dt)
 {
 	static float refreshDT = 0.0f;
+	btTransform updateTransform;
 	refreshDT += dt;
 
 	// update input
@@ -258,45 +240,37 @@ void Application::update(float& dt)
 	{
 		dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 
-		//print positions of all objects
-		for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
-		{
-			btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
-			btRigidBody* body = btRigidBody::upcast(obj);
-			btTransform trans;
-			if (body && body->getMotionState())
-			{
-				body->getMotionState()->getWorldTransform(trans);
+		////print positions of all objects
+		//for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
+		//{
+		//	btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
+		//	btRigidBody* body = btRigidBody::upcast(obj);
+		//	btTransform trans;
+		//	if (body && body->getMotionState())
+		//	{
+		//		body->getMotionState()->getWorldTransform(trans);
+		//
+		//	}
+		//	else
+		//	{
+		//		trans = obj->getWorldTransform();
+		//	}
+		//}
 
-			}
-			else
-			{
-				trans = obj->getWorldTransform();
-			}
-		}
+		// get the RigidBody world transform after simulation update
+		m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getBodyWorldTransform(updateTransform);
+
+
+		// update Transform Component with changes from Bullet Engine
+		btVector3 origin = updateTransform.getOrigin();
+		glm::vec3 glmOrigin(origin.getX(), origin.getY(), origin.getZ());
+		m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform)->setPosition(glmOrigin);
 	}
 
 
-		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[2];
-		btRigidBody* body = btRigidBody::upcast(obj);
-		btTransform trans;
-		if (body && body->getMotionState())
-		{
-			body->getMotionState()->getWorldTransform(trans);
-
-		}
-		else
-		{
-			trans = obj->getWorldTransform();
-		}
-
-
-		shared<GE::Transform> objectTransform = m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform);
-		btVector3 origin = trans.getOrigin();
-		glm::vec3 glmOrigin(origin.getX(), origin.getY(), origin.getZ());
-		objectTransform->setPosition(glmOrigin);
-		m_gameObjects.at("ball")->setInput(m_input);
-		m_gameObjects.at("ball")->update(dt);
+	// update
+	m_gameObjects.at("ball")->setInput(m_input);
+	m_gameObjects.at("ball")->update(dt);
 }
 
 void Application::draw()
