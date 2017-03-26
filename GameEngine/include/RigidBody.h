@@ -43,16 +43,35 @@ namespace GE
 			}
 		}
 
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  Get the RigidBody
+		/// \return shared<btRigidBody>
+		//----------------------------------------------------------------------------------------------------------------------
+		inline shared<btRigidBody> getRigidBody() { return m_body; }
 
-		shared<btRigidBody> getRigidBody() { return m_body; }
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  Get the RigidBody's motion state
+		/// \return shared<btDefaultMotionState>
+		//----------------------------------------------------------------------------------------------------------------------
+		inline shared<btDefaultMotionState> getMotionState() { return m_motionState; }
 
-		shared<btDefaultMotionState> getMotionState() { return m_motionState; }
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  Get the RigidBody's local inertia
+		/// \return btVector3
+		//----------------------------------------------------------------------------------------------------------------------
+		inline btVector3 getLocalInertia() { return m_localInertia; }
 
-		btVector3 getLocalInertia() { return m_localInertia; }
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  Get the RigidBody's mass
+		/// \return btScalar
+		//----------------------------------------------------------------------------------------------------------------------
+		inline btScalar getMass() { return m_mass; }
 
-		btScalar getMass() { return m_mass; }
-
-		bool isDynamic() { return m_isDynamic; }
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  Get if the RigidBody is dynamic
+		/// \return bool, true if dynamic
+		//----------------------------------------------------------------------------------------------------------------------
+		inline bool isDynamic() { return m_isDynamic; }
 
 	private:
 		shared<btRigidBody> m_body;
