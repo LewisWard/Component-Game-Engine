@@ -14,6 +14,7 @@ namespace GE
 		GE::Shader vertexShader(std::string(assetPath + "shaders/collisionWireframe.vrt").c_str(), kVertexShader);
 		GE::Shader pixelShader(std::string(assetPath + "shaders/collisionWireframe.pix").c_str(), kPixelShader);
 		m_shaderProgram = mkShare<GE::Program>(vertexShader, pixelShader);
+		m_enableDraw = false;
 	}
 
 	BoxCollider::BoxCollider(glm::vec3 center, glm::vec3 size)
@@ -25,6 +26,7 @@ namespace GE
 		GE::Shader vertexShader(std::string(assetPath + "shaders/collisionWireframe.vrt").c_str(), kVertexShader);
 		GE::Shader pixelShader(std::string(assetPath + "shaders/collisionWireframe.pix").c_str(), kPixelShader);
 		m_shaderProgram = mkShare<GE::Program>(vertexShader, pixelShader);
+		m_enableDraw = false;
 	}
 
 	BoxCollider::~BoxCollider()
@@ -33,23 +35,26 @@ namespace GE
 
 	void BoxCollider::onDraw()
 	{
-		m_shaderProgram->bind();
-		m_shaderProgram->uniform3f("wireframeColour", 128.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f);
-		const float* offset = 0;
-		glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer->getVBO());
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexBuffer->getIBO());
-		glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(vertexNormalUV), offset);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, true, sizeof(vertexNormalUV), offset + 3);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(2, 2, GL_FLOAT, true, sizeof(vertexNormalUV), offset + 6);
-		glEnableVertexAttribArray(2);
-		glDrawElements(GL_LINES, (GLsizei)m_indexCount, GL_UNSIGNED_INT, 0);
-		glDisableVertexAttribArray(2);
-		glDisableVertexAttribArray(1);
-		glDisableVertexAttribArray(0);
+		if (m_enableDraw)
+		{
+			m_shaderProgram->bind();
+			m_shaderProgram->uniform3f("wireframeColour", 128.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f);
+			const float* offset = 0;
+			glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer->getVBO());
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexBuffer->getIBO());
+			glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(vertexNormalUV), offset);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(1, 3, GL_FLOAT, true, sizeof(vertexNormalUV), offset + 3);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(2, 2, GL_FLOAT, true, sizeof(vertexNormalUV), offset + 6);
+			glEnableVertexAttribArray(2);
+			glDrawElements(GL_LINES, (GLsizei)m_indexCount, GL_UNSIGNED_INT, 0);
+			glDisableVertexAttribArray(2);
+			glDisableVertexAttribArray(1);
+			glDisableVertexAttribArray(0);
 
-		m_shaderProgram->unbind();
+			m_shaderProgram->unbind();
+		}
 	}
 
 	void BoxCollider::boundToObject(shared<GEC::ObjObject> obj)

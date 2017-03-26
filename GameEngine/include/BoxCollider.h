@@ -103,6 +103,11 @@ namespace GE
 		//----------------------------------------------------------------------------------------------------------------------
 		void recomputeBounds(const glm::vec3& newPosition);
 
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief debug draw on or off
+		/// prama bool
+		//----------------------------------------------------------------------------------------------------------------------
+		inline void toggleDraw(bool draw) { m_enableDraw = draw; }
 
 	public:
 		GEC::AABB m_boundingBox;
@@ -117,6 +122,7 @@ namespace GE
 		shared<GEC::VertexBuffer> m_vertexBuffer;
 		shared<GE::Program> m_shaderProgram;
 		int m_indexCount;
+		bool m_enableDraw;
 	};
 };
 
