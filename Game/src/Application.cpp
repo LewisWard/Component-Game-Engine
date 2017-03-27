@@ -50,7 +50,7 @@ Application::Application()
 	glEnable(GL_TEXTURE_2D);
 	glCullFace(GL_BACK);
 
-	m_camera = mkShare<GE::Camera>(glm::vec3(0, 5, 0), glm::vec3(0, 0, -30.0f), m_scrennSize, 45.0f, 0.1f, 100.0f);
+	m_camera = mkShare<GE::Camera>(glm::vec3(0, 15, 30), glm::vec3(0, 20, -30.0f), m_scrennSize, 45.0f, 0.1f, 400.0f);
 	m_debugDraw.setDebugCamera(m_camera);
 
 	GE::Shader vertexShader(std::string(assetPath + m_config.data.shaderPaths[0]).c_str(), kVertexShader);
@@ -65,6 +65,11 @@ Application::Application()
 	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("player2Paddle"), mkShare<GE::GameObject>()));
 	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("ball"), mkShare<GE::GameObject>()));
 	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("wallBottom"), mkShare<GE::GameObject>()));
+	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("wallLeft"), mkShare<GE::GameObject>()));
+	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("wallTop"), mkShare<GE::GameObject>()));
+	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("wallRight"), mkShare<GE::GameObject>()));
+	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("player1Goal"), mkShare<GE::GameObject>()));
+	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("player2Goal"), mkShare<GE::GameObject>()));
 
 	shared<GE::Transform> transform;
 	shared<GE::MeshRenderer> meshRenderer;
@@ -76,7 +81,7 @@ Application::Application()
 	// player1Paddle
 	transform = m_gameObjects.at("player1Paddle")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f, 1.0f, 1.0f));
-	transform->setPosition(glm::vec3(0.0f, 0.0f, -20.0f));
+	transform->setPosition(glm::vec3(0.0f, 10.0f, 0.0f));
 	transform->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	m_gameObjects.at("player1Paddle")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("player1Paddle")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -101,7 +106,7 @@ Application::Application()
 	// player2Paddle
 	transform = m_gameObjects.at("player2Paddle")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f, 1.0f, 1.0f));
-	transform->setPosition(glm::vec3(0.0f, 0.0f, -60.0f));
+	transform->setPosition(glm::vec3(0.0f, 10.0f, -50.0f));
 	transform->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	m_gameObjects.at("player2Paddle")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("player2Paddle")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -126,7 +131,7 @@ Application::Application()
 	// ball
 	transform = m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f));
-	transform->setPosition(glm::vec3(0.0f, 0.0f, -30.0f));
+	transform->setPosition(glm::vec3(0.0f, 10.0f, -25.0f));
 	m_gameObjects.at("ball")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("ball")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
@@ -146,10 +151,10 @@ Application::Application()
 	rigidBody = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
 	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 1.0f);
 
-	//  wall bottom
+	//  walls
 	transform = m_gameObjects.at("wallBottom")->getComponentShared<GE::Transform>(GE::kTransform);
-	transform->setScale(glm::vec3(10.0f, 10.0f, 10.0f));
-	transform->setPosition(glm::vec3(0.0f, -5.0f, -20.0f));
+	transform->setScale(glm::vec3(20.0f, 20.0f, 40.0f));
+	transform->setPosition(glm::vec3(0.0f, 0.0f, -20.0f));
 	transform->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	m_gameObjects.at("wallBottom")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("wallBottom")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -158,33 +163,127 @@ Application::Application()
 	meshRenderer->setTexture(m_texture);
 	meshRenderer->setProgram(m_shaderProgram);
 	meshRenderer->setMainCamera(m_camera);
-	//boxCollider = m_gameObjects.at("wallBottom")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
-	//boxCollider->boundToObject(m_wallObject);
-	//boxCollider->recomputeBounds(transform->getPosition());
-	//boxCollider->setScreenRes(m_scrennSize);
-	//aabbSize = glm::vec3(boxCollider->m_boundingBox.extents);
-	//m_gameObjects.at("wallBottom")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
-	//collisionShape = m_gameObjects.at("wallBottom")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
-	//collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.x), btScalar(aabbSize.y), btScalar(aabbSize.z))));
-	//m_gameObjects.at("wallBottom")->addComponent<GE::RidigBody>(GE::kRigidBody);
-	//rigidBody = m_gameObjects.at("wallBottom")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
-	//rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
+	m_gameObjects.at("wallBottom")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider = m_gameObjects.at("wallBottom")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider->setScale(transform->getScale());
+	boxCollider->boundToObject(m_wallObject);
+	boxCollider->recomputeBounds(transform->getPosition());
+	boxCollider->setScreenRes(m_scrennSize);
+	aabbSize = glm::vec3(boxCollider->m_boundingBox.extents);
+	m_gameObjects.at("wallBottom")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape = m_gameObjects.at("wallBottom")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.x), btScalar(aabbSize.y), btScalar(aabbSize.z))));
+	m_gameObjects.at("wallBottom")->addComponent<GE::RidigBody>(GE::kRigidBody);
+	rigidBody = m_gameObjects.at("wallBottom")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
+	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
+
+	transform = m_gameObjects.at("wallLeft")->getComponentShared<GE::Transform>(GE::kTransform);
+	transform->setScale(glm::vec3(16.0f, 20.0f, 40.0f));
+	transform->setPosition(glm::vec3(-20.0f, 15.0f, -20.0f));
+	transform->setRotation(glm::vec3(0.0f, 0.0f, 90.0f));
+	m_gameObjects.at("wallLeft")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer = m_gameObjects.at("wallLeft")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer->setScreenRes(m_scrennSize);
+	meshRenderer->setMesh(m_wallObject);
+	meshRenderer->setTexture(m_texture);
+	meshRenderer->setProgram(m_shaderProgram);
+	meshRenderer->setMainCamera(m_camera);
+	m_gameObjects.at("wallLeft")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider = m_gameObjects.at("wallLeft")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider->setScale(transform->getScale());
+	boxCollider->boundToObject(m_wallObject);
+	boxCollider->recomputeBounds(transform->getPosition());
+	boxCollider->setScreenRes(m_scrennSize);
+	aabbSize = glm::vec3(boxCollider->m_boundingBox.extents);
+	m_gameObjects.at("wallLeft")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape = m_gameObjects.at("wallLeft")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.y), btScalar(aabbSize.x), btScalar(aabbSize.z)))); // could use a OBB and recalulate entents but as its a 90 degree rotation on 1 axis, just swap x and y
+	m_gameObjects.at("wallLeft")->addComponent<GE::RidigBody>(GE::kRigidBody);
+	rigidBody = m_gameObjects.at("wallLeft")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
+	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
+	
+	transform = m_gameObjects.at("wallTop")->getComponentShared<GE::Transform>(GE::kTransform);
+	transform->setScale(glm::vec3(20.0f, 20.0f, 40.0f));
+	transform->setPosition(glm::vec3(0.0f, 32.0f, -20.0f));
+	transform->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+	m_gameObjects.at("wallTop")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer = m_gameObjects.at("wallTop")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer->setScreenRes(m_scrennSize);
+	meshRenderer->setMesh(m_wallObject);
+	meshRenderer->setTexture(m_texture);
+	meshRenderer->setProgram(m_shaderProgram);
+	meshRenderer->setMainCamera(m_camera);
+	m_gameObjects.at("wallTop")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider = m_gameObjects.at("wallTop")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider->setScale(transform->getScale());
+	boxCollider->boundToObject(m_wallObject);
+	boxCollider->recomputeBounds(transform->getPosition());
+	boxCollider->setScreenRes(m_scrennSize);
+	aabbSize = glm::vec3(boxCollider->m_boundingBox.extents);
+	m_gameObjects.at("wallTop")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape = m_gameObjects.at("wallTop")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.x), btScalar(aabbSize.y), btScalar(aabbSize.z))));
+	m_gameObjects.at("wallTop")->addComponent<GE::RidigBody>(GE::kRigidBody);
+	rigidBody = m_gameObjects.at("wallTop")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
+	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
+	
+	transform = m_gameObjects.at("wallRight")->getComponentShared<GE::Transform>(GE::kTransform);
+	transform->setScale(glm::vec3(16.0f, 20.0f, 40.0f));
+	transform->setPosition(glm::vec3(20.f, 15.f, -20.f));
+	transform->setRotation(glm::vec3(0.0f, 0.0f, 90.0f));
+	m_gameObjects.at("wallRight")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer = m_gameObjects.at("wallRight")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer->setScreenRes(m_scrennSize);
+	meshRenderer->setMesh(m_wallObject);
+	meshRenderer->setTexture(m_texture);
+	meshRenderer->setProgram(m_shaderProgram);
+	meshRenderer->setMainCamera(m_camera);
+	m_gameObjects.at("wallRight")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider = m_gameObjects.at("wallRight")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider->setScale(transform->getScale());
+	boxCollider->boundToObject(m_wallObject);
+	boxCollider->recomputeBounds(transform->getPosition());
+	boxCollider->setScreenRes(m_scrennSize);
+	aabbSize = glm::vec3(boxCollider->m_boundingBox.extents);
+	m_gameObjects.at("wallRight")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape = m_gameObjects.at("wallRight")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.y), btScalar(aabbSize.x), btScalar(aabbSize.z))));
+	m_gameObjects.at("wallRight")->addComponent<GE::RidigBody>(GE::kRigidBody);
+	rigidBody = m_gameObjects.at("wallRight")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
+	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
+
+	// goals
+	transform = m_gameObjects.at("player1Goal")->getComponentShared<GE::Transform>(GE::kTransform);
+	transform->setScale(glm::vec3(20.0f, 20.0f, 40.0f));
+	transform->setPosition(glm::vec3(0.f, -5.0f, -60.f));
+	transform->setRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+	m_gameObjects.at("player1Goal")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer = m_gameObjects.at("player1Goal")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer->setScreenRes(m_scrennSize);
+	meshRenderer->setMesh(m_wallObject);
+	meshRenderer->setTexture(m_texture);
+	meshRenderer->setProgram(m_shaderProgram);
+	meshRenderer->setMainCamera(m_camera);
+	m_gameObjects.at("player1Goal")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider = m_gameObjects.at("player1Goal")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider->setScale(transform->getScale());
+	boxCollider->boundToObject(m_wallObject);
+	boxCollider->recomputeBounds(transform->getPosition());
+	boxCollider->setScreenRes(m_scrennSize);
+	aabbSize = glm::vec3(boxCollider->m_boundingBox.extents);
+	m_gameObjects.at("player1Goal")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape = m_gameObjects.at("player1Goal")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.x), btScalar(aabbSize.z), btScalar(aabbSize.y))));
+	m_gameObjects.at("player1Goal")->addComponent<GE::RidigBody>(GE::kRigidBody);
+	rigidBody = m_gameObjects.at("player1Goal")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
+	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
 
 
 	// ------------------- BULLET GAMEOBJECTS CONFIG ------------------- //
 	// paddles
 	{
-		// set up the ball and add rigidBody to dynamics world
-		shared<GE::RidigBody> rBody = m_gameObjects.at("player1Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
 		dynamicsWorld->addRigidBody(m_gameObjects.at("player1Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
-		rBody = m_gameObjects.at("player2Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
-		dynamicsWorld->addRigidBody(rBody->getRigidBody().get());
-	}
-
-	// walls
-	{
-		// set up the ball and add rigidBody to dynamics world
-		//dynamicsWorld->addRigidBody(m_gameObjects.at("wallBottom")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
+		dynamicsWorld->addRigidBody(m_gameObjects.at("player2Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody->getRigidBody().get());
 	}
 
 	// ball
@@ -194,6 +293,19 @@ Application::Application()
 		dynamicsWorld->addRigidBody(m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
 	}
 
+	// walls
+	{
+		// set up the ball and add rigidBody to dynamics world
+		dynamicsWorld->addRigidBody(m_gameObjects.at("wallBottom")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
+		dynamicsWorld->addRigidBody(m_gameObjects.at("wallLeft")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
+		dynamicsWorld->addRigidBody(m_gameObjects.at("wallTop")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
+		dynamicsWorld->addRigidBody(m_gameObjects.at("wallRight")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
+	}
+	// goals
+	{
+		// set up the ball and add rigidBody to dynamics world
+		dynamicsWorld->addRigidBody(m_gameObjects.at("player1Goal")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());;
+	}
 	// ------------------- BULLET GAMEOBJECTS CONFIGED ------------------- //
 
 
@@ -339,7 +451,6 @@ void Application::update(float& dt)
 	{
 		btTransform bttransform = m_gameObjects.at("player1Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->getWorldTransform();
 		glmOrigin = glm::vec3(bttransform.getOrigin().getX(), bttransform.getOrigin().getY(), bttransform.getOrigin().getZ());
-		GE::consoleLog("glmOrigin ", glmOrigin);
 		m_gameObjects.at("player1Paddle")->getComponentShared<GE::Transform>(GE::kTransform)->setPosition(glmOrigin);
 	}
 
@@ -406,16 +517,20 @@ btVector3 Application::getOverlappingGameObjects(std::string& keyA, std::string&
 		if (it->second->isActive() && keyA.empty() || keyB.empty())
 		{
 			shared<GE::RidigBody> rbBody = it->second->getComponentShared<GE::RidigBody>(GE::kRigidBody);
-			btTransform bttransform = rbBody->getRigidBody()->getWorldTransform();
-			btVector3 oA = objectA->getWorldTransform().getOrigin();
-			btVector3 oB = objectB->getWorldTransform().getOrigin();
 
-			// which key matches this transform
-			if (oA == bttransform.getOrigin())
-				keyA = it->first;
+			if (rbBody != NULL)
+			{
+				btTransform bttransform = rbBody->getRigidBody()->getWorldTransform();
+				btVector3 oA = objectA->getWorldTransform().getOrigin();
+				btVector3 oB = objectB->getWorldTransform().getOrigin();
 
-			if (oB == bttransform.getOrigin())
-				keyB = it->first;
+				// which key matches this transform
+				if (oA == bttransform.getOrigin())
+					keyA = it->first;
+
+				if (oB == bttransform.getOrigin())
+					keyB = it->first;
+			}
 		}
 		else
 			break;
