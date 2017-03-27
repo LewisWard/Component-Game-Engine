@@ -97,7 +97,7 @@ Application::Application()
 	collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.x), btScalar(aabbSize.y), btScalar(aabbSize.z))));
 	m_gameObjects.at("player1Paddle")->addComponent<GE::RidigBody>(GE::kRigidBody);
 	rigidBody = m_gameObjects.at("player1Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
-	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
+	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 1.0f);
 
 	// player2Paddle
 	transform = m_gameObjects.at("player2Paddle")->getComponentShared<GE::Transform>(GE::kTransform);
@@ -237,6 +237,32 @@ void Application::update(float& dt)
 	{
 	}
 
+	// apply velocity to the the paddle
+	shared<btRigidBody> paddle1 = m_gameObjects.at("player1Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody();
+	if (m_input->getKeyHeld("movementVert") == MULTI_KEY_HIGHER)
+	{
+		// don't keep updating velocity if it's the same
+		if (paddle1->getLinearVelocity().getY() == 0.0f)
+			paddle1->setLinearVelocity(btVector3(0, 1, 0));
+		//GE::consoleLog("MULTI_KEY_HIGHER", paddle1->getLinearVelocity());
+	}
+	// apply velocity to the the paddle
+	if (m_input->getKeyHeld("movementVert") == MULTI_KEY_LOWER)
+	{
+		// don't keep updating velocity if it's the same
+		if (paddle1->getLinearVelocity().getY() == 0.0f)
+			paddle1->setLinearVelocity(btVector3(0, -1, 0));
+		//GE::consoleLog("MULTI_KEY_LOWER");
+	}
+	// apply velocity to the the paddle
+	if (m_input->getKeyHeld("movementVert") == MULTI_KEY_NONE)
+	{
+		// don't keep updating velocity if it's the same
+		if (paddle1->getLinearVelocity().getY() != 0.0f)
+			paddle1->setLinearVelocity(btVector3(0, 0, 0));
+		//GE::consoleLog("MULTI_KEY_NONE");
+	}
+
 
 	///-----stepsimulation_start-----
 	{
@@ -276,53 +302,20 @@ void Application::update(float& dt)
 			}
 		}
 
+		//m_gameObjects.at("player1Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getBodyWorldTransform(updateTransform);
+		shared<GE::RidigBody> rbBody = m_gameObjects.at("player1Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
+		btTransform bttransform = rbBody->getRigidBody()->getWorldTransform();
 
-		// apply velocity to the the paddle
-		shared<btRigidBody> paddle1 = m_gameObjects.at("player1Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody();
-		if (m_input->getKeyHeld("movementVert") == MULTI_KEY_HIGHER)
-		{
-			// don't keep updating velocity if it's the same
-			if (paddle1->getLinearVelocity().getY() == 0.0f)
-				paddle1->setLinearVelocity(btVector3(0, 1, 0));
-		}
-		// apply velocity to the the paddle
-		if (m_input->getKeyHeld("movementVert") == MULTI_KEY_LOWER)
-		{
-			// don't keep updating velocity if it's the same
-			if (paddle1->getLinearVelocity().getY() == 0.0f)
-				paddle1->setLinearVelocity(btVector3(0, -1, 0));
-		}
-		// apply velocity to the the paddle
-		if(m_input->getKeyHeld("movementVert") == MULTI_KEY_NONE)
-		{
-			// don't keep updating velocity if it's the same
-			if (paddle1->getLinearVelocity().getY() != 0.0f)
-				paddle1->setLinearVelocity(btVector3(0, 0, 0));
-		}
-
-		// if the paddle has been hit by the ball and moved from it's starting position, move it back as close as we can to it's original position
-		//if (paddle1->getWorldTransform().getOrigin().getZ() >= -20.0f)
-		//{
-		//	paddle1->setLinearVelocity(btVector3(0, 0, -1));
-		//}
-		//else
-		//{
-		//	paddle1->setLinearVelocity(btVector3(0, 0, 0));
-		//}
-
-		//GE::consoleLog("getLinearVelocity ", m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->getLinearVelocity());
-
-
-		m_gameObjects.at("player1Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getBodyWorldTransform(updateTransform);
 
 		// update Transform Component with changes from Bullet Engine
 		btVector3 origin = updateTransform.getOrigin();
-		glm::vec3 glmOrigin(origin.getX(), origin.getY(), origin.getZ());
+		glm::vec3 glmOrigin(bttransform.getOrigin().getX(), bttransform.getOrigin().getY(), bttransform.getOrigin().getZ());
 		//GE::consoleLog("glmOrigin ", glmOrigin);
 		m_gameObjects.at("player1Paddle")->getComponentShared<GE::Transform>(GE::kTransform)->setPosition(glmOrigin);
 
 
 		m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getBodyWorldTransform(updateTransform);
+
 
 		// update Transform Component with changes from Bullet Engine
 		origin = updateTransform.getOrigin();
@@ -487,21 +480,23 @@ void Application::getOverlappingGameObjects(std::string& keyA, std::string& keyB
 	// find which GameObject these two objects are
 	for (std::unordered_map<std::string, shared<GE::GameObject>>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); it++)
 	{
-		if (it->second->isActive())
+		// gameObject is active else breaks once both keys are found
+		if (it->second->isActive() && keyA.empty() || keyB.empty())
 		{
-			shared<GE::Transform> transform = it->second->getComponentShared<GE::Transform>(GE::kTransform);
-			glm::vec3 originA(objectA->getWorldTransform().getOrigin().getX(), objectA->getWorldTransform().getOrigin().getY(), objectA->getWorldTransform().getOrigin().getZ());
-			if (originA == transform->getPosition())
-			{
-				keyA = it->first;
-			}
+			shared<GE::RidigBody> rbBody = it->second->getComponentShared<GE::RidigBody>(GE::kRigidBody);
+			btTransform bttransform = rbBody->getRigidBody()->getWorldTransform();
+			btVector3 oA = objectA->getWorldTransform().getOrigin();
+			btVector3 oB = objectB->getWorldTransform().getOrigin();
 
-			glm::vec3 originB(objectB->getWorldTransform().getOrigin().getX(), objectB->getWorldTransform().getOrigin().getY(), objectB->getWorldTransform().getOrigin().getZ());
-			if (originB == transform->getPosition())
-			{
+			// which key matches this transform
+			if (oA == bttransform.getOrigin())
+				keyA = it->first;
+
+			if (oB == bttransform.getOrigin())
 				keyB = it->first;
-			}
 		}
+		else
+			break;
 	}
 }
 
