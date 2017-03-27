@@ -72,7 +72,7 @@ private:
 	/// \param  std::string empty string (key) to fill
 	/// \param  std::string empty string (key) to fill
 	/// \param  int pair ID
-	/// \return int number of overlapping objects pairs (i.e. 2 objects equals 1 pair)
+	/// \return btVector3 normal at collision point of oebject B, int number of overlapping objects pairs (i.e. 2 objects equals 1 pair)
 	//----------------------------------------------------------------------------------------------------------------------
-	void getOverlappingGameObjects(std::string& keyA, std::string& keyB, int pairNumber);
+	btVector3 getOverlappingGameObjects(std::string& keyA, std::string& keyB, int pairNumber);
 };
