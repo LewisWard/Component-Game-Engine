@@ -8,6 +8,7 @@ namespace GE
 	BoxCollider::BoxCollider()
 	{
 		m_type = kBoxCollider;
+		m_axisAligned = true;
 		m_boundingBox = GEC::AABB(glm::vec3(0.0f), glm::vec3(1.0f));
 		makeVertexBuffer();
 		std::string assetPath(ENGINEASSETS);
@@ -15,11 +16,13 @@ namespace GE
 		GE::Shader pixelShader(std::string(assetPath + "shaders/collisionWireframe.pix").c_str(), kPixelShader);
 		m_shaderProgram = mkShare<GE::Program>(vertexShader, pixelShader);
 		m_enableDraw = false;
+		m_scale = glm::vec3(1.0f);
 	}
 
 	BoxCollider::BoxCollider(glm::vec3 center, glm::vec3 size)
 	{
 		m_type = kBoxCollider;
+		m_axisAligned = true;
 		m_boundingBox = GEC::AABB(center, size);
 		makeVertexBuffer();
 		std::string assetPath(ENGINEASSETS);
@@ -27,6 +30,7 @@ namespace GE
 		GE::Shader pixelShader(std::string(assetPath + "shaders/collisionWireframe.pix").c_str(), kPixelShader);
 		m_shaderProgram = mkShare<GE::Program>(vertexShader, pixelShader);
 		m_enableDraw = false;
+		m_scale = glm::vec3(1.0f);
 	}
 
 	BoxCollider::~BoxCollider()
@@ -59,15 +63,28 @@ namespace GE
 
 	void BoxCollider::boundToObject(shared<GEC::ObjObject> obj)
 	{
-		glm::vec2 X, Y, Z;
-		obj->getVertexRange(X, Y, Z);
-		m_boundingBox = GEC::AABB(glm::vec3(0.0f), glm::vec3((X.y - X.x), (Y.y - Y.x), (Z.y - Z.x)));
-		makeVertexBuffer();
+		if (m_axisAligned)
+		{
+			glm::vec2 X, Y, Z;
+			obj->getVertexRange(X, Y, Z);
+			m_boundingBox = GEC::AABB(glm::vec3(0.0f), glm::vec3((X.y - X.x) * m_scale.x, (Y.y - Y.x) * m_scale.y, (Z.y - Z.x) * m_scale.z));
+			makeVertexBuffer();
+		}
+		else
+		{
+			glm::vec2 X, Y, Z;
+			obj->getVertexRange(X, Y, Z);
+			m_objectBoundedBox = GEC::OBB(glm::vec3(0.0f), glm::vec3((X.y - X.x) * m_scale.x, (Y.y - Y.x) * m_scale.y, (Z.y - Z.x) * m_scale.z));
+			makeVertexBuffer();
+		}
 	}
 
 	bool BoxCollider::collision(BoxCollider other)
 	{
-		return m_boundingBox.intersects(other.m_boundingBox);
+		if(m_axisAligned)
+			return m_boundingBox.intersects(other.m_boundingBox);
+		else
+			return m_objectBoundedBox.intersects(other.m_boundingBox);
 	}
 
 	bool BoxCollider::collision(GE::SphereCollider sphere)
@@ -96,70 +113,123 @@ namespace GE
 
 	void BoxCollider::recomputeBounds(const glm::vec3& newPosition)
 	{
-		m_boundingBox = GEC::AABB(newPosition, m_boundingBox.size);
+		if (m_axisAligned)
+			m_boundingBox = GEC::AABB(newPosition, m_boundingBox.size);
+		else
+			m_objectBoundedBox = GEC::OBB(newPosition, m_objectBoundedBox.size);
 	}
 
 	void BoxCollider::makeVertexBuffer()
 	{
 		std::vector<vertexNormalUV> vertices;
 		std::vector<int> indices;
-
 		vertexNormalUV tmp;
 		tmp.n = glm::vec3(1.0f);
 		tmp.u = glm::vec2(0.0f);
-		tmp.v = m_boundingBox.max;
-		vertices.push_back(tmp);
-		tmp.v = m_boundingBox.max;
-		tmp.v.y -= m_boundingBox.size.y;
-		vertices.push_back(tmp);
-		tmp.v = m_boundingBox.max;
-		tmp.v.x -= m_boundingBox.size.x;
-		tmp.v.y -= m_boundingBox.size.y;
-		vertices.push_back(tmp);
-		tmp.v = m_boundingBox.max;
-		tmp.v.x -= m_boundingBox.size.x;
-		vertices.push_back(tmp);
 
-		tmp.v = m_boundingBox.min;
-		vertices.push_back(tmp);
-		tmp.v = m_boundingBox.min;
-		tmp.v.y += m_boundingBox.size.y;
-		vertices.push_back(tmp);
-		tmp.v = m_boundingBox.min;
-		tmp.v.x += m_boundingBox.size.x;
-		tmp.v.y += m_boundingBox.size.y;
-		vertices.push_back(tmp);
-		tmp.v = m_boundingBox.min;
-		tmp.v.x += m_boundingBox.size.x;
-		vertices.push_back(tmp);
+		if (m_axisAligned)
+		{
+			tmp.v = m_boundingBox.max;
+			vertices.push_back(tmp);
+			tmp.v = m_boundingBox.max;
+			tmp.v.y -= m_boundingBox.size.y;
+			vertices.push_back(tmp);
+			tmp.v = m_boundingBox.max;
+			tmp.v.x -= m_boundingBox.size.x;
+			tmp.v.y -= m_boundingBox.size.y;
+			vertices.push_back(tmp);
+			tmp.v = m_boundingBox.max;
+			tmp.v.x -= m_boundingBox.size.x;
+			vertices.push_back(tmp);
 
-		indices.push_back(0);
-		indices.push_back(1);
-		indices.push_back(1);
-		indices.push_back(2);
-		indices.push_back(2);
-		indices.push_back(3);
-		indices.push_back(3);
-		indices.push_back(0);
+			tmp.v = m_boundingBox.min;
+			vertices.push_back(tmp);
+			tmp.v = m_boundingBox.min;
+			tmp.v.y += m_boundingBox.size.y;
+			vertices.push_back(tmp);
+			tmp.v = m_boundingBox.min;
+			tmp.v.x += m_boundingBox.size.x;
+			tmp.v.y += m_boundingBox.size.y;
+			vertices.push_back(tmp);
+			tmp.v = m_boundingBox.min;
+			tmp.v.x += m_boundingBox.size.x;
+			vertices.push_back(tmp);
 
-		indices.push_back(2);
-		indices.push_back(4);
-		indices.push_back(4);
-		indices.push_back(5);
-		indices.push_back(5);
-		indices.push_back(3);
+			indices.push_back(0);
+			indices.push_back(1);
+			indices.push_back(1);
+			indices.push_back(2);
+			indices.push_back(2);
+			indices.push_back(3);
+			indices.push_back(3);
+			indices.push_back(0);
 
-		indices.push_back(4);
-		indices.push_back(7);
-		indices.push_back(7);
-		indices.push_back(6);
-		indices.push_back(6);
-		indices.push_back(5);
+			indices.push_back(2);
+			indices.push_back(4);
+			indices.push_back(4);
+			indices.push_back(5);
+			indices.push_back(5);
+			indices.push_back(3);
 
-		indices.push_back(7);
-		indices.push_back(1);
-		indices.push_back(6);
-		indices.push_back(0);
+			indices.push_back(4);
+			indices.push_back(7);
+			indices.push_back(7);
+			indices.push_back(6);
+			indices.push_back(6);
+			indices.push_back(5);
+
+			indices.push_back(7);
+			indices.push_back(1);
+			indices.push_back(6);
+			indices.push_back(0);
+		}
+		else
+		{
+			tmp.v = m_objectBoundedBox.m_objectBounds[0];
+			vertices.push_back(tmp);
+			tmp.v = m_objectBoundedBox.m_objectBounds[1];
+			vertices.push_back(tmp);
+			tmp.v = m_objectBoundedBox.m_objectBounds[3];
+			vertices.push_back(tmp);
+			tmp.v = m_objectBoundedBox.m_objectBounds[2];
+			vertices.push_back(tmp);
+
+			tmp.v = m_objectBoundedBox.m_objectBounds[4];
+			vertices.push_back(tmp);
+			tmp.v = m_objectBoundedBox.m_objectBounds[5];
+			vertices.push_back(tmp);
+			tmp.v = m_objectBoundedBox.m_objectBounds[7];
+			vertices.push_back(tmp);
+			tmp.v = m_objectBoundedBox.m_objectBounds[6];
+			vertices.push_back(tmp);
+
+			indices.push_back(0);
+			indices.push_back(1);
+			indices.push_back(1);
+			indices.push_back(2);
+			indices.push_back(2);
+			indices.push_back(3);
+			indices.push_back(3);
+			indices.push_back(0);
+
+			indices.push_back(4);
+			indices.push_back(5);
+			indices.push_back(5);
+			indices.push_back(6);
+			indices.push_back(6);
+			indices.push_back(7);
+			indices.push_back(7);
+			indices.push_back(4);
+
+			indices.push_back(0);
+			indices.push_back(4);
+			indices.push_back(7);
+			indices.push_back(3);
+			indices.push_back(1);
+			indices.push_back(5);
+			indices.push_back(2);
+			indices.push_back(6);
+		}
 
 		m_indexCount = (int)indices.size();
 		m_vertexBuffer = mkShare<GEC::VertexBuffer>(vertices, indices);

@@ -70,7 +70,9 @@ namespace GE
 
 		if (collider != NULL)
 		{
-			collider->setMVPUniforms(model, view, projection);
+			glm::mat4 debug(1.0f);
+			debug = glm::translate(debug, trs->getPosition());
+			collider->setMVPUniforms(debug, view, projection);
 			collider->onDraw();
 		}
 	}
