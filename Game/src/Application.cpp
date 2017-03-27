@@ -131,7 +131,7 @@ Application::Application()
 	// ball
 	transform = m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f));
-	transform->setPosition(glm::vec3(0.0f, 10.0f, -25.0f));
+	transform->setPosition(glm::vec3(-2.0f, 10.0f, -25.0f));
 	m_gameObjects.at("ball")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("ball")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
@@ -253,29 +253,29 @@ Application::Application()
 	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
 
 	// goals
-	transform = m_gameObjects.at("player1Goal")->getComponentShared<GE::Transform>(GE::kTransform);
-	transform->setScale(glm::vec3(20.0f, 20.0f, 40.0f));
-	transform->setPosition(glm::vec3(0.f, -5.0f, -60.f));
+	transform = m_gameObjects.at("player2Goal")->getComponentShared<GE::Transform>(GE::kTransform);
+	transform->setScale(glm::vec3(20.0f, 20.0f, 20.0f));
+	transform->setPosition(glm::vec3(0.f, 20.0f, -60.f));
 	transform->setRotation(glm::vec3(90.0f, 0.0f, 0.0f));
-	m_gameObjects.at("player1Goal")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
-	meshRenderer = m_gameObjects.at("player1Goal")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
+	m_gameObjects.at("player2Goal")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer = m_gameObjects.at("player2Goal")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
 	meshRenderer->setMesh(m_wallObject);
 	meshRenderer->setTexture(m_texture);
 	meshRenderer->setProgram(m_shaderProgram);
 	meshRenderer->setMainCamera(m_camera);
-	m_gameObjects.at("player1Goal")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
-	boxCollider = m_gameObjects.at("player1Goal")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
+	m_gameObjects.at("player2Goal")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider = m_gameObjects.at("player2Goal")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
 	boxCollider->setScale(transform->getScale());
 	boxCollider->boundToObject(m_wallObject);
 	boxCollider->recomputeBounds(transform->getPosition());
 	boxCollider->setScreenRes(m_scrennSize);
 	aabbSize = glm::vec3(boxCollider->m_boundingBox.extents);
-	m_gameObjects.at("player1Goal")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
-	collisionShape = m_gameObjects.at("player1Goal")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
+	m_gameObjects.at("player2Goal")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape = m_gameObjects.at("player2Goal")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
 	collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.x), btScalar(aabbSize.z), btScalar(aabbSize.y))));
-	m_gameObjects.at("player1Goal")->addComponent<GE::RidigBody>(GE::kRigidBody);
-	rigidBody = m_gameObjects.at("player1Goal")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
+	m_gameObjects.at("player2Goal")->addComponent<GE::RidigBody>(GE::kRigidBody);
+	rigidBody = m_gameObjects.at("player2Goal")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
 	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
 
 
@@ -283,12 +283,13 @@ Application::Application()
 	// paddles
 	{
 		dynamicsWorld->addRigidBody(m_gameObjects.at("player1Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
-		dynamicsWorld->addRigidBody(m_gameObjects.at("player2Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody->getRigidBody().get());
+		dynamicsWorld->addRigidBody(m_gameObjects.at("player2Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
 	}
 
 	// ball
 	{
 		// set up the ball and add rigidBody to dynamics world
+		m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get()->setFriction(0.0f);
 		m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(btVector3(0, 0, 5));
 		dynamicsWorld->addRigidBody(m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
 	}
@@ -296,6 +297,10 @@ Application::Application()
 	// walls
 	{
 		// set up the ball and add rigidBody to dynamics world
+		m_gameObjects.at("wallBottom")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get()->setFriction(0.0f);
+		m_gameObjects.at("wallLeft")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get()->setFriction(0.0f);
+		m_gameObjects.at("wallTop")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get()->setFriction(0.0f);
+		m_gameObjects.at("wallRight")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get()->setFriction(0.0f);
 		dynamicsWorld->addRigidBody(m_gameObjects.at("wallBottom")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
 		dynamicsWorld->addRigidBody(m_gameObjects.at("wallLeft")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
 		dynamicsWorld->addRigidBody(m_gameObjects.at("wallTop")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
@@ -304,7 +309,7 @@ Application::Application()
 	// goals
 	{
 		// set up the ball and add rigidBody to dynamics world
-		dynamicsWorld->addRigidBody(m_gameObjects.at("player1Goal")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());;
+		dynamicsWorld->addRigidBody(m_gameObjects.at("player2Goal")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());;
 	}
 	// ------------------- BULLET GAMEOBJECTS CONFIGED ------------------- //
 
@@ -399,52 +404,93 @@ void Application::update(float& dt)
 	{
 		dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 
+		static bool checker = false;
 
 		// handle overlapping objects, if there are any
 		for (int i = 0; i < overlappingObjectsPairsCount(); i++)
 		{
 			// get a pair of overlapping objects
 			btVector3  collisionNormal = getOverlappingGameObjects(collisionKeyA, collisionKeyB, i);
-			GE::consoleLog("collisionNormal ", collisionNormal);
+			
 			// if both keys are no empty, perform collision response logic
 			if (!collisionKeyA.empty() && !collisionKeyB.empty())
 			{
-				//std::cout << collisionKeyA.c_str() << " " << collisionKeyB.c_str() << std::endl;
+				std::cout << collisionKeyA.c_str() << " " << collisionKeyB.c_str() << std::endl;
 			
-				// if player1Paddle and ball collider
+				if (collisionKeyA == "ball" && !checker || collisionKeyB == "ball" && !checker)
 				{
-					// reflect the ball in the opposite direction
-					if (collisionKeyA == "ball" || collisionKeyB == "ball" && collisionKeyA == "player1Paddle" || collisionKeyB == "player1Paddle")
+					// goals
+					if (collisionKeyA == "player2Goal" && !checker || collisionKeyB == "player2Goal" && !checker)
 					{
-						//shared<btRigidBody >ballBody = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody();
-						//ballBody->setAngularVelocity(btVector3(0, 2.5f, 0));
-						//btQuaternion quat = ballBody->getOrientation();
-						//GE::consoleLog("quat ", quat.getAxis());
-						if (collisionNormal != btVector3(0, 0, 0))
+						checker = false;
+						//GE::consoleLog("goal");
+					}
+
+					// paddles or walls
+					if (collisionNormal != btVector3(0, 0, 0))
+					{
+						collisionNormal.normalize();
+
+						// paddles
+						btVector3 linVelocity = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->getLinearVelocity();
+
+						// must have some movement on the Z axis, moving towards player1's end
+						if (linVelocity.getZ() > 0.0f)
 						{
-							m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(-(collisionNormal * 5.0f));
-							m_gameObjects.at("player1Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setAngularVelocity(btVector3(0, 0, 0));
+							// reflect towards player2
+							//m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->applyCentralForce(btVector3(0, 0, -5.0f));
+							//m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(btVector3(linVelocity.getX(), linVelocity.getY(), -5.0f));// -(collisionNormal * 5.0f));
+							//checker = true;
+							btVector3 reflection = 2 * linVelocity.dot(collisionNormal) * (collisionNormal - linVelocity);
+							m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(reflection);
+							checker = true;
+						}
+						else if (linVelocity.getZ() < 0.0f) // players2 end
+						{
+							// reflect towards player1
+							btVector3 reflection = 2 * linVelocity.dot(collisionNormal) * (collisionNormal - linVelocity);
+							m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(reflection);
+							checker = true;
+						}
+						else
+						{
+							//GE::consoleLog("linVelocity.z == 0");
 						}
 
-					}
-				}
-			
-				// if player2Paddle and ball collider
-				{
-					// reflect the ball in the opposite direction
-					if (collisionKeyA == "ball" || collisionKeyB == "ball" && collisionKeyA == "player2Paddle" || collisionKeyB == "player2Paddle")
-					{
-						if (collisionNormal != btVector3(0, 0, 0))
+						// walls
+						if (collisionKeyA.find("wall") || collisionKeyB.find("wall"))
 						{
-							m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(-(collisionNormal * 5.0f));
-							m_gameObjects.at("player2Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setAngularVelocity(btVector3(0, 0, 0));
+							btVector3 direction = linVelocity;
+							direction.normalize();
+							btVector3 reflection = 2 * linVelocity.dot(collisionNormal) * (direction - collisionNormal);
+							float dotForce = linVelocity.dot(linVelocity);
+							m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(reflection * dotForce);
+							checker = true;
 						}
 					}
+					else
+						checker = false;
 				}
+				else
+				{
+					//checker = false;
+					//GE::consoleLog("checker");
+				}
+
+				if (collisionKeyA == "player1Paddle" || collisionKeyB == "player1Paddle")
+					m_gameObjects.at("player1Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setAngularVelocity(btVector3(0, 0, 0));
+
+				if (collisionKeyA == "player2Paddle" || collisionKeyB == "player2Paddle")
+					m_gameObjects.at("player2Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setAngularVelocity(btVector3(0, 0, 0));
 			}
 		}
 		//------------------ stepsimulation end ------------------ //
 	}
+
+
+	btVector3 linVelocity = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->getLinearVelocity();
+	GE::consoleLog("linVelocity ", linVelocity);
+
 
 	// update Transform Component with changes from Bullet Engine
 	glm::vec3 glmOrigin;
