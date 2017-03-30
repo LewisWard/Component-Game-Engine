@@ -289,8 +289,9 @@ Application::Application()
 	// ball
 	{
 		// set up the ball and add rigidBody to dynamics world
+		m_velocityDirection = btVector3(5, 0, 5);
 		m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get()->setFriction(0.0f);
-		m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(btVector3(0, 0, 5));
+		m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(m_velocityDirection);
 		dynamicsWorld->addRigidBody(m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
 	}
 
@@ -358,14 +359,14 @@ void Application::update(float& dt)
 	{
 		// don't keep updating velocity if it's the same
 		if (paddle1->getLinearVelocity().getY() == 0.0f)
-			paddle1->setLinearVelocity(btVector3(0, 1, 0));
+			paddle1->setLinearVelocity(btVector3(0, 5, 0));
 	}
 	// apply velocity to the the paddle
 	if (m_input->getKeyHeld("movementVert") == MULTI_KEY_LOWER)
 	{
 		// don't keep updating velocity if it's the same
 		if (paddle1->getLinearVelocity().getY() == 0.0f)
-			paddle1->setLinearVelocity(btVector3(0, -1, 0));
+			paddle1->setLinearVelocity(btVector3(0, -5, 0));
 	}
 	// apply velocity to the the paddle
 	if (m_input->getKeyHeld("movementVert") == MULTI_KEY_NONE)
@@ -379,14 +380,14 @@ void Application::update(float& dt)
 	{
 		// don't keep updating velocity if it's the same
 		if (paddle1->getLinearVelocity().getX() == 0.0f)
-			paddle1->setLinearVelocity(btVector3(-1, 0, 0));
+			paddle1->setLinearVelocity(btVector3(-5, 0, 0));
 	}
 	// apply velocity to the the paddle
 	if (m_input->getKeyHeld("movementHoriz") == MULTI_KEY_LOWER)
 	{
 		// don't keep updating velocity if it's the same
 		if (paddle1->getLinearVelocity().getX() == 0.0f)
-			paddle1->setLinearVelocity(btVector3(1, 0, 0));
+			paddle1->setLinearVelocity(btVector3(5, 0, 0));
 	}
 	// apply velocity to the the paddle
 	if (m_input->getKeyHeld("movementHoriz") == MULTI_KEY_NONE)
@@ -398,24 +399,24 @@ void Application::update(float& dt)
 
 	//------------------ input update end ------------------ //
 
-
-
+	static bool checker = false;
 	//------------------ stepsimulation start ------------------ //
 	{
 		dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 
-		static bool checker = false;
+		int overlaps = overlappingObjectsPairsCount();
 
 		// handle overlapping objects, if there are any
-		for (int i = 0; i < overlappingObjectsPairsCount(); i++)
+		for (int i = 0; i < overlaps; i++)
 		{
+
 			// get a pair of overlapping objects
 			btVector3  collisionNormal = getOverlappingGameObjects(collisionKeyA, collisionKeyB, i);
 			
 			// if both keys are no empty, perform collision response logic
 			if (!collisionKeyA.empty() && !collisionKeyB.empty())
 			{
-				std::cout << collisionKeyA.c_str() << " " << collisionKeyB.c_str() << std::endl;
+				//std::cout << collisionKeyA.c_str() << " " << collisionKeyB.c_str() << " " << checker << std::endl;
 			
 				if (collisionKeyA == "ball" && !checker || collisionKeyB == "ball" && !checker)
 				{
@@ -429,53 +430,23 @@ void Application::update(float& dt)
 					// paddles or walls
 					if (collisionNormal != btVector3(0, 0, 0))
 					{
-						collisionNormal.normalize();
-
 						// paddles
 						btVector3 linVelocity = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->getLinearVelocity();
-
-						// must have some movement on the Z axis, moving towards player1's end
-						if (linVelocity.getZ() > 0.0f)
-						{
-							// reflect towards player2
-							//m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->applyCentralForce(btVector3(0, 0, -5.0f));
-							//m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(btVector3(linVelocity.getX(), linVelocity.getY(), -5.0f));// -(collisionNormal * 5.0f));
-							//checker = true;
-							btVector3 reflection = 2 * linVelocity.dot(collisionNormal) * (collisionNormal - linVelocity);
-							m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(reflection);
-							checker = true;
-						}
-						else if (linVelocity.getZ() < 0.0f) // players2 end
-						{
-							// reflect towards player1
-							btVector3 reflection = 2 * linVelocity.dot(collisionNormal) * (collisionNormal - linVelocity);
-							m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(reflection);
-							checker = true;
-						}
-						else
-						{
-							//GE::consoleLog("linVelocity.z == 0");
-						}
 
 						// walls
 						if (collisionKeyA.find("wall") || collisionKeyB.find("wall"))
 						{
-							btVector3 direction = linVelocity;
-							direction.normalize();
-							btVector3 reflection = 2 * linVelocity.dot(collisionNormal) * (direction - collisionNormal);
-							float dotForce = linVelocity.dot(linVelocity);
-							m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(reflection * dotForce);
+							// reflection equation: https://www.gamedev.net/topic/615766-angle-of-reflection/ [accessed 30/03/2017]
+							btVector3 direction = m_velocityDirection;
+							btVector3 reflection = -2 * (direction.dot(collisionNormal)) * collisionNormal + direction;
+							m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(reflection);
+							m_velocityDirection = reflection;
+							GE::consoleLog("direction ", reflection);
 							checker = true;
 						}
 					}
-					else
-						checker = false;
 				}
-				else
-				{
-					//checker = false;
-					//GE::consoleLog("checker");
-				}
+
 
 				if (collisionKeyA == "player1Paddle" || collisionKeyB == "player1Paddle")
 					m_gameObjects.at("player1Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setAngularVelocity(btVector3(0, 0, 0));
@@ -484,12 +455,18 @@ void Application::update(float& dt)
 					m_gameObjects.at("player2Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setAngularVelocity(btVector3(0, 0, 0));
 			}
 		}
+
+
+		if (overlaps == 0)
+		{
+			checker = false;
+			//GE::consoleLog("overlaps");
+		}
 		//------------------ stepsimulation end ------------------ //
 	}
 
-
 	btVector3 linVelocity = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->getLinearVelocity();
-	GE::consoleLog("linVelocity ", linVelocity);
+	//GE::consoleLog("linVelocity ", linVelocity);
 
 
 	// update Transform Component with changes from Bullet Engine
@@ -514,8 +491,6 @@ void Application::update(float& dt)
 	glmRotation.y += rotation.getY();
 	glmRotation.z += rotation.getZ();
 	m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform)->setPosition(glmOrigin);
-	m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform)->setRotation(glmRotation);
-
 
 
 	// update

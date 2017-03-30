@@ -45,6 +45,7 @@ private:
 	shared<GE::Input::MouseConverter> m_screenMouse;
 	shared<GE::Camera> m_camera;
 	Configurations m_config;
+	btVector3 m_velocityDirection;
 	glm::vec2 m_scrennSize;
 	int m_activeLevel;
 
