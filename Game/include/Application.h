@@ -45,9 +45,13 @@ private:
 	shared<GE::Input::MouseConverter> m_screenMouse;
 	shared<GE::Camera> m_camera;
 	Configurations m_config;
+	btVector3 m_startingVelocity;
 	btVector3 m_velocityDirection;
+	btVector3 m_ballSpeed;
 	glm::vec2 m_scrennSize;
 	int m_activeLevel;
+	int m_player1Score;
+	int m_player2Score;
 
 	GE::DebugBTDraw m_debugDraw;
 
