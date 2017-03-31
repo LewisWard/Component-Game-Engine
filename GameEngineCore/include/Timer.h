@@ -1,74 +1,62 @@
 // Author  : Lewis Ward (i7212443)
 // Program : Game Engine
-// Date    : 26/10/2016
+// Date    : 31/03/2016
 #pragma once
-#include "Program.h"
-#include "Camera.h"
-#include "Log.h"
-#include "AABB.h"
-#include <vector>
-#include <memory>
+#include "Window.h"
+#include <cstdint>
 
-namespace GE
+namespace GEC
 {
-	// forward declear, see GameObject.h
-	class GameObject;
-
 	//----------------------------------------------------------------------------------------------------------------------
-	/// \brief Type of components
+	/// \brief Timer that records the time taken in ms.
+	/// \note  Can only be used on Windows Platofrms - uses Windows API functions.
 	//----------------------------------------------------------------------------------------------------------------------
-	enum ComponentType
+	class Timer
 	{
-		kTransform,
-		kMeshRenderer,
-		kBoxCollider,
-		kSphereCollider,
-		kCollisionShape,
-		kRigidBody,
-		kLight
-	};
-
-	//----------------------------------------------------------------------------------------------------------------------
-	/// \brief Component base class, GE::GameObjects can have many components attached to them
-	//----------------------------------------------------------------------------------------------------------------------
-	class Component
-	{
-	friend class GameObject;
-
 	public:
+
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  Constructor
 		//----------------------------------------------------------------------------------------------------------------------
-		Component();
+		Timer();
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  Destructor
 		//----------------------------------------------------------------------------------------------------------------------
-		virtual ~Component();
+		~Timer();
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  When the component is loaded first time
+		/// \brief start the timer
 		//----------------------------------------------------------------------------------------------------------------------
-		virtual void onLoad();
+		void start();
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  Update
-		/// prama		float delta time
+		/// \brief end the timer
 		//----------------------------------------------------------------------------------------------------------------------
-		virtual void onUpdate(float dt);
+		void stop();
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  Draw
+		/// \brief resets the timer
 		//----------------------------------------------------------------------------------------------------------------------
-		virtual void onDraw();
+		void reset();
 
 		//----------------------------------------------------------------------------------------------------------------------
-		/// \brief  When deleted
+		/// \brief returns the time past since the start and end in milliseconds. Good for checking time past each frame.
+		/// \return int64_t
+		/// \note this is slower then elapsedTime, as the timer has to stop, compute time, then continue recording again.
 		//----------------------------------------------------------------------------------------------------------------------
-		virtual void onDelete();
+		int64_t checkElapsedTimeMS();
 
-	protected:
-		GameObject* m_parent; ///< the gameobject this is attached to
-		ComponentType m_type; ///< the type of component this is
+		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief computes the different between the start and end queries in milliseconds. Good for one off results, i.e. total execution time
+		/// \return int64_t
+		//----------------------------------------------------------------------------------------------------------------------
+		int64_t elapsedTimeMS();
+
+
+	private:
+		LARGE_INTEGER m_start;
+		LARGE_INTEGER m_end;
+		LARGE_INTEGER m_clockFrequency;
 	};
-};
+}

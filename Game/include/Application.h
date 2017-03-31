@@ -4,6 +4,7 @@
 #include "Defines.h"
 #include "GameObject.h"
 #include "DebugBTDraw.h"
+#include "Timer.h"
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief the application/game build using the Game Engine
@@ -52,6 +53,7 @@ private:
 	shared<GE::Camera> m_cameraPlayer1;
 	shared<GE::Camera> m_cameraPlayer2;
 	Configurations m_config;
+	shared<GEC::Timer> m_timer;
 	btVector3 m_startingVelocity;
 	btVector3 m_velocityDirection;
 	btVector3 m_pfPosition;
@@ -60,6 +62,7 @@ private:
 	int m_activeLevel;
 	int m_player1Score;
 	int m_player2Score;
+	bool m_checker;
 
 	GE::DebugBTDraw m_debugDraw;
 

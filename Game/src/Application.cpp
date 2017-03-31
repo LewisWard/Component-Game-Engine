@@ -65,6 +65,8 @@ Application::Application()
 	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("wallRight"), mkShare<GE::GameObject>()));
 	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("player1Goal"), mkShare<GE::GameObject>()));
 	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("player2Goal"), mkShare<GE::GameObject>()));
+	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("light0"), mkShare<GE::GameObject>()));
+	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("light1"), mkShare<GE::GameObject>()));
 
 	shared<GE::Transform> transform;
 	shared<GE::MeshRenderer> meshRenderer;
@@ -72,6 +74,7 @@ Application::Application()
 	shared<GE::SphereCollider> sphereCollider;
 	shared<GE::CollisionShape> collisionShape;
 	shared<GE::RidigBody> rigidBody;
+	shared<GE::Light> light;
 
 	//  walls
 	transform = m_gameObjects.at("wallBottom")->getComponentShared<GE::Transform>(GE::kTransform);
@@ -300,6 +303,20 @@ Application::Application()
 	rigidBody = m_gameObjects.at("player2Goal")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
 	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
 
+	transform = m_gameObjects.at("light0")->getComponentShared<GE::Transform>(GE::kTransform);
+	transform->setPosition(glm::vec3(0, 15, -21));
+	m_gameObjects.at("light0")->addComponent<GE::Light>(GE::kLight);
+	light = m_gameObjects.at("light0")->getComponentShared<GE::Light>(GE::kLight);
+	light->setPosition(transform->getPosition());
+	m_gameObjects.at("light0")->isActive(false); // this game objects is a light and not a mesh object, so we dont want to "draw" it
+
+	transform = m_gameObjects.at("light1")->getComponentShared<GE::Transform>(GE::kTransform);
+	transform->setPosition(glm::vec3(0, 15, -129));
+	m_gameObjects.at("light1")->addComponent<GE::Light>(GE::kLight);
+	light = m_gameObjects.at("light1")->getComponentShared<GE::Light>(GE::kLight);
+	light->setPosition(transform->getPosition());
+	m_gameObjects.at("light1")->isActive(false); // this game objects is a light and not a mesh object, so we dont want to "draw" it
+
 
 	// ------------------- BULLET GAMEOBJECTS CONFIG ------------------- //
 	// add rigidBody's to dynamics world
@@ -338,6 +355,10 @@ Application::Application()
 	m_activeLevel = 0;
 	m_player1Score = 0;
 	m_player2Score = 0;
+	m_checker = false;
+
+	m_timer = mkShare<GEC::Timer>();
+	m_timer->stop();
 }
 
 Application::~Application()
@@ -479,12 +500,12 @@ void Application::update(float& dt)
 
 	//------------------ input update end ------------------ //
 
-	static bool checker = false;
 	//------------------ stepsimulation start ------------------ //
-	
 	m_dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 	
 	int overlaps = overlappingObjectsPairsCount();
+	bool player1Scored = false;
+	bool player2Scored = false;
 	
 	// handle overlapping objects, if there are any
 	for (int i = 0; i < overlaps; i++)
@@ -497,12 +518,12 @@ void Application::update(float& dt)
 		{
 			//std::cout << collisionKeyA.c_str() << " " << collisionKeyB.c_str() << " " << checker << std::endl;
 		
-			if (collisionKeyA == "ball" && !checker || collisionKeyB == "ball" && !checker)
+			if (collisionKeyA == "ball" && !m_checker || collisionKeyB == "ball" && !m_checker)
 			{
 				// goals
-				if (collisionKeyA == "player1Goal" && !checker || collisionKeyB == "player1Goal" && !checker)
+				if (collisionKeyA == "player1Goal" && !m_checker || collisionKeyB == "player1Goal" && !m_checker)
 				{
-					checker = true;
+					m_checker = true;
 					m_player2Score++;
 					m_velocityDirection = m_startingVelocity;
 					std::cout << "Player 2 Scores, their current score: " << m_player2Score << std::endl;
@@ -517,11 +538,12 @@ void Application::update(float& dt)
 					rigidBody->getRigidBody()->setCenterOfMassTransform(reset);
 					m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(m_startingVelocity); // moves towards player 1
 					m_ballSpeed = btVector3(1, 1, 1);
+					player2Scored = true;
 				}
 	
-				if (collisionKeyA == "player2Goal" && !checker || collisionKeyB == "player2Goal" && !checker)
+				if (collisionKeyA == "player2Goal" && !m_checker || collisionKeyB == "player2Goal" && !m_checker)
 				{
-					checker = true;
+					m_checker = true;
 					m_player1Score++;
 					m_velocityDirection = m_startingVelocity;
 					std::cout << "Player 1 Scores, their current score: " << m_player1Score << std::endl;
@@ -538,6 +560,7 @@ void Application::update(float& dt)
 					resetVelocity.setZ(-resetVelocity.getZ());
 					m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(resetVelocity); // moves towards player 2
 					m_ballSpeed = btVector3(1, 1, 1);
+					player1Scored = true;
 				}
 	
 				// paddles or walls
@@ -554,12 +577,12 @@ void Application::update(float& dt)
 						btVector3 reflection = -2 * (direction.dot(collisionNormal)) * collisionNormal + direction;
 						m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(reflection);
 						m_velocityDirection = reflection;
-						checker = true;
+						m_checker = true;
 					}
 				}
 
 				// increases the speed of the ball every time the ball hits a wall or paddle
-				if (checker)
+				if (m_checker)
 				{
 					float ballMag = glm::length(m_velocityDirection.dot(m_velocityDirection));
 					if (ballMag <= 200.0f)
@@ -584,9 +607,28 @@ void Application::update(float& dt)
 	
 	// if no object collided
 	if (overlaps == 0)
+		m_checker = false;
+
+	// changes the light by the a players goal to red, if a goal was scored vs them
+	if (player1Scored)
 	{
-		checker = false;
+		m_timer->start();
+		m_gameObjects.at("light1")->getComponentShared<GE::Light>(GE::kLight)->setColour(glm::vec3(1, 0, 0));
+	} 
+	else if (player2Scored)
+	{
+		m_timer->start();
+		m_gameObjects.at("light0")->getComponentShared<GE::Light>(GE::kLight)->setColour(glm::vec3(1, 0, 0));
 	}
+
+	// 1 second after the time started (or as close to it as possible) change the lights back to default colour
+	if (m_timer->checkElapsedTimeMS() >= 1000.0f)
+	{
+		m_timer->reset();
+		m_gameObjects.at("light0")->getComponentShared<GE::Light>(GE::kLight)->setColour(glm::vec3(1, 1, 1));
+		m_gameObjects.at("light1")->getComponentShared<GE::Light>(GE::kLight)->setColour(glm::vec3(1, 1, 1));
+	}
+
 	//------------------ stepsimulation end ------------------ //
 
 	// update Transform Component with changes from Bullet Engine for both paddles
@@ -633,10 +675,17 @@ void Application::draw()
 		if (it->second->isActive())
 		{
 			shared<GE::MeshRenderer> renderer = it->second->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
+			shared<GE::Light> light0 = m_gameObjects.at("light0")->getComponentShared<GE::Light>(GE::kLight);
+			shared<GE::Light> light1 = m_gameObjects.at("light1")->getComponentShared<GE::Light>(GE::kLight);
 			renderer->setMainCamera(m_cameraPlayer1);
 			renderer->m_shaderProgram.lock()->bind();
-			renderer->m_shaderProgram.lock()->uniform3f("lights[0].position", glm::vec3(0, 15, -21));
-			renderer->m_shaderProgram.lock()->uniform3f("lights[1].position", glm::vec3(0, 15, -129));
+			renderer->m_shaderProgram.lock()->uniform3f("lights[0].position", light0->getPosition());
+			renderer->m_shaderProgram.lock()->uniform3f("lights[1].position", light1->getPosition());
+			renderer->m_shaderProgram.lock()->uniform3f("lights[0].colour", light0->getColour());
+			renderer->m_shaderProgram.lock()->uniform3f("lights[1].colour", light1->getColour());
+			renderer->m_shaderProgram.lock()->uniform1f("lights[0].intensity", light0->getIntensity());
+			renderer->m_shaderProgram.lock()->uniform1f("lights[1].intensity", light1->getIntensity());
+
 
 			if (it->first.find("wall") == 0)
 				renderer->m_shaderProgram.lock()->uniform1f("uvTileScale", 2);
@@ -665,10 +714,16 @@ void Application::draw()
 		if (it->second->isActive())
 		{
 			shared<GE::MeshRenderer> renderer = it->second->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
+			shared<GE::Light> light0 = m_gameObjects.at("light0")->getComponentShared<GE::Light>(GE::kLight);
+			shared<GE::Light> light1 = m_gameObjects.at("light1")->getComponentShared<GE::Light>(GE::kLight);
 			renderer->setMainCamera(m_cameraPlayer2);
 			renderer->m_shaderProgram.lock()->bind();
-			renderer->m_shaderProgram.lock()->uniform3f("lights[0].position", glm::vec3(0, 15, -21));
-			renderer->m_shaderProgram.lock()->uniform3f("lights[1].position", glm::vec3(0, 15, -129));
+			renderer->m_shaderProgram.lock()->uniform3f("lights[0].position", light0->getPosition());
+			renderer->m_shaderProgram.lock()->uniform3f("lights[1].position", light1->getPosition());
+			renderer->m_shaderProgram.lock()->uniform3f("lights[0].colour", light0->getColour());
+			renderer->m_shaderProgram.lock()->uniform3f("lights[1].colour", light1->getColour());
+			renderer->m_shaderProgram.lock()->uniform1f("lights[0].intensity", light0->getIntensity());
+			renderer->m_shaderProgram.lock()->uniform1f("lights[1].intensity", light1->getIntensity());
 
 			if (it->first.find("wall") == 0)
 				renderer->m_shaderProgram.lock()->uniform1f("uvTileScale", 2);

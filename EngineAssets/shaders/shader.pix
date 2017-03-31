@@ -6,6 +6,8 @@
 
 struct Light{
   vec3 position;
+  vec3 colour;
+  float intensity;
 };
 uniform Light lights[LIGHTCOUNT];
 
@@ -62,9 +64,7 @@ void main()
 
   // get the colour from all lights in the scene
   for(int i = 0; i < LIGHTCOUNT; i++)
-  {
-    output += valueFromLighting(diffuse, lights[i].position);
-  }
+    output += valueFromLighting(diffuse, lights[i].position) * vec4(lights[i].colour, 1.0);
 
   output_colour = output;
 }
