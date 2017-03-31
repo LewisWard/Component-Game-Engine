@@ -34,6 +34,11 @@ public:
 
 private:
 	std::unordered_map<std::string, shared<GE::GameObject>> m_gameObjects;
+	shared<btDiscreteDynamicsWorld> m_dynamicsWorld;
+	shared<btDefaultCollisionConfiguration> m_collisionConfiguration;
+	shared<btCollisionDispatcher> m_dispatcher;
+	shared<btBroadphaseInterface> m_overlappingPairCache;
+	shared<btSequentialImpulseConstraintSolver> m_solver;
 	shared<GEC::Texture> m_texture;
 	shared<GEC::Texture> m_paddleTexture;
 	shared<GEC::ObjObject> m_paddleObject;
@@ -56,21 +61,13 @@ private:
 
 	GE::DebugBTDraw m_debugDraw;
 
-	btDiscreteDynamicsWorld* dynamicsWorld;
-	btAlignedObjectArray<btCollisionShape*> collisionShapes;
-	btDefaultCollisionConfiguration* collisionConfiguration;
-	btCollisionDispatcher* dispatcher;
-	btBroadphaseInterface* overlappingPairCache;
-	btSequentialImpulseConstraintSolver* solver;
-
-
 	//----------------------------------------------------------------------------------------------------------------------
 	/// \brief  returns the number of overlapping objects using the collision dispatcher
 	/// \return int number of overlapping objects pairs (i.e. 2 objects equals 1 pair)
 	//----------------------------------------------------------------------------------------------------------------------
 	int overlappingObjectsPairsCount()
 	{
-		return dynamicsWorld->getDispatcher()->getNumManifolds();
+		return m_dynamicsWorld->getDispatcher()->getNumManifolds();
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------
