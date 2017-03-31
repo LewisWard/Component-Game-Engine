@@ -10,8 +10,6 @@ layout(location = 2) in vec2 uv; ///< the UV co-odinate from VBO
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionlMatrix;
-uniform vec3 lightPosition = vec3(0.0, 25.0, 0.0);
-uniform vec3 eyePosition = vec3(0.0, 0.0, 0.0);
 
 out vec2 vs_uv;
 out vec3 vs_normal;

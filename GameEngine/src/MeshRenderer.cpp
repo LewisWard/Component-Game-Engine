@@ -117,10 +117,12 @@ namespace GE
 	void MeshRenderer::setMVPUniforms(glm::mat4 M)
 	{
 		shared<GE::Camera> camera(m_mainCamera);
+		glm::vec3 eyePosition = camera->getPosition();
 		glm::mat4 V = camera->getView();
 		glm::mat4 P = camera->getProjection();
 		shared<GE::Program> program(m_shaderProgram);
 		program->bind();
+		program->uniform3f("eyePosition", eyePosition);
 		program->uniformMatrix4("modelMatrix", 1, M);
 		program->uniformMatrix4("viewMatrix", 1, V);
 		program->uniformMatrix4("projectionlMatrix", 1, P);

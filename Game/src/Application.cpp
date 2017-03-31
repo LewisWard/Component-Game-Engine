@@ -43,8 +43,8 @@ Application::Application()
 	glEnable(GL_TEXTURE_2D);
 	glCullFace(GL_BACK);
 
-	m_cameraPlayer1 = mkShare<GE::Camera>(glm::vec3(0, 16, 49), glm::vec3(0, 16, -45.0f), m_scrennSize, 45.0f, 0.1f, 400.0f);
-	m_cameraPlayer2 = mkShare<GE::Camera>(glm::vec3(0, 16, -89), glm::vec3(0, 16, -45.0f), m_scrennSize, 45.0f, 0.1f, 400.0f);
+	m_cameraPlayer1 = mkShare<GE::Camera>(glm::vec3(0, 16, 0), glm::vec3(0, 16, -45.0f), m_scrennSize, 45.0f, 0.1f, 400.0f);
+	m_cameraPlayer2 = mkShare<GE::Camera>(glm::vec3(0, 16, -136.0f), glm::vec3(0, 16, -50.0f), m_scrennSize, 45.0f, 0.1f, 400.0f);
 	m_debugDraw.setDebugCamera(m_cameraPlayer1);
 
 	GE::Shader vertexShader(std::string(assetPath + m_config.data.shaderPaths[0]).c_str(), kVertexShader);
@@ -75,7 +75,7 @@ Application::Application()
 	//  walls
 	transform = m_gameObjects.at("wallBottom")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(20.0f, 20.0f, 40.0f));
-	transform->setPosition(glm::vec3(0.0f, 0.0f, -20.0f));
+	transform->setPosition(glm::vec3(0.0f, 0.0f, -68.0f));
 	transform->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	m_gameObjects.at("wallBottom")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("wallBottom")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -100,7 +100,7 @@ Application::Application()
 
 	transform = m_gameObjects.at("wallLeft")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(16.0f, 20.0f, 40.0f));
-	transform->setPosition(glm::vec3(-15.0f, 15.0f, -20.0f));
+	transform->setPosition(glm::vec3(-14.0f, 15.0f, -68.0f));
 	transform->setRotation(glm::vec3(0.0f, 0.0f, 90.0f));
 	m_gameObjects.at("wallLeft")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("wallLeft")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -125,7 +125,7 @@ Application::Application()
 
 	transform = m_gameObjects.at("wallTop")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(20.0f, 20.0f, 40.0f));
-	transform->setPosition(glm::vec3(0.0f, 32.0f, -20.0f));
+	transform->setPosition(glm::vec3(0.0f, 32.0f, -68.0f));
 	transform->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	m_gameObjects.at("wallTop")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("wallTop")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -150,7 +150,7 @@ Application::Application()
 
 	transform = m_gameObjects.at("wallRight")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(16.0f, 20.0f, 40.0f));
-	transform->setPosition(glm::vec3(15.f, 15.f, -20.f));
+	transform->setPosition(glm::vec3(14.f, 15.f, -68.0f));
 	transform->setRotation(glm::vec3(0.0f, 0.0f, 90.0f));
 	m_gameObjects.at("wallRight")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("wallRight")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -176,7 +176,7 @@ Application::Application()
 	// ball
 	transform = m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f));
-	transform->setPosition(glm::vec3(-2.0f, 10.0f, -25.0f));
+	transform->setPosition(glm::vec3(-2.0f, 10.0f, -55.0f));
 	m_gameObjects.at("ball")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("ball")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
@@ -199,7 +199,7 @@ Application::Application()
 	// player1Paddle
 	transform = m_gameObjects.at("player1Paddle")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f, 1.0f, 1.0f));
-	transform->setPosition(glm::vec3(0.0f, 10.0f, 15.0f));
+	transform->setPosition(glm::vec3(0.0f, 10.0f, -30.0f));
 	transform->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	m_gameObjects.at("player1Paddle")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("player1Paddle")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -225,7 +225,7 @@ Application::Application()
 	// player2Paddle
 	transform = m_gameObjects.at("player2Paddle")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f, 1.0f, 1.0f));
-	transform->setPosition(glm::vec3(0.0f, 10.0f, -50.0f));
+	transform->setPosition(glm::vec3(0.0f, 10.0f, -106.0f));
 	transform->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	m_gameObjects.at("player2Paddle")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("player2Paddle")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -251,7 +251,7 @@ Application::Application()
 	// goals
 	transform = m_gameObjects.at("player1Goal")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(20.0f, 20.0f, 16.0f));
-	transform->setPosition(glm::vec3(0.f, 16.0f, 20.f));
+	transform->setPosition(glm::vec3(0.f, 16.0f, -28.f));
 	transform->setRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 	m_gameObjects.at("player1Goal")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("player1Goal")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -276,7 +276,7 @@ Application::Application()
 
 	transform = m_gameObjects.at("player2Goal")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(20.0f, 20.0f, 16.0f));
-	transform->setPosition(glm::vec3(0.f, 16.0f, -60.f));
+	transform->setPosition(glm::vec3(0.f, 16.0f, -108.f));
 	transform->setRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 	m_gameObjects.at("player2Goal")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("player2Goal")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -481,7 +481,7 @@ void Application::update(float& dt)
 					std::cout << "Player 2 Scores, their current score: " << m_player2Score << std::endl;
 	
 					shared<GE::Transform> transform = m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform);
-					transform->setPosition(glm::vec3(-2.0f, 10.0f, -25.0f));
+					transform->setPosition(glm::vec3(-2.0f, 10.0f, -55.0f));
 					shared<GE::RidigBody> rigidBody = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
 	
 					// reseting ball position based on: http://bulletphysics.org/Bullet/phpBB3/viewtopic.php?t=6252 [accessed 30/3/2017]
@@ -500,7 +500,7 @@ void Application::update(float& dt)
 					std::cout << "Player 1 Scores, their current score: " << m_player1Score << std::endl;
 	
 					shared<GE::Transform> transform = m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform);
-					transform->setPosition(glm::vec3(-2.0f, 10.0f, -25.0f));
+					transform->setPosition(glm::vec3(-2.0f, 10.0f, -55.0f));
 					shared<GE::RidigBody> rigidBody = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
 	
 					// reseting ball position based on: http://bulletphysics.org/Bullet/phpBB3/viewtopic.php?t=6252 [accessed 30/3/2017]
@@ -561,7 +561,7 @@ void Application::update(float& dt)
 		checker = false;
 	}
 	//------------------ stepsimulation end ------------------ //
-	
+
 
 	// update Transform Component with changes from Bullet Engine for both paddles
 	glm::vec3 glmOrigin;
@@ -604,6 +604,10 @@ void Application::draw()
 		{
 			shared<GE::MeshRenderer> renderer = it->second->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 			renderer->setMainCamera(m_cameraPlayer1);
+			renderer->m_shaderProgram.lock()->bind();
+			renderer->m_shaderProgram.lock()->uniform3f("lights[0].position", glm::vec3(0, 15, -21));
+			renderer->m_shaderProgram.lock()->uniform3f("lights[1].position", glm::vec3(0, 15, -129));
+			renderer->m_shaderProgram.lock()->unbind();
 			it->second->draw();
 		}
 
@@ -612,6 +616,7 @@ void Application::draw()
 	}
 
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawAabb);
+	m_debugDraw.setDebugCamera(m_cameraPlayer1);
 	//m_dynamicsWorld->debugDrawWorld();
 
 	// player 2 viewport
@@ -626,6 +631,10 @@ void Application::draw()
 		{
 			shared<GE::MeshRenderer> renderer = it->second->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 			renderer->setMainCamera(m_cameraPlayer2);
+			renderer->m_shaderProgram.lock()->bind();
+			renderer->m_shaderProgram.lock()->uniform3f("lights[0].position", glm::vec3(0, 15, -21));
+			renderer->m_shaderProgram.lock()->uniform3f("lights[1].position", glm::vec3(0, 15, -129));
+			renderer->m_shaderProgram.lock()->unbind();
 			it->second->draw();
 		}
 
@@ -634,6 +643,7 @@ void Application::draw()
 	}
 
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawAabb);
+	m_debugDraw.setDebugCamera(m_cameraPlayer2);
 	//m_dynamicsWorld->debugDrawWorld();
 
 	glutSwapBuffers();
