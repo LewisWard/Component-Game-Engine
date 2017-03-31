@@ -69,6 +69,10 @@ Application::Application()
 	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("light0"), mkShare<GE::GameObject>()));
 	m_gameObjects.insert(std::pair<std::string, shared<GE::GameObject>>(std::string("light1"), mkShare<GE::GameObject>()));
 
+	// init creates the transform for each GameObject
+	for (std::unordered_map<std::string, shared<GE::GameObject>>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); it++)
+		it->second->init();
+
 	shared<GE::Transform> transform;
 	shared<GE::MeshRenderer> meshRenderer;
 	shared<GE::BoxCollider> boxCollider;

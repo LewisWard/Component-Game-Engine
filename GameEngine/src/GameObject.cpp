@@ -11,12 +11,17 @@ namespace GE
 		m_hasParent = false;
 		m_isSelected = false;
 		m_hasCollided = false;
-		addComponent<Transform>(GE::kTransform);
+
 	}
 
 	GameObject::~GameObject()
 	{
 
+	}
+
+	void GameObject::init()
+	{
+		addComponent<Transform>(GE::kTransform);
 	}
 
 	void GameObject::update(float dt)

@@ -16,7 +16,7 @@ namespace GE
 	//----------------------------------------------------------------------------------------------------------------------
 	/// \brief  Every object in that exists in the world is one of these
 	//----------------------------------------------------------------------------------------------------------------------
-	class GameObject
+	class GameObject : public std::enable_shared_from_this<GameObject>
 	{
 	public:
 		//----------------------------------------------------------------------------------------------------------------------
@@ -29,6 +29,12 @@ namespace GE
 		virtual ~GameObject();
 
 		//----------------------------------------------------------------------------------------------------------------------
+		/// \brief  initialization of the GameObject, creates the Transform Component
+		/// \note   Must be called after constructor
+		//----------------------------------------------------------------------------------------------------------------------
+		void init();
+
+		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  update 
 		/// prama		float delta time
 		//----------------------------------------------------------------------------------------------------------------------
@@ -38,8 +44,6 @@ namespace GE
 		/// \brief  draw 
 		//----------------------------------------------------------------------------------------------------------------------
 		void draw();
-
-		//void drawMapped();
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  get a attached component as a std::shared_ptr
@@ -82,7 +86,6 @@ namespace GE
 			return NULL;
 		}
 
-
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  add a new component
 		/// prama		ComponentType type
@@ -93,7 +96,7 @@ namespace GE
 		{
 			shared<T> component(new T());
 
-			component->m_parent = this;
+			component->m_parent = shared_from_this();// this
 			m_components.insert(std::pair<GE::ComponentType, shared<GE::Component>>(type, component));
 
 			return component;

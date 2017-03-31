@@ -68,7 +68,7 @@ namespace GE
 		virtual void onDelete();
 
 	protected:
-		GameObject* m_parent; ///< the gameobject this is attached to
+		shared<GameObject> m_parent; ///< the gameobject this is attached to
 		ComponentType m_type; ///< the type of component this is
 	};
 };
