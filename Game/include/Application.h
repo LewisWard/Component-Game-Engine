@@ -43,6 +43,7 @@ private:
 	shared<GEC::Texture> m_texture;
 	shared<GEC::Texture> m_paddleTexture;
 	shared<GEC::Texture> m_wallTexture;
+	shared<GEC::Texture> m_ballTexture;
 	shared<GEC::ObjObject> m_paddleObject;
 	shared<GEC::ObjObject> m_sphereObject;
 	shared<GEC::ObjObject> m_wallObject;
@@ -59,6 +60,7 @@ private:
 	btVector3 m_pfPosition;
 	btVector3 m_ballSpeed;
 	glm::vec2 m_scrennSize;
+	float m_ballMaxSpeed;
 	int m_activeLevel;
 	int m_player1Score;
 	int m_player2Score;

@@ -35,6 +35,7 @@ Application::Application()
 	m_texture = mkShare<GEC::Texture>(std::string(assetPath + m_config.data.texturePaths[0]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
 	m_paddleTexture = mkShare<GEC::Texture>(std::string(assetPath + m_config.data.texturePaths[1]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
 	m_wallTexture = mkShare<GEC::Texture>(std::string(assetPath + m_config.data.texturePaths[2]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
+	m_ballTexture = mkShare<GEC::Texture>(std::string(assetPath + m_config.data.texturePaths[3]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
 	m_sphereObject = mkShare<GEC::ObjObject>(std::string(assetPath + m_config.data.modelPaths[0]).c_str());
 	m_paddleObject = mkShare<GEC::ObjObject>(std::string(assetPath + m_config.data.modelPaths[1]).c_str());
 	m_wallObject = mkShare<GEC::ObjObject>(std::string(assetPath + m_config.data.modelPaths[2]).c_str());
@@ -185,7 +186,7 @@ Application::Application()
 	meshRenderer = m_gameObjects.at("ball")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
 	meshRenderer->setMesh(m_sphereObject);
-	meshRenderer->setTexture(m_texture);
+	meshRenderer->setTexture(m_ballTexture);
 	meshRenderer->setProgram(m_shaderProgram);
 	meshRenderer->setMainCamera(m_cameraPlayer1);
 	m_gameObjects.at("ball")->addComponent<GE::SphereCollider>(GE::kSphereCollider);
@@ -325,7 +326,8 @@ Application::Application()
 	m_dynamicsWorld->addRigidBody(m_gameObjects.at("player2Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
 
 	// ball
-	m_startingVelocity = btVector3(0, 0, 6);
+	m_ballMaxSpeed = 300.0f;
+	m_startingVelocity = btVector3(0, 0, 10);
 	m_velocityDirection = m_startingVelocity;
 	m_ballSpeed = btVector3(1, 1, 1);
 	m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get()->setFriction(0.0f);
@@ -583,7 +585,7 @@ void Application::update(float& dt)
 				if (m_checker)
 				{
 					float ballMag = glm::length(m_velocityDirection.dot(m_velocityDirection));
-					if (ballMag <= 200.0f)
+					if (ballMag <= m_ballMaxSpeed)
 					{
 						btVector3 tmp = m_ballSpeed;
 						m_ballSpeed.setX(tmp.getX() + 0.1f);
