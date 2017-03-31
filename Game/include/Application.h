@@ -41,6 +41,7 @@ private:
 	shared<btSequentialImpulseConstraintSolver> m_solver;
 	shared<GEC::Texture> m_texture;
 	shared<GEC::Texture> m_paddleTexture;
+	shared<GEC::Texture> m_wallTexture;
 	shared<GEC::ObjObject> m_paddleObject;
 	shared<GEC::ObjObject> m_sphereObject;
 	shared<GEC::ObjObject> m_wallObject;
@@ -53,6 +54,7 @@ private:
 	Configurations m_config;
 	btVector3 m_startingVelocity;
 	btVector3 m_velocityDirection;
+	btVector3 m_pfPosition;
 	btVector3 m_ballSpeed;
 	glm::vec2 m_scrennSize;
 	int m_activeLevel;

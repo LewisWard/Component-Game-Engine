@@ -14,6 +14,7 @@ uniform vec3 lightPosition = vec3(0.0, 15.0, 0.0);
 uniform vec3 eyePosition = vec3(0.0, 0.0, 0.0);
 uniform vec3 selectedColour = vec3(0.0, 0.0, 0.0);
 uniform vec3 collisionColour = vec3(0.0, 0.0, 0.0);
+uniform float uvTileScale = 1; 
 
 in vec2 vs_uv;
 in vec3 vs_normal;
@@ -56,7 +57,7 @@ vec4 valueFromLighting(vec4 textureDiffuse, vec3 lightPosition)
 
 void main()
 {
-  vec4 diffuse = texture2D(texture, vs_uv);
+  vec4 diffuse = texture2D(texture, vs_uv * uvTileScale);
   vec4 output;
 
   // get the colour from all lights in the scene

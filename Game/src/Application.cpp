@@ -34,6 +34,7 @@ Application::Application()
 
 	m_texture = mkShare<GEC::Texture>(std::string(assetPath + m_config.data.texturePaths[0]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
 	m_paddleTexture = mkShare<GEC::Texture>(std::string(assetPath + m_config.data.texturePaths[1]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
+	m_wallTexture = mkShare<GEC::Texture>(std::string(assetPath + m_config.data.texturePaths[2]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
 	m_sphereObject = mkShare<GEC::ObjObject>(std::string(assetPath + m_config.data.modelPaths[0]).c_str());
 	m_paddleObject = mkShare<GEC::ObjObject>(std::string(assetPath + m_config.data.modelPaths[1]).c_str());
 	m_wallObject = mkShare<GEC::ObjObject>(std::string(assetPath + m_config.data.modelPaths[2]).c_str());
@@ -81,7 +82,7 @@ Application::Application()
 	meshRenderer = m_gameObjects.at("wallBottom")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
 	meshRenderer->setMesh(m_wallObject);
-	meshRenderer->setTexture(m_texture);
+	meshRenderer->setTexture(m_wallTexture);
 	meshRenderer->setProgram(m_shaderProgram);
 	meshRenderer->setMainCamera(m_cameraPlayer1);
 	m_gameObjects.at("wallBottom")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
@@ -106,7 +107,7 @@ Application::Application()
 	meshRenderer = m_gameObjects.at("wallLeft")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
 	meshRenderer->setMesh(m_wallObject);
-	meshRenderer->setTexture(m_texture);
+	meshRenderer->setTexture(m_wallTexture);
 	meshRenderer->setProgram(m_shaderProgram);
 	meshRenderer->setMainCamera(m_cameraPlayer1);
 	m_gameObjects.at("wallLeft")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
@@ -131,7 +132,7 @@ Application::Application()
 	meshRenderer = m_gameObjects.at("wallTop")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
 	meshRenderer->setMesh(m_wallObject);
-	meshRenderer->setTexture(m_texture);
+	meshRenderer->setTexture(m_wallTexture);
 	meshRenderer->setProgram(m_shaderProgram);
 	meshRenderer->setMainCamera(m_cameraPlayer1);
 	m_gameObjects.at("wallTop")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
@@ -156,7 +157,7 @@ Application::Application()
 	meshRenderer = m_gameObjects.at("wallRight")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer->setScreenRes(m_scrennSize);
 	meshRenderer->setMesh(m_wallObject);
-	meshRenderer->setTexture(m_texture);
+	meshRenderer->setTexture(m_wallTexture);
 	meshRenderer->setProgram(m_shaderProgram);
 	meshRenderer->setMainCamera(m_cameraPlayer1);
 	m_gameObjects.at("wallRight")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
@@ -361,6 +362,7 @@ void Application::update(float& dt)
 	m_input->update();
 
 	//------------------ input update start ------------------ //
+	bool movementAlright = false;
 
 	// apply velocity to the the paddle
 	shared<btRigidBody> paddle1 = m_gameObjects.at("player1Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody();
@@ -368,14 +370,20 @@ void Application::update(float& dt)
 	{
 		// don't keep updating velocity if it's the same
 		if (paddle1->getLinearVelocity().getY() == 0.0f)
+		{
 			paddle1->setLinearVelocity(btVector3(0, 5, 0));
+			movementAlright = true;
+		}
 	}
 	// apply velocity to the the paddle
 	if (m_input->getKeyHeld("movementVert") == MULTI_KEY_LOWER)
 	{
 		// don't keep updating velocity if it's the same
 		if (paddle1->getLinearVelocity().getY() == 0.0f)
+		{
 			paddle1->setLinearVelocity(btVector3(0, -5, 0));
+			movementAlright = true;
+		}
 	}
 	// apply velocity to the the paddle
 	if (m_input->getKeyHeld("movementVert") == MULTI_KEY_NONE)
@@ -385,18 +393,25 @@ void Application::update(float& dt)
 			paddle1->setLinearVelocity(btVector3(0, 0, 0));
 	}
 
+
 	if (m_input->getKeyHeld("movementHoriz") == MULTI_KEY_HIGHER)
 	{
 		// don't keep updating velocity if it's the same
 		if (paddle1->getLinearVelocity().getX() == 0.0f)
-			paddle1->setLinearVelocity(btVector3(-5, 0, 0));
+			if (movementAlright)
+				paddle1->setLinearVelocity(btVector3(-5, paddle1->getLinearVelocity().getY(), 0));
+			else
+				paddle1->setLinearVelocity(btVector3(-5, 0, 0));
 	}
 	// apply velocity to the the paddle
 	if (m_input->getKeyHeld("movementHoriz") == MULTI_KEY_LOWER)
 	{
 		// don't keep updating velocity if it's the same
 		if (paddle1->getLinearVelocity().getX() == 0.0f)
-			paddle1->setLinearVelocity(btVector3(5, 0, 0));
+			if (movementAlright)
+				paddle1->setLinearVelocity(btVector3(5, paddle1->getLinearVelocity().getY(), 0));
+			else
+				paddle1->setLinearVelocity(btVector3(5, 0, 0));
 	}
 	// apply velocity to the the paddle
 	if (m_input->getKeyHeld("movementHoriz") == MULTI_KEY_NONE)
@@ -406,20 +421,26 @@ void Application::update(float& dt)
 			paddle1->setLinearVelocity(btVector3(0, 0, 0));
 	}
 
-
+	movementAlright = false;
 	shared<btRigidBody> paddle2 = m_gameObjects.at("player2Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody();
 	if (m_input->getKeyHeld("movementVert2") == MULTI_KEY_HIGHER)
 	{
 		// don't keep updating velocity if it's the same
 		if (paddle2->getLinearVelocity().getY() == 0.0f)
+		{
 			paddle2->setLinearVelocity(btVector3(0, 5, 0));
+			movementAlright = true;
+		}
 	}
 	// apply velocity to the the paddle
 	if (m_input->getKeyHeld("movementVert2") == MULTI_KEY_LOWER)
 	{
 		// don't keep updating velocity if it's the same
 		if (paddle2->getLinearVelocity().getY() == 0.0f)
+		{
 			paddle2->setLinearVelocity(btVector3(0, -5, 0));
+			movementAlright = true;
+		}
 	}
 	// apply velocity to the the paddle
 	if (m_input->getKeyHeld("movementVert2") == MULTI_KEY_NONE)
@@ -433,14 +454,20 @@ void Application::update(float& dt)
 	{
 		// don't keep updating velocity if it's the same
 		if (paddle2->getLinearVelocity().getX() == 0.0f)
-			paddle2->setLinearVelocity(btVector3(5, 0, 0));
+			if (movementAlright)
+				paddle2->setLinearVelocity(btVector3(5, paddle2->getLinearVelocity().getY(), 0));
+			else
+				paddle2->setLinearVelocity(btVector3(5, 0, 0));
 	}
 	// apply velocity to the the paddle
 	if (m_input->getKeyHeld("movementHoriz2") == MULTI_KEY_LOWER)
 	{
 		// don't keep updating velocity if it's the same
 		if (paddle2->getLinearVelocity().getX() == 0.0f)
-			paddle2->setLinearVelocity(btVector3(-5, 0, 0));
+			if (movementAlright)
+				paddle2->setLinearVelocity(btVector3(-5, paddle2->getLinearVelocity().getY(), 0));
+			else
+				paddle2->setLinearVelocity(btVector3(-5, 0, 0));
 	}
 	// apply velocity to the the paddle
 	if (m_input->getKeyHeld("movementHoriz2") == MULTI_KEY_NONE)
@@ -562,7 +589,6 @@ void Application::update(float& dt)
 	}
 	//------------------ stepsimulation end ------------------ //
 
-
 	// update Transform Component with changes from Bullet Engine for both paddles
 	glm::vec3 glmOrigin;
 	btTransform bttransform;
@@ -578,13 +604,17 @@ void Application::update(float& dt)
 	m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getBodyWorldTransform(updateTransform);
 	btVector3 origin = updateTransform.getOrigin();
 	btVector3 rotation = updateTransform.getRotation().getAxis();
+
 	glmOrigin = glm::vec3(origin.getX(), origin.getY(), origin.getZ());
 
 	glm::vec3 glmRotation = m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform)->getRotation();
-	glmRotation.x += rotation.getX();
-	glmRotation.y += rotation.getY();
-	glmRotation.z += rotation.getZ();
+	glmRotation.x += m_velocityDirection.getZ();
+	glmRotation.y += m_velocityDirection.getY();
+	glmRotation.z += m_velocityDirection.getX();
 	m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform)->setPosition(glmOrigin);
+	m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform)->setRotation(glmRotation);
+
+	m_pfPosition = btVector3(glmOrigin.x, glmOrigin.y, glmOrigin.z);
 }
 
 void Application::draw()
@@ -607,6 +637,11 @@ void Application::draw()
 			renderer->m_shaderProgram.lock()->bind();
 			renderer->m_shaderProgram.lock()->uniform3f("lights[0].position", glm::vec3(0, 15, -21));
 			renderer->m_shaderProgram.lock()->uniform3f("lights[1].position", glm::vec3(0, 15, -129));
+
+			if (it->first.find("wall") == 0)
+				renderer->m_shaderProgram.lock()->uniform1f("uvTileScale", 2);
+			else
+				renderer->m_shaderProgram.lock()->uniform1f("uvTileScale", 1);
 			renderer->m_shaderProgram.lock()->unbind();
 			it->second->draw();
 		}
@@ -617,7 +652,7 @@ void Application::draw()
 
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawAabb);
 	m_debugDraw.setDebugCamera(m_cameraPlayer1);
-	//m_dynamicsWorld->debugDrawWorld();
+	m_dynamicsWorld->debugDrawWorld();
 
 	// player 2 viewport
 	glViewport((int)m_scrennSize.x, 0, (int)m_scrennSize.x, (int)m_scrennSize.y);
@@ -634,6 +669,11 @@ void Application::draw()
 			renderer->m_shaderProgram.lock()->bind();
 			renderer->m_shaderProgram.lock()->uniform3f("lights[0].position", glm::vec3(0, 15, -21));
 			renderer->m_shaderProgram.lock()->uniform3f("lights[1].position", glm::vec3(0, 15, -129));
+
+			if (it->first.find("wall") == 0)
+				renderer->m_shaderProgram.lock()->uniform1f("uvTileScale", 2);
+			else
+				renderer->m_shaderProgram.lock()->uniform1f("uvTileScale", 1);
 			renderer->m_shaderProgram.lock()->unbind();
 			it->second->draw();
 		}
@@ -693,4 +733,5 @@ btVector3 Application::getOverlappingGameObjects(std::string& keyA, std::string&
 
 	return normalAtCollision;
 }
+
 
