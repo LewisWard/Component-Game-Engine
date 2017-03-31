@@ -11,9 +11,10 @@ Application::Application()
 
 	m_input = mkShare<GE::Input::InputManager>();
 
-	m_scrennSize.x = RES_LOW_X;
-	m_scrennSize.y = RES_LOW_Y;
+	m_scrennSize.x = RES_HIGH_X;
+	m_scrennSize.y = RES_HIGH_Y;
 	onResize((int)m_scrennSize.x, (int)m_scrennSize.y);
+	m_scrennSize.x /= 2.0f;
 	glViewport(0, 0, (int)m_scrennSize.x, (int)m_scrennSize.y);
 	windowRename(std::string(m_config.data.windowTitle).c_str());
 
@@ -50,8 +51,9 @@ Application::Application()
 	glEnable(GL_TEXTURE_2D);
 	glCullFace(GL_BACK);
 
-	m_camera = mkShare<GE::Camera>(glm::vec3(0, 10, 20), glm::vec3(0, 10, -30.0f), m_scrennSize, 45.0f, 0.1f, 400.0f);
-	m_debugDraw.setDebugCamera(m_camera);
+	m_cameraPlayer1 = mkShare<GE::Camera>(glm::vec3(0, 16, 49), glm::vec3(0, 16, -45.0f), m_scrennSize, 45.0f, 0.1f, 400.0f);
+	m_cameraPlayer2 = mkShare<GE::Camera>(glm::vec3(0, 16, -89), glm::vec3(0, 16, -45.0f), m_scrennSize, 45.0f, 0.1f, 400.0f);
+	m_debugDraw.setDebugCamera(m_cameraPlayer1);
 
 	GE::Shader vertexShader(std::string(assetPath + m_config.data.shaderPaths[0]).c_str(), kVertexShader);
 	GE::Shader pixelShader(std::string(assetPath + m_config.data.shaderPaths[1]).c_str(), kPixelShader);
@@ -78,10 +80,134 @@ Application::Application()
 	shared<GE::CollisionShape> collisionShape;
 	shared<GE::RidigBody> rigidBody;
 
+	//  walls
+	transform = m_gameObjects.at("wallBottom")->getComponentShared<GE::Transform>(GE::kTransform);
+	transform->setScale(glm::vec3(20.0f, 20.0f, 40.0f));
+	transform->setPosition(glm::vec3(0.0f, 0.0f, -20.0f));
+	transform->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+	m_gameObjects.at("wallBottom")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer = m_gameObjects.at("wallBottom")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer->setScreenRes(m_scrennSize);
+	meshRenderer->setMesh(m_wallObject);
+	meshRenderer->setTexture(m_texture);
+	meshRenderer->setProgram(m_shaderProgram);
+	meshRenderer->setMainCamera(m_cameraPlayer1);
+	m_gameObjects.at("wallBottom")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider = m_gameObjects.at("wallBottom")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider->setScale(transform->getScale());
+	boxCollider->boundToObject(m_wallObject);
+	boxCollider->recomputeBounds(transform->getPosition());
+	boxCollider->setScreenRes(m_scrennSize);
+	glm::vec3 aabbSize = glm::vec3(boxCollider->m_boundingBox.extents);
+	m_gameObjects.at("wallBottom")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape = m_gameObjects.at("wallBottom")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.x), btScalar(aabbSize.y), btScalar(aabbSize.z))));
+	m_gameObjects.at("wallBottom")->addComponent<GE::RidigBody>(GE::kRigidBody);
+	rigidBody = m_gameObjects.at("wallBottom")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
+	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
+
+	transform = m_gameObjects.at("wallLeft")->getComponentShared<GE::Transform>(GE::kTransform);
+	transform->setScale(glm::vec3(16.0f, 20.0f, 40.0f));
+	transform->setPosition(glm::vec3(-15.0f, 15.0f, -20.0f));
+	transform->setRotation(glm::vec3(0.0f, 0.0f, 90.0f));
+	m_gameObjects.at("wallLeft")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer = m_gameObjects.at("wallLeft")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer->setScreenRes(m_scrennSize);
+	meshRenderer->setMesh(m_wallObject);
+	meshRenderer->setTexture(m_texture);
+	meshRenderer->setProgram(m_shaderProgram);
+	meshRenderer->setMainCamera(m_cameraPlayer1);
+	m_gameObjects.at("wallLeft")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider = m_gameObjects.at("wallLeft")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider->setScale(transform->getScale());
+	boxCollider->boundToObject(m_wallObject);
+	boxCollider->recomputeBounds(transform->getPosition());
+	boxCollider->setScreenRes(m_scrennSize);
+	aabbSize = glm::vec3(boxCollider->m_boundingBox.extents);
+	m_gameObjects.at("wallLeft")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape = m_gameObjects.at("wallLeft")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.y), btScalar(aabbSize.x), btScalar(aabbSize.z)))); // could use a OBB and recalulate entents but as its a 90 degree rotation on 1 axis, just swap x and y
+	m_gameObjects.at("wallLeft")->addComponent<GE::RidigBody>(GE::kRigidBody);
+	rigidBody = m_gameObjects.at("wallLeft")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
+	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
+
+	transform = m_gameObjects.at("wallTop")->getComponentShared<GE::Transform>(GE::kTransform);
+	transform->setScale(glm::vec3(20.0f, 20.0f, 40.0f));
+	transform->setPosition(glm::vec3(0.0f, 32.0f, -20.0f));
+	transform->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+	m_gameObjects.at("wallTop")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer = m_gameObjects.at("wallTop")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer->setScreenRes(m_scrennSize);
+	meshRenderer->setMesh(m_wallObject);
+	meshRenderer->setTexture(m_texture);
+	meshRenderer->setProgram(m_shaderProgram);
+	meshRenderer->setMainCamera(m_cameraPlayer1);
+	m_gameObjects.at("wallTop")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider = m_gameObjects.at("wallTop")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider->setScale(transform->getScale());
+	boxCollider->boundToObject(m_wallObject);
+	boxCollider->recomputeBounds(transform->getPosition());
+	boxCollider->setScreenRes(m_scrennSize);
+	aabbSize = glm::vec3(boxCollider->m_boundingBox.extents);
+	m_gameObjects.at("wallTop")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape = m_gameObjects.at("wallTop")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.x), btScalar(aabbSize.y), btScalar(aabbSize.z))));
+	m_gameObjects.at("wallTop")->addComponent<GE::RidigBody>(GE::kRigidBody);
+	rigidBody = m_gameObjects.at("wallTop")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
+	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
+
+	transform = m_gameObjects.at("wallRight")->getComponentShared<GE::Transform>(GE::kTransform);
+	transform->setScale(glm::vec3(16.0f, 20.0f, 40.0f));
+	transform->setPosition(glm::vec3(15.f, 15.f, -20.f));
+	transform->setRotation(glm::vec3(0.0f, 0.0f, 90.0f));
+	m_gameObjects.at("wallRight")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer = m_gameObjects.at("wallRight")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer->setScreenRes(m_scrennSize);
+	meshRenderer->setMesh(m_wallObject);
+	meshRenderer->setTexture(m_texture);
+	meshRenderer->setProgram(m_shaderProgram);
+	meshRenderer->setMainCamera(m_cameraPlayer1);
+	m_gameObjects.at("wallRight")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider = m_gameObjects.at("wallRight")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
+	boxCollider->setScale(transform->getScale());
+	boxCollider->boundToObject(m_wallObject);
+	boxCollider->recomputeBounds(transform->getPosition());
+	boxCollider->setScreenRes(m_scrennSize);
+	aabbSize = glm::vec3(boxCollider->m_boundingBox.extents);
+	m_gameObjects.at("wallRight")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape = m_gameObjects.at("wallRight")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.y), btScalar(aabbSize.x), btScalar(aabbSize.z))));
+	m_gameObjects.at("wallRight")->addComponent<GE::RidigBody>(GE::kRigidBody);
+	rigidBody = m_gameObjects.at("wallRight")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
+	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
+
+	// ball
+	transform = m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform);
+	transform->setScale(glm::vec3(1.0f));
+	transform->setPosition(glm::vec3(-2.0f, 10.0f, -25.0f));
+	m_gameObjects.at("ball")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer = m_gameObjects.at("ball")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
+	meshRenderer->setScreenRes(m_scrennSize);
+	meshRenderer->setMesh(m_sphereObject);
+	meshRenderer->setTexture(m_texture);
+	meshRenderer->setProgram(m_shaderProgram);
+	meshRenderer->setMainCamera(m_cameraPlayer1);
+	m_gameObjects.at("ball")->addComponent<GE::SphereCollider>(GE::kSphereCollider);
+	sphereCollider = m_gameObjects.at("ball")->getComponentShared<GE::SphereCollider>(GE::kSphereCollider);
+	sphereCollider->boundToObject(m_sphereObject);
+	sphereCollider->setCenter(transform->getPosition());
+	sphereCollider->setRadius(transform->getScale().x);
+	m_gameObjects.at("ball")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape = m_gameObjects.at("ball")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
+	collisionShape->createShape(btSphereShape(btScalar(transform->getScale().x)));
+	m_gameObjects.at("ball")->addComponent<GE::RidigBody>(GE::kRigidBody);
+	rigidBody = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
+	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 1.0f);
+
 	// player1Paddle
 	transform = m_gameObjects.at("player1Paddle")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(1.0f, 1.0f, 1.0f));
-	transform->setPosition(glm::vec3(0.0f, 10.0f, 0.0f));
+	transform->setPosition(glm::vec3(0.0f, 10.0f, 15.0f));
 	transform->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	m_gameObjects.at("player1Paddle")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("player1Paddle")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -89,7 +215,7 @@ Application::Application()
 	meshRenderer->setMesh(m_paddleObject);
 	meshRenderer->setTexture(m_paddleTexture);
 	meshRenderer->setProgram(m_shaderProgram);
-	meshRenderer->setMainCamera(m_camera);
+	meshRenderer->setMainCamera(m_cameraPlayer1);
 	m_gameObjects.at("player1Paddle")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
 	boxCollider = m_gameObjects.at("player1Paddle")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
 	boxCollider->boundToObject(m_paddleObject);
@@ -97,7 +223,7 @@ Application::Application()
 	boxCollider->setScreenRes(m_scrennSize);
 	m_gameObjects.at("player1Paddle")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
 	collisionShape = m_gameObjects.at("player1Paddle")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
-	glm::vec3 aabbSize(boxCollider->m_boundingBox.extents);
+	aabbSize = glm::vec3(boxCollider->m_boundingBox.extents);
 	collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.x), btScalar(aabbSize.y), btScalar(aabbSize.z))));
 	m_gameObjects.at("player1Paddle")->addComponent<GE::RidigBody>(GE::kRigidBody);
 	rigidBody = m_gameObjects.at("player1Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
@@ -114,7 +240,7 @@ Application::Application()
 	meshRenderer->setMesh(m_paddleObject);
 	meshRenderer->setTexture(m_paddleTexture);
 	meshRenderer->setProgram(m_shaderProgram);
-	meshRenderer->setMainCamera(m_camera);
+	meshRenderer->setMainCamera(m_cameraPlayer1);
 	m_gameObjects.at("player2Paddle")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
 	boxCollider = m_gameObjects.at("player2Paddle")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
 	boxCollider->boundToObject(m_paddleObject);
@@ -126,136 +252,12 @@ Application::Application()
 	collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.x), btScalar(aabbSize.y), btScalar(aabbSize.z))));
 	m_gameObjects.at("player2Paddle")->addComponent<GE::RidigBody>(GE::kRigidBody);
 	rigidBody = m_gameObjects.at("player2Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
-	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
-
-	// ball
-	transform = m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform);
-	transform->setScale(glm::vec3(1.0f));
-	transform->setPosition(glm::vec3(-2.0f, 10.0f, -25.0f));
-	m_gameObjects.at("ball")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
-	meshRenderer = m_gameObjects.at("ball")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
-	meshRenderer->setScreenRes(m_scrennSize);
-	meshRenderer->setMesh(m_sphereObject);
-	meshRenderer->setTexture(m_texture);
-	meshRenderer->setProgram(m_shaderProgram);
-	meshRenderer->setMainCamera(m_camera);
-	m_gameObjects.at("ball")->addComponent<GE::SphereCollider>(GE::kSphereCollider);
-	sphereCollider = m_gameObjects.at("ball")->getComponentShared<GE::SphereCollider>(GE::kSphereCollider);
-	sphereCollider->boundToObject(m_sphereObject);
-	sphereCollider->setCenter(transform->getPosition());
-	sphereCollider->setRadius(transform->getScale().x);
-	m_gameObjects.at("ball")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
-	collisionShape = m_gameObjects.at("ball")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
-	collisionShape->createShape(btSphereShape(btScalar(transform->getScale().x)));
-	m_gameObjects.at("ball")->addComponent<GE::RidigBody>(GE::kRigidBody);
-	rigidBody = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
 	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 1.0f);
-
-	//  walls
-	transform = m_gameObjects.at("wallBottom")->getComponentShared<GE::Transform>(GE::kTransform);
-	transform->setScale(glm::vec3(20.0f, 20.0f, 40.0f));
-	transform->setPosition(glm::vec3(0.0f, 0.0f, -20.0f));
-	transform->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
-	m_gameObjects.at("wallBottom")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
-	meshRenderer = m_gameObjects.at("wallBottom")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
-	meshRenderer->setScreenRes(m_scrennSize);
-	meshRenderer->setMesh(m_wallObject);
-	meshRenderer->setTexture(m_texture);
-	meshRenderer->setProgram(m_shaderProgram);
-	meshRenderer->setMainCamera(m_camera);
-	m_gameObjects.at("wallBottom")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
-	boxCollider = m_gameObjects.at("wallBottom")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
-	boxCollider->setScale(transform->getScale());
-	boxCollider->boundToObject(m_wallObject);
-	boxCollider->recomputeBounds(transform->getPosition());
-	boxCollider->setScreenRes(m_scrennSize);
-	aabbSize = glm::vec3(boxCollider->m_boundingBox.extents);
-	m_gameObjects.at("wallBottom")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
-	collisionShape = m_gameObjects.at("wallBottom")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
-	collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.x), btScalar(aabbSize.y), btScalar(aabbSize.z))));
-	m_gameObjects.at("wallBottom")->addComponent<GE::RidigBody>(GE::kRigidBody);
-	rigidBody = m_gameObjects.at("wallBottom")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
-	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
-
-	transform = m_gameObjects.at("wallLeft")->getComponentShared<GE::Transform>(GE::kTransform);
-	transform->setScale(glm::vec3(16.0f, 20.0f, 40.0f));
-	transform->setPosition(glm::vec3(-20.0f, 15.0f, -20.0f));
-	transform->setRotation(glm::vec3(0.0f, 0.0f, 90.0f));
-	m_gameObjects.at("wallLeft")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
-	meshRenderer = m_gameObjects.at("wallLeft")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
-	meshRenderer->setScreenRes(m_scrennSize);
-	meshRenderer->setMesh(m_wallObject);
-	meshRenderer->setTexture(m_texture);
-	meshRenderer->setProgram(m_shaderProgram);
-	meshRenderer->setMainCamera(m_camera);
-	m_gameObjects.at("wallLeft")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
-	boxCollider = m_gameObjects.at("wallLeft")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
-	boxCollider->setScale(transform->getScale());
-	boxCollider->boundToObject(m_wallObject);
-	boxCollider->recomputeBounds(transform->getPosition());
-	boxCollider->setScreenRes(m_scrennSize);
-	aabbSize = glm::vec3(boxCollider->m_boundingBox.extents);
-	m_gameObjects.at("wallLeft")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
-	collisionShape = m_gameObjects.at("wallLeft")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
-	collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.y), btScalar(aabbSize.x), btScalar(aabbSize.z)))); // could use a OBB and recalulate entents but as its a 90 degree rotation on 1 axis, just swap x and y
-	m_gameObjects.at("wallLeft")->addComponent<GE::RidigBody>(GE::kRigidBody);
-	rigidBody = m_gameObjects.at("wallLeft")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
-	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
-	
-	transform = m_gameObjects.at("wallTop")->getComponentShared<GE::Transform>(GE::kTransform);
-	transform->setScale(glm::vec3(20.0f, 20.0f, 40.0f));
-	transform->setPosition(glm::vec3(0.0f, 32.0f, -20.0f));
-	transform->setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
-	m_gameObjects.at("wallTop")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
-	meshRenderer = m_gameObjects.at("wallTop")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
-	meshRenderer->setScreenRes(m_scrennSize);
-	meshRenderer->setMesh(m_wallObject);
-	meshRenderer->setTexture(m_texture);
-	meshRenderer->setProgram(m_shaderProgram);
-	meshRenderer->setMainCamera(m_camera);
-	m_gameObjects.at("wallTop")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
-	boxCollider = m_gameObjects.at("wallTop")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
-	boxCollider->setScale(transform->getScale());
-	boxCollider->boundToObject(m_wallObject);
-	boxCollider->recomputeBounds(transform->getPosition());
-	boxCollider->setScreenRes(m_scrennSize);
-	aabbSize = glm::vec3(boxCollider->m_boundingBox.extents);
-	m_gameObjects.at("wallTop")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
-	collisionShape = m_gameObjects.at("wallTop")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
-	collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.x), btScalar(aabbSize.y), btScalar(aabbSize.z))));
-	m_gameObjects.at("wallTop")->addComponent<GE::RidigBody>(GE::kRigidBody);
-	rigidBody = m_gameObjects.at("wallTop")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
-	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
-	
-	transform = m_gameObjects.at("wallRight")->getComponentShared<GE::Transform>(GE::kTransform);
-	transform->setScale(glm::vec3(16.0f, 20.0f, 40.0f));
-	transform->setPosition(glm::vec3(20.f, 15.f, -20.f));
-	transform->setRotation(glm::vec3(0.0f, 0.0f, 90.0f));
-	m_gameObjects.at("wallRight")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
-	meshRenderer = m_gameObjects.at("wallRight")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
-	meshRenderer->setScreenRes(m_scrennSize);
-	meshRenderer->setMesh(m_wallObject);
-	meshRenderer->setTexture(m_texture);
-	meshRenderer->setProgram(m_shaderProgram);
-	meshRenderer->setMainCamera(m_camera);
-	m_gameObjects.at("wallRight")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
-	boxCollider = m_gameObjects.at("wallRight")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
-	boxCollider->setScale(transform->getScale());
-	boxCollider->boundToObject(m_wallObject);
-	boxCollider->recomputeBounds(transform->getPosition());
-	boxCollider->setScreenRes(m_scrennSize);
-	aabbSize = glm::vec3(boxCollider->m_boundingBox.extents);
-	m_gameObjects.at("wallRight")->addComponent<GE::CollisionShape>(GE::kCollisionShape);
-	collisionShape = m_gameObjects.at("wallRight")->getComponentShared<GE::CollisionShape>(GE::kCollisionShape);
-	collisionShape->createShape(btBoxShape(btVector3(btScalar(aabbSize.y), btScalar(aabbSize.x), btScalar(aabbSize.z))));
-	m_gameObjects.at("wallRight")->addComponent<GE::RidigBody>(GE::kRigidBody);
-	rigidBody = m_gameObjects.at("wallRight")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
-	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
 
 	// goals
 	transform = m_gameObjects.at("player1Goal")->getComponentShared<GE::Transform>(GE::kTransform);
-	transform->setScale(glm::vec3(20.0f, 20.0f, 20.0f));
-	transform->setPosition(glm::vec3(0.f, 20.0f, 20.f));
+	transform->setScale(glm::vec3(20.0f, 20.0f, 16.0f));
+	transform->setPosition(glm::vec3(0.f, 16.0f, 20.f));
 	transform->setRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 	m_gameObjects.at("player1Goal")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("player1Goal")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -263,7 +265,7 @@ Application::Application()
 	meshRenderer->setMesh(m_wallObject);
 	meshRenderer->setTexture(m_texture);
 	meshRenderer->setProgram(m_shaderProgram);
-	meshRenderer->setMainCamera(m_camera);
+	meshRenderer->setMainCamera(m_cameraPlayer1);
 	m_gameObjects.at("player1Goal")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
 	boxCollider = m_gameObjects.at("player1Goal")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
 	boxCollider->setScale(transform->getScale());
@@ -279,8 +281,8 @@ Application::Application()
 	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
 
 	transform = m_gameObjects.at("player2Goal")->getComponentShared<GE::Transform>(GE::kTransform);
-	transform->setScale(glm::vec3(20.0f, 20.0f, 20.0f));
-	transform->setPosition(glm::vec3(0.f, 20.0f, -60.f));
+	transform->setScale(glm::vec3(20.0f, 20.0f, 16.0f));
+	transform->setPosition(glm::vec3(0.f, 16.0f, -60.f));
 	transform->setRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 	m_gameObjects.at("player2Goal")->addComponent<GE::MeshRenderer>(GE::kMeshRenderer);
 	meshRenderer = m_gameObjects.at("player2Goal")->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -288,7 +290,7 @@ Application::Application()
 	meshRenderer->setMesh(m_wallObject);
 	meshRenderer->setTexture(m_texture);
 	meshRenderer->setProgram(m_shaderProgram);
-	meshRenderer->setMainCamera(m_camera);
+	meshRenderer->setMainCamera(m_cameraPlayer1);
 	m_gameObjects.at("player2Goal")->addComponent<GE::BoxCollider>(GE::kBoxCollider);
 	boxCollider = m_gameObjects.at("player2Goal")->getComponentShared<GE::BoxCollider>(GE::kBoxCollider);
 	boxCollider->setScale(transform->getScale());
@@ -314,7 +316,7 @@ Application::Application()
 	// ball
 	{
 		// set up the ball and add rigidBody to dynamics world
-		m_startingVelocity = btVector3(0, 0, 5);
+		m_startingVelocity = btVector3(0, 0, -5);
 		m_velocityDirection = m_startingVelocity;
 		m_ballSpeed = btVector3(1, 1, 1);
 		m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get()->setFriction(0.0f);
@@ -337,12 +339,13 @@ Application::Application()
 	// goals
 	{
 		// set up the ball and add rigidBody to dynamics world
-		dynamicsWorld->addRigidBody(m_gameObjects.at("player2Goal")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());;
+		dynamicsWorld->addRigidBody(m_gameObjects.at("player1Goal")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
+		dynamicsWorld->addRigidBody(m_gameObjects.at("player2Goal")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody().get());
 	}
 	// ------------------- BULLET GAMEOBJECTS CONFIGED ------------------- //
 
 
-	m_screenMouse = mkShare<GE::Input::MouseConverter>(m_camera->getProjection(), m_camera->getView(), m_scrennSize);
+	m_screenMouse = mkShare<GE::Input::MouseConverter>(m_cameraPlayer1->getProjection(), m_cameraPlayer1->getView(), m_scrennSize);
 
 	// which level to start on
 	m_activeLevel = 0;
@@ -426,6 +429,50 @@ void Application::update(float& dt)
 			paddle1->setLinearVelocity(btVector3(0, 0, 0));
 	}
 
+
+	shared<btRigidBody> paddle2 = m_gameObjects.at("player2Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody();
+	if (m_input->getKeyHeld("movementVert2") == MULTI_KEY_HIGHER)
+	{
+		// don't keep updating velocity if it's the same
+		if (paddle2->getLinearVelocity().getY() == 0.0f)
+			paddle2->setLinearVelocity(btVector3(0, 5, 0));
+	}
+	// apply velocity to the the paddle
+	if (m_input->getKeyHeld("movementVert2") == MULTI_KEY_LOWER)
+	{
+		// don't keep updating velocity if it's the same
+		if (paddle2->getLinearVelocity().getY() == 0.0f)
+			paddle2->setLinearVelocity(btVector3(0, -5, 0));
+	}
+	// apply velocity to the the paddle
+	if (m_input->getKeyHeld("movementVert2") == MULTI_KEY_NONE)
+	{
+		// don't keep updating velocity if it's the same
+		if (paddle2->getLinearVelocity().getY() != 0.0f)
+			paddle2->setLinearVelocity(btVector3(0, 0, 0));
+	}
+
+	if (m_input->getKeyHeld("movementHoriz2") == MULTI_KEY_HIGHER)
+	{
+		// don't keep updating velocity if it's the same
+		if (paddle2->getLinearVelocity().getX() == 0.0f)
+			paddle2->setLinearVelocity(btVector3(5, 0, 0));
+	}
+	// apply velocity to the the paddle
+	if (m_input->getKeyHeld("movementHoriz2") == MULTI_KEY_LOWER)
+	{
+		// don't keep updating velocity if it's the same
+		if (paddle2->getLinearVelocity().getX() == 0.0f)
+			paddle2->setLinearVelocity(btVector3(-5, 0, 0));
+	}
+	// apply velocity to the the paddle
+	if (m_input->getKeyHeld("movementHoriz2") == MULTI_KEY_NONE)
+	{
+		// don't keep updating velocity if it's the same
+		if (paddle2->getLinearVelocity().getX() != 0.0f)
+			paddle2->setLinearVelocity(btVector3(0, 0, 0));
+	}
+
 	//------------------ input update end ------------------ //
 
 	static bool checker = false;
@@ -445,7 +492,7 @@ void Application::update(float& dt)
 			// if both keys are no empty, perform collision response logic
 			if (!collisionKeyA.empty() && !collisionKeyB.empty())
 			{
-				//std::cout << collisionKeyA.c_str() << " " << collisionKeyB.c_str() << " " << checker << std::endl;
+				std::cout << collisionKeyA.c_str() << " " << collisionKeyB.c_str() << " " << checker << std::endl;
 			
 				if (collisionKeyA == "ball" && !checker || collisionKeyB == "ball" && !checker)
 				{
@@ -545,6 +592,11 @@ void Application::update(float& dt)
 		glmOrigin = glm::vec3(bttransform.getOrigin().getX(), bttransform.getOrigin().getY(), bttransform.getOrigin().getZ());
 		m_gameObjects.at("player1Paddle")->getComponentShared<GE::Transform>(GE::kTransform)->setPosition(glmOrigin);
 	}
+	{
+		btTransform bttransform = m_gameObjects.at("player2Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->getWorldTransform();
+		glmOrigin = glm::vec3(bttransform.getOrigin().getX(), bttransform.getOrigin().getY(), bttransform.getOrigin().getZ());
+		m_gameObjects.at("player2Paddle")->getComponentShared<GE::Transform>(GE::kTransform)->setPosition(glmOrigin);
+	}
 
 
 	m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getBodyWorldTransform(updateTransform);
@@ -572,14 +624,54 @@ void Application::draw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(28.0f / 255.0f, 28.0f / 255.0f, 28.0f / 255.0f, 1.0f);
 
+	glViewport(0, 0, (int)m_scrennSize.x, (int)m_scrennSize.y);
+
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClearColor(28.0f / 255.0f, 28.0f / 255.0f, 28.0f / 255.0f, 1.0f);
+
 	for (std::unordered_map<std::string, shared<GE::GameObject>>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); it++)
 	{
+		if (it->first == "player1Goal")
+			it->second->isActive(false);
+
 		if (it->second->isActive())
+		{
+			shared<GE::MeshRenderer> renderer = it->second->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
+			renderer->setMainCamera(m_cameraPlayer1);
 			it->second->draw();
+		}
+
+		if (it->first == "player1Goal")
+			it->second->isActive(true);
 	}
 
 	dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawAabb);
-	dynamicsWorld->debugDrawWorld();
+	//dynamicsWorld->debugDrawWorld();
+
+
+	glViewport((int)m_scrennSize.x, 0, (int)m_scrennSize.x, (int)m_scrennSize.y);
+
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClearColor(28.0f / 255.0f, 28.0f / 255.0f, 28.0f / 255.0f, 1.0f);
+
+	for (std::unordered_map<std::string, shared<GE::GameObject>>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); it++)
+	{
+		if (it->first == "player2Goal")
+			it->second->isActive(false);
+
+		if (it->second->isActive())
+		{
+			shared<GE::MeshRenderer> renderer = it->second->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
+			renderer->setMainCamera(m_cameraPlayer2);
+			it->second->draw();
+		}
+
+		if (it->first == "player2Goal")
+			it->second->isActive(true);
+	}
+
+	dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawAabb);
+	//dynamicsWorld->debugDrawWorld();
 
 	glutSwapBuffers();
 }

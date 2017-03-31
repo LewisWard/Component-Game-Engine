@@ -43,7 +43,8 @@ private:
 	shared<GE::Program> m_shaderProgramCollision;
 	shared<GE::Input::InputManager> m_input;
 	shared<GE::Input::MouseConverter> m_screenMouse;
-	shared<GE::Camera> m_camera;
+	shared<GE::Camera> m_cameraPlayer1;
+	shared<GE::Camera> m_cameraPlayer2;
 	Configurations m_config;
 	btVector3 m_startingVelocity;
 	btVector3 m_velocityDirection;
