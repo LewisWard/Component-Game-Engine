@@ -515,9 +515,7 @@ void Application::update(float& dt)
 		
 		// if both keys are no empty, perform collision response logic
 		if (!collisionKeyA.empty() && !collisionKeyB.empty())
-		{
-			//std::cout << collisionKeyA.c_str() << " " << collisionKeyB.c_str() << " " << checker << std::endl;
-		
+		{	
 			if (collisionKeyA == "ball" && !m_checker || collisionKeyB == "ball" && !m_checker)
 			{
 				// goals
@@ -595,16 +593,16 @@ void Application::update(float& dt)
 					}
 				}
 			}
-	
-			// stops the paddles from spinning when colliding with the ball
-			if (collisionKeyA == "player1Paddle" || collisionKeyB == "player1Paddle")
-				m_gameObjects.at("player1Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setAngularVelocity(btVector3(0, 0, 0));
-	
-			if (collisionKeyA == "player2Paddle" || collisionKeyB == "player2Paddle")
-				m_gameObjects.at("player2Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setAngularVelocity(btVector3(0, 0, 0));
 		}
 	}
 	
+	// stops the paddles from spinning when colliding with the ball
+	if (collisionKeyA == "player1Paddle" || collisionKeyB == "player1Paddle")
+		m_gameObjects.at("player1Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setAngularVelocity(btVector3(0, 0, 0));
+
+	if (collisionKeyA == "player2Paddle" || collisionKeyB == "player2Paddle")
+		m_gameObjects.at("player2Paddle")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setAngularVelocity(btVector3(0, 0, 0));
+
 	// if no object collided
 	if (overlaps == 0)
 		m_checker = false;
@@ -701,7 +699,7 @@ void Application::draw()
 
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawAabb);
 	m_debugDraw.setDebugCamera(m_cameraPlayer1);
-	m_dynamicsWorld->debugDrawWorld();
+	//m_dynamicsWorld->debugDrawWorld();
 
 	// player 2 viewport
 	glViewport((int)m_scrennSize.x, 0, (int)m_scrennSize.x, (int)m_scrennSize.y);
