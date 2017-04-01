@@ -18,3 +18,5 @@
 #define MULTI_KEY_HIGHER 1
 #define MULTI_KEY_LOWER -1
 #define MULTI_KEY_NONE 0
+#define BULLET_DEBUG_DRAW 0
+#define BULLET_DRAW_ALL 0
