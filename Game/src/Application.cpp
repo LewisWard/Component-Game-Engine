@@ -106,7 +106,9 @@ Application::Application()
 	m_gameObjects.at("wallBottom")->addComponent<GE::RidigBody>(GE::kRigidBody);
 	rigidBody = m_gameObjects.at("wallBottom")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
 	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
+#if BULLET_DRAW_ALL == 0
 	rigidBody->getRigidBody()->setCollisionFlags(rigidBody->getRigidBody()->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+#endif
 
 	transform = m_gameObjects.at("wallLeft")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(16.0f, 20.0f, 40.0f));
@@ -132,7 +134,9 @@ Application::Application()
 	m_gameObjects.at("wallLeft")->addComponent<GE::RidigBody>(GE::kRigidBody);
 	rigidBody = m_gameObjects.at("wallLeft")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
 	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
+#if BULLET_DRAW_ALL == 0
 	rigidBody->getRigidBody()->setCollisionFlags(rigidBody->getRigidBody()->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+#endif
 
 	transform = m_gameObjects.at("wallTop")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(20.0f, 20.0f, 40.0f));
@@ -158,7 +162,9 @@ Application::Application()
 	m_gameObjects.at("wallTop")->addComponent<GE::RidigBody>(GE::kRigidBody);
 	rigidBody = m_gameObjects.at("wallTop")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
 	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
+#if BULLET_DRAW_ALL == 0
 	rigidBody->getRigidBody()->setCollisionFlags(rigidBody->getRigidBody()->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+#endif
 
 	transform = m_gameObjects.at("wallRight")->getComponentShared<GE::Transform>(GE::kTransform);
 	transform->setScale(glm::vec3(16.0f, 20.0f, 40.0f));
@@ -184,7 +190,9 @@ Application::Application()
 	m_gameObjects.at("wallRight")->addComponent<GE::RidigBody>(GE::kRigidBody);
 	rigidBody = m_gameObjects.at("wallRight")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
 	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 0.0f);
+#if BULLET_DRAW_ALL == 0
 	rigidBody->getRigidBody()->setCollisionFlags(rigidBody->getRigidBody()->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+#endif
 
 	// ball
 	transform = m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform);
@@ -208,6 +216,7 @@ Application::Application()
 	m_gameObjects.at("ball")->addComponent<GE::RidigBody>(GE::kRigidBody);
 	rigidBody = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
 	rigidBody->createRigidBody(collisionShape, transform->getPosition(), 1.0f);
+	rigidBody->getRigidBody()->setActivationState(DISABLE_DEACTIVATION);
 
 	// player1Paddle
 	transform = m_gameObjects.at("player1Paddle")->getComponentShared<GE::Transform>(GE::kTransform);
@@ -369,6 +378,7 @@ Application::Application()
 	m_activeLevel = 0;
 	m_player1Score = 0;
 	m_player2Score = 0;
+	m_paddleSpeed = 7.5f;
 	m_counter = 0;
 	m_checker = false;
 	m_ballJump = false;
@@ -470,7 +480,7 @@ void Application::update(float& dt)
 					btVector3 linVelocity = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->getLinearVelocity();
 	
 					// walls
-					if (collisionKeyA.find("wall") || collisionKeyB.find("wall"))
+					if (collisionKeyA.find("wall") != std::string::npos || collisionKeyB.find("wall") != std::string::npos)
 					{
 						// reflection equation: https://www.gamedev.net/topic/615766-angle-of-reflection/ [accessed 30/03/2017]
 						btVector3 direction = m_velocityDirection;
@@ -482,9 +492,14 @@ void Application::update(float& dt)
 					}
 
 					//paddles
-					if (collisionKeyA.find("paddle") || collisionKeyB.find("paddle"))
+					if (collisionKeyA.find("Paddle") != std::string::npos || collisionKeyB.find("Paddle") != std::string::npos)
 					{
-						GE::consoleLog("paddles");
+						// reflection equation: https://www.gamedev.net/topic/615766-angle-of-reflection/ [accessed 30/03/2017]
+						btVector3 direction = m_velocityDirection;
+						btVector3 reflection = -2 * (direction.dot(collisionNormal)) * collisionNormal + direction;
+						m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(reflection);
+						m_velocityDirection = reflection;
+						m_checker = true;
 						m_ballJump = true;
 					}
 				}
@@ -527,7 +542,7 @@ void Application::update(float& dt)
 	
 	// sometimes the ball gets hit and reflected at a flat angle on the Z axis, resulting in it not moving towards either player. This give the ball a "jump" towards to
 	// player it should be travelling towards
-	if (glm::abs(m_pfPosition.getZ() - origin.getZ()) < 0.08f)
+	if (glm::abs(m_pfPosition.getZ() - origin.getZ()) < 0.01f)
 	{
 		if (m_ballJump || m_counter >= 3)
 		{
@@ -537,34 +552,24 @@ void Application::update(float& dt)
 			if (linVelocity.getZ() != 0.0f)
 			{
 				linVelocity.setZ(linVelocity.getZ() * 10.0f);
-				GE::consoleLog("linVelocity ", linVelocity);
 				m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(linVelocity);
 				m_ballJump = false;
 				m_counter = 0;
 			}
 			else
 			{
-				m_velocityDirection = m_startingVelocity;
-				shared<GE::Transform> transform = m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform);
-				transform->setPosition(glm::vec3(-2.0f, 10.0f, -55.0f));
-				shared<GE::RidigBody> rigidBody = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
-			
-				btTransform reset = rigidBody->getRigidBody()->getCenterOfMassTransform();
-				reset.setOrigin(btVector3(transform->getPosition().x, transform->getPosition().y, transform->getPosition().z));
-				rigidBody->getRigidBody()->setCenterOfMassTransform(reset);
-				m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(m_startingVelocity); // moves towards player 1
-				m_ballSpeed = btVector3(1, 1, 1);
-			
-				GE::consoleLog("THE BALL STOPPED, RESETTING THE BALL!");
+				char keyChar = (char)(m_input->getKeyFromName("action").keyBinding);
+				std::cout << "THE BALL STOPPED, RESET THE BALL WITH THE ACTION (" << keyChar << ") KEY!\n";
+				m_ballJump = true;
+				m_counter = 0;
 			}
 		}
 		else
 		{
 			m_counter++;
-			GE::consoleLog("m_counter ", m_counter);
 		}
 	}
-	
+
 	// if no object collided
 	if (overlaps == 0)
 		m_checker = false;
@@ -642,9 +647,11 @@ void Application::draw()
 			it->second->isActive(true);
 	}
 
+#if BULLET_DEBUG_DRAW == 1
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawAabb);
 	m_debugDraw.setDebugCamera(m_cameraPlayer1);
 	m_dynamicsWorld->debugDrawWorld();
+#endif
 
 	// player 2 viewport
 	glViewport((int)m_scrennSize.x, 0, (int)m_scrennSize.x, (int)m_scrennSize.y);
@@ -680,9 +687,11 @@ void Application::draw()
 			it->second->isActive(true);
 	}
 
+#if BULLET_DEBUG_DRAW == 1
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawAabb);
 	m_debugDraw.setDebugCamera(m_cameraPlayer2);
 	m_dynamicsWorld->debugDrawWorld();
+#endif
 
 	glutSwapBuffers();
 }
@@ -743,7 +752,7 @@ void Application::prcoessInput()
 		// don't keep updating velocity if it's the same
 		if (paddle1->getLinearVelocity().getY() == 0.0f)
 		{
-			paddle1->setLinearVelocity(btVector3(0, 5, 0));
+			paddle1->setLinearVelocity(btVector3(0, m_paddleSpeed, 0));
 			movementAlright = true;
 		}
 	}
@@ -753,7 +762,7 @@ void Application::prcoessInput()
 		// don't keep updating velocity if it's the same
 		if (paddle1->getLinearVelocity().getY() == 0.0f)
 		{
-			paddle1->setLinearVelocity(btVector3(0, -5, 0));
+			paddle1->setLinearVelocity(btVector3(0, -m_paddleSpeed, 0));
 			movementAlright = true;
 		}
 	}
@@ -771,9 +780,9 @@ void Application::prcoessInput()
 		// don't keep updating velocity if it's the same
 		if (paddle1->getLinearVelocity().getX() == 0.0f)
 			if (movementAlright)
-				paddle1->setLinearVelocity(btVector3(-5, paddle1->getLinearVelocity().getY(), 0));
+				paddle1->setLinearVelocity(btVector3(-m_paddleSpeed, paddle1->getLinearVelocity().getY(), 0));
 			else
-				paddle1->setLinearVelocity(btVector3(-5, 0, 0));
+				paddle1->setLinearVelocity(btVector3(-m_paddleSpeed, 0, 0));
 	}
 	// apply velocity to the the paddle
 	if (m_input->getKeyHeld("movementHoriz") == MULTI_KEY_LOWER)
@@ -781,9 +790,9 @@ void Application::prcoessInput()
 		// don't keep updating velocity if it's the same
 		if (paddle1->getLinearVelocity().getX() == 0.0f)
 			if (movementAlright)
-				paddle1->setLinearVelocity(btVector3(5, paddle1->getLinearVelocity().getY(), 0));
+				paddle1->setLinearVelocity(btVector3(m_paddleSpeed, paddle1->getLinearVelocity().getY(), 0));
 			else
-				paddle1->setLinearVelocity(btVector3(5, 0, 0));
+				paddle1->setLinearVelocity(btVector3(m_paddleSpeed, 0, 0));
 	}
 	// apply velocity to the the paddle
 	if (m_input->getKeyHeld("movementHoriz") == MULTI_KEY_NONE)
@@ -803,7 +812,7 @@ void Application::prcoessInput()
 		// don't keep updating velocity if it's the same
 		if (paddle2->getLinearVelocity().getY() == 0.0f)
 		{
-			paddle2->setLinearVelocity(btVector3(0, 5, 0));
+			paddle2->setLinearVelocity(btVector3(0, m_paddleSpeed, 0));
 			movementAlright = true;
 		}
 	}
@@ -813,7 +822,7 @@ void Application::prcoessInput()
 		// don't keep updating velocity if it's the same
 		if (paddle2->getLinearVelocity().getY() == 0.0f)
 		{
-			paddle2->setLinearVelocity(btVector3(0, -5, 0));
+			paddle2->setLinearVelocity(btVector3(0, -m_paddleSpeed, 0));
 			movementAlright = true;
 		}
 	}
@@ -830,9 +839,9 @@ void Application::prcoessInput()
 		// don't keep updating velocity if it's the same
 		if (paddle2->getLinearVelocity().getX() == 0.0f)
 			if (movementAlright)
-				paddle2->setLinearVelocity(btVector3(5, paddle2->getLinearVelocity().getY(), 0));
+				paddle2->setLinearVelocity(btVector3(m_paddleSpeed, paddle2->getLinearVelocity().getY(), 0));
 			else
-				paddle2->setLinearVelocity(btVector3(5, 0, 0));
+				paddle2->setLinearVelocity(btVector3(m_paddleSpeed, 0, 0));
 	}
 	// apply velocity to the the paddle
 	if (m_input->getKeyHeld("movementHoriz2") == MULTI_KEY_LOWER)
@@ -840,9 +849,9 @@ void Application::prcoessInput()
 		// don't keep updating velocity if it's the same
 		if (paddle2->getLinearVelocity().getX() == 0.0f)
 			if (movementAlright)
-				paddle2->setLinearVelocity(btVector3(-5, paddle2->getLinearVelocity().getY(), 0));
+				paddle2->setLinearVelocity(btVector3(-m_paddleSpeed, paddle2->getLinearVelocity().getY(), 0));
 			else
-				paddle2->setLinearVelocity(btVector3(-5, 0, 0));
+				paddle2->setLinearVelocity(btVector3(-m_paddleSpeed, 0, 0));
 	}
 	// apply velocity to the the paddle
 	if (m_input->getKeyHeld("movementHoriz2") == MULTI_KEY_NONE)
@@ -855,20 +864,21 @@ void Application::prcoessInput()
 				paddle2->setLinearVelocity(btVector3(0, 0, 0));
 	}
 
-
 	if (m_input->getKeyDown("action"))
-	{
-		m_velocityDirection = m_startingVelocity;
-
-		shared<GE::Transform> transform = m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform);
-		transform->setPosition(glm::vec3(-2.0f, 10.0f, -55.0f));
-		shared<GE::RidigBody> rigidBody = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
-
-		btTransform reset = rigidBody->getRigidBody()->getCenterOfMassTransform();
-		reset.setOrigin(btVector3(transform->getPosition().x, transform->getPosition().y, transform->getPosition().z));
-		rigidBody->getRigidBody()->setCenterOfMassTransform(reset);
-		m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(m_startingVelocity); // moves towards player 1
-		m_ballSpeed = btVector3(1, 1, 1);
-	}
+		ballReset();
 }
 
+void Application::ballReset()
+{
+	m_velocityDirection = m_startingVelocity;
+
+	shared<GE::Transform> transform = m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform);
+	transform->setPosition(glm::vec3(-2.0f, 10.0f, -55.0f));
+	shared<GE::RidigBody> rigidBody = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
+
+	btTransform reset = rigidBody->getRigidBody()->getCenterOfMassTransform();
+	reset.setOrigin(btVector3(transform->getPosition().x, transform->getPosition().y, transform->getPosition().z));
+	rigidBody->getRigidBody()->setCenterOfMassTransform(reset);
+	m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(m_startingVelocity); // moves towards player 1
+	m_ballSpeed = btVector3(1, 1, 1);
+}

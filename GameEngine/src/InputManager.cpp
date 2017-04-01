@@ -26,7 +26,7 @@ namespace GE
 			// edit vaules
 			if (!readConfigFile())
 			{
-				m_srdKeys.resize(10);
+				m_srdKeys.resize(11);
 
 				// standard keys always init
 				m_srdKeys[0].inputName = "movementVert";
@@ -227,6 +227,17 @@ namespace GE
 							}
 						}
 					}
+				}
+			}
+		}
+
+		Key InputManager::getKeyFromName(std::string inputName)
+		{
+			for (size_t i = 0; i < m_srdKeys.size(); ++i)
+			{
+				if (m_srdKeys[i].inputName == inputName)
+				{
+					return m_srdKeys[i];
 				}
 			}
 		}
