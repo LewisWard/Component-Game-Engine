@@ -8,6 +8,21 @@ void GE::consoleLog(const char * msg)
 	std::cout << msg << std::endl;
 }
 
+void GE::consoleLog(const char* msg, int i)
+{
+	std::cout << msg << " " << i << std::endl;
+}
+
+void GE::consoleLog(const char* msg, float f)
+{
+	std::cout << msg << " " << f << std::endl;
+}
+
+void GE::consoleLog(const char* msg, const char* c)
+{
+	std::cout << msg << " " << c << std::endl;
+}
+
 void GE::consoleLog(const char * msg, glm::vec2 v)
 {
 	std::cout << msg << " " << v.x << " " << v.y << std::endl;

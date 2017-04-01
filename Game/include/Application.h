@@ -64,7 +64,9 @@ private:
 	int m_activeLevel;
 	int m_player1Score;
 	int m_player2Score;
+	int m_counter;
 	bool m_checker;
+	bool m_ballJump;
 
 	GE::DebugBTDraw m_debugDraw;
 

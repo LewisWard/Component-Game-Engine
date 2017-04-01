@@ -11,6 +11,9 @@
 namespace GE
 {
 	void consoleLog(const char* msg);
+	void consoleLog(const char* msg, int i);
+	void consoleLog(const char* msg, float f);
+	void consoleLog(const char* msg, const char* c);
 	void consoleLog(const char* msg, glm::vec2 v);
 	void consoleLog(const char* msg, glm::vec3 v);
 	void consoleLog(const char* msg, glm::vec4 v);

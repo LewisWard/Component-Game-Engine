@@ -369,7 +369,9 @@ Application::Application()
 	m_activeLevel = 0;
 	m_player1Score = 0;
 	m_player2Score = 0;
+	m_counter = 0;
 	m_checker = false;
+	m_ballJump = false;
 
 	m_timer = mkShare<GEC::Timer>();
 	m_timer->stop();
@@ -476,6 +478,14 @@ void Application::update(float& dt)
 						m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(reflection);
 						m_velocityDirection = reflection;
 						m_checker = true;
+						m_ballJump = true;
+					}
+
+					//paddles
+					if (collisionKeyA.find("paddle") || collisionKeyB.find("paddle"))
+					{
+						GE::consoleLog("paddles");
+						m_ballJump = true;
 					}
 				}
 
@@ -494,30 +504,6 @@ void Application::update(float& dt)
 				}
 			}
 		}
-	}
-
-	// if no object collided
-	if (overlaps == 0)
-		m_checker = false;
-
-	// changes the light by the a players goal to red, if a goal was scored vs them
-	if (player1Scored)
-	{
-		m_timer->start();
-		m_gameObjects.at("light1")->getComponentShared<GE::Light>(GE::kLight)->setColour(glm::vec3(1, 0, 0));
-	} 
-	else if (player2Scored)
-	{
-		m_timer->start();
-		m_gameObjects.at("light0")->getComponentShared<GE::Light>(GE::kLight)->setColour(glm::vec3(1, 0, 0));
-	}
-
-	// 1 second after the time started (or as close to it as possible) change the lights back to default colour
-	if (m_timer->checkElapsedTimeMS() >= 1000.0f)
-	{
-		m_timer->reset();
-		m_gameObjects.at("light0")->getComponentShared<GE::Light>(GE::kLight)->setColour(glm::vec3(1, 1, 1));
-		m_gameObjects.at("light1")->getComponentShared<GE::Light>(GE::kLight)->setColour(glm::vec3(1, 1, 1));
 	}
 
 	//------------------ stepsimulation end ------------------ //
@@ -539,25 +525,80 @@ void Application::update(float& dt)
 	btVector3 rotation = updateTransform.getRotation().getAxis();
 
 	
-	//float differenceZ = m_pfPosition.getZ() - origin.getZ();
-	//if (glm::abs(differenceZ) < 0.08f)
-	//{
-	//	btVector3 linVelocity = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->getLinearVelocity();
-	//	linVelocity.setZ(linVelocity.getZ() * m_ballSpeed.getZ());
-	//	GE::consoleLog("linVelocity ", linVelocity);
-	//	m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(linVelocity);
-	//}
+	// sometimes the ball gets hit and reflected at a flat angle on the Z axis, resulting in it not moving towards either player. This give the ball a "jump" towards to
+	// player it should be travelling towards
+	if (glm::abs(m_pfPosition.getZ() - origin.getZ()) < 0.08f)
+	{
+		if (m_ballJump || m_counter >= 3)
+		{
+			btVector3 linVelocity = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->getLinearVelocity();
+
+			// if it is equal to zero reset the ball
+			if (linVelocity.getZ() != 0.0f)
+			{
+				linVelocity.setZ(linVelocity.getZ() * 10.0f);
+				GE::consoleLog("linVelocity ", linVelocity);
+				m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(linVelocity);
+				m_ballJump = false;
+				m_counter = 0;
+			}
+			else
+			{
+				m_velocityDirection = m_startingVelocity;
+				shared<GE::Transform> transform = m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform);
+				transform->setPosition(glm::vec3(-2.0f, 10.0f, -55.0f));
+				shared<GE::RidigBody> rigidBody = m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody);
+			
+				btTransform reset = rigidBody->getRigidBody()->getCenterOfMassTransform();
+				reset.setOrigin(btVector3(transform->getPosition().x, transform->getPosition().y, transform->getPosition().z));
+				rigidBody->getRigidBody()->setCenterOfMassTransform(reset);
+				m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(m_startingVelocity); // moves towards player 1
+				m_ballSpeed = btVector3(1, 1, 1);
+			
+				GE::consoleLog("THE BALL STOPPED, RESETTING THE BALL!");
+			}
+		}
+		else
+		{
+			m_counter++;
+			GE::consoleLog("m_counter ", m_counter);
+		}
+	}
 	
+	// if no object collided
+	if (overlaps == 0)
+		m_checker = false;
 
-	glmOrigin = glm::vec3(origin.getX(), origin.getY(), origin.getZ());
+	// changes the light by the a players goal to red, if a goal was scored vs them
+	if (player1Scored)
+	{
+		m_timer->start();
+		m_gameObjects.at("light1")->getComponentShared<GE::Light>(GE::kLight)->setColour(glm::vec3(1, 0, 0));
+	}
+	else if (player2Scored)
+	{
+		m_timer->start();
+		m_gameObjects.at("light0")->getComponentShared<GE::Light>(GE::kLight)->setColour(glm::vec3(1, 0, 0));
+	}
 
+	// 1 second after the time started (or as close to it as possible) change the lights back to default colour
+	if (m_timer->checkElapsedTimeMS() >= 1000.0f)
+	{
+		m_timer->reset();
+		m_gameObjects.at("light0")->getComponentShared<GE::Light>(GE::kLight)->setColour(glm::vec3(1, 1, 1));
+		m_gameObjects.at("light1")->getComponentShared<GE::Light>(GE::kLight)->setColour(glm::vec3(1, 1, 1));
+	}
+
+	// update ball position adn rotation
 	glm::vec3 glmRotation = m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform)->getRotation();
 	glmRotation.x += m_velocityDirection.getZ();
 	glmRotation.y += m_velocityDirection.getY();
 	glmRotation.z += m_velocityDirection.getX();
+	glmOrigin = glm::vec3(origin.getX(), origin.getY(), origin.getZ());
 	m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform)->setPosition(glmOrigin);
 	m_gameObjects.at("ball")->getComponentShared<GE::Transform>(GE::kTransform)->setRotation(glmRotation);
 
+	// update the ball position on this frame as the last frame position
 	m_pfPosition = btVector3(glmOrigin.x, glmOrigin.y, glmOrigin.z);
 }
 
