@@ -85,4 +85,10 @@ private:
 	/// \return btVector3 normal at collision point of oebject B, int number of overlapping objects pairs (i.e. 2 objects equals 1 pair)
 	//----------------------------------------------------------------------------------------------------------------------
 	btVector3 getOverlappingGameObjects(std::string& keyA, std::string& keyB, int pairNumber);
+
+	//----------------------------------------------------------------------------------------------------------------------
+	/// \brief  processes user input
+	//----------------------------------------------------------------------------------------------------------------------
+	void prcoessInput();
+
 };
