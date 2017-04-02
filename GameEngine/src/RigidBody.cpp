@@ -5,12 +5,12 @@
 
 namespace GE
 {
-	RidigBody::RidigBody()
+	RigidBody::RigidBody()
 	{
 		m_type = kRigidBody;
 	}
 
-	void RidigBody::createRigidBody(shared<GE::CollisionShape> collisionShape, glm::vec3 position, float mass)
+	void RigidBody::createRigidBody(shared<GE::CollisionShape> collisionShape, glm::vec3 position, float mass)
 	{
 		{
 			btVector3 origin(position.x, position.y, position.z);
