@@ -1,6 +1,6 @@
 ﻿// Author  : Lewis Ward (i7212443)
 // Program : Game Engine
-// Date    : 09/10/2016
+// Date    : 20/03/2017
 #include "Defines.h"
 #include "GameObject.h"
 #include "DebugBTDraw.h"
@@ -50,7 +50,6 @@ private:
 	shared<GE::Program> m_shaderProgram;
 	shared<GE::Program> m_shaderProgramCollision;
 	shared<GE::Input::InputManager> m_input;
-	shared<GE::Input::MouseConverter> m_screenMouse;
 	shared<GE::Camera> m_cameraPlayer1;
 	shared<GE::Camera> m_cameraPlayer2;
 	Configurations m_config;
@@ -65,9 +64,7 @@ private:
 	int m_activeLevel;
 	int m_player1Score;
 	int m_player2Score;
-	int m_counter;
 	bool m_checker;
-	bool m_ballJump;
 
 	GE::DebugBTDraw m_debugDraw;
 

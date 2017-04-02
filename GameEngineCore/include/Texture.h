@@ -1,6 +1,9 @@
 // Author  : Lewis Ward (i7212443)
 // Program : Game Engine
 // Date    : 29/01/2016
+/*
+* This class is the same as in Assignment 1, it has not been created or modified
+*/
 #pragma once
 #include "soil\SOIL.h"
 #include "Window.h"

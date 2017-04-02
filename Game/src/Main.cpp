@@ -1,6 +1,6 @@
 // Author  : Lewis Ward (i7212443)
 // Program : Game Engine
-// Date    : 09/10/2016
+// Date    : 20/03/2017
 #include "Application.h"
 
 std::shared_ptr<Application> g_app;
@@ -35,7 +35,6 @@ void draw3D()
 void cleanup()
 {
 	std::cout << "\ncleaning up\n";
-	//g_app->~Application();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

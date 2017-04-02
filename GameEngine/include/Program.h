@@ -1,6 +1,9 @@
 // Author  : Lewis Ward (i7212443)
 // Program : Game Engine
 // Date    : 25/10/2016
+/*
+* This class is the same as in Assignment 1, it has not been created or modified
+*/
 #pragma once
 #include "Shaders.h"
 #include "glm/common.hpp"

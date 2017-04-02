@@ -1,6 +1,6 @@
 // Author  : Lewis Ward (i7212443)
 // Program : Game Engine
-// Date    : 09/10/2016
+// Date    : 20/03/2017
 #include "Application.h"
 #include <string>
 
@@ -11,6 +11,7 @@ Application::Application()
 
 	m_input = mkShare<GE::Input::InputManager>();
 
+	// create the window
 	m_scrennSize.x = RES_MEDIUM_X;
 	m_scrennSize.y = RES_MEDIUM_Y;
 	onResize((int)m_scrennSize.x, (int)m_scrennSize.y);
@@ -29,9 +30,9 @@ Application::Application()
 	m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
 	m_dynamicsWorld->setDebugDrawer(&m_debugDraw);
 
-
 	// ------------------- BULLET SET    ------------------- //
 
+	// load assets
 	m_texture = mkShare<GEC::Texture>(std::string(assetPath + m_config.data.texturePaths[0]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
 	m_paddleTexture = mkShare<GEC::Texture>(std::string(assetPath + m_config.data.texturePaths[1]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
 	m_wallTexture = mkShare<GEC::Texture>(std::string(assetPath + m_config.data.texturePaths[2]).c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
@@ -45,6 +46,7 @@ Application::Application()
 	glEnable(GL_TEXTURE_2D);
 	glCullFace(GL_BACK);
 
+	// set the cameras, load the shaders and create teh GameObjects
 	m_cameraPlayer1 = mkShare<GE::Camera>(glm::vec3(0, 16, 0), glm::vec3(0, 16, -45.0f), m_scrennSize, 45.0f, 0.1f, 400.0f);
 	m_cameraPlayer2 = mkShare<GE::Camera>(glm::vec3(0, 16, -136.0f), glm::vec3(0, 16, -50.0f), m_scrennSize, 45.0f, 0.1f, 400.0f);
 	m_debugDraw.setDebugCamera(m_cameraPlayer1);
@@ -371,21 +373,17 @@ Application::Application()
 
 	// ------------------- BULLET GAMEOBJECTS CONFIGED ------------------- //
 
-
-	m_screenMouse = mkShare<GE::Input::MouseConverter>(m_cameraPlayer1->getProjection(), m_cameraPlayer1->getView(), m_scrennSize);
-
 	// which level to start on
 	m_activeLevel = 0;
 	m_player1Score = 0;
 	m_player2Score = 0;
 	m_paddleSpeed = 7.5f;
-	m_counter = 0;
 	m_checker = false;
-	m_ballJump = false;
 
 	m_timer = mkShare<GEC::Timer>();
 	m_timer->stop();
 
+	// print to console
 	instructions();
 }
 
@@ -415,7 +413,7 @@ void Application::update(float& dt)
 	//------------------ input update end ------------------ //
 
 
-	//------------------ step simulation start ------------------ //
+	//------------------ bullet step start ------------------ //
 	m_dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 	
 	int overlaps = overlappingObjectsPairsCount();
@@ -490,7 +488,6 @@ void Application::update(float& dt)
 						m_gameObjects.at("ball")->getComponentShared<GE::RigidBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(reflection);
 						m_velocityDirection = reflection;
 						m_checker = true;
-						m_ballJump = true;
 					}
 
 					//paddles
@@ -502,7 +499,6 @@ void Application::update(float& dt)
 						m_gameObjects.at("ball")->getComponentShared<GE::RigidBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(reflection);
 						m_velocityDirection = reflection;
 						m_checker = true;
-						m_ballJump = true;
 					}
 				}
 
@@ -524,8 +520,8 @@ void Application::update(float& dt)
 				m_checker = false;
 		}
 	}
+	//------------------ bullet step end ------------------ //
 
-	//------------------ stepsimulation end ------------------ //
 	// update Transform Component with changes from Bullet Engine for both paddles
 	glm::vec3 glmOrigin;
 	btTransform bttransform;
@@ -587,11 +583,14 @@ void Application::draw()
 	// player 1 viewport
 	glViewport(0, 0, (int)m_scrennSize.x, (int)m_scrennSize.y);
 
+	// draw all GameObjects
 	for (std::unordered_map<std::string, shared<GE::GameObject>>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); it++)
 	{
+		// don't want goal visable so disable it
 		if (it->first == "player1Goal")
 			it->second->isActive(false);
 
+		// set uniforms and draw
 		if (it->second->isActive())
 		{
 			shared<GE::MeshRenderer> renderer = it->second->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -615,6 +614,7 @@ void Application::draw()
 			it->second->draw();
 		}
 
+		// re-enable
 		if (it->first == "player1Goal")
 			it->second->isActive(true);
 	}
@@ -631,9 +631,11 @@ void Application::draw()
 
 	for (std::unordered_map<std::string, shared<GE::GameObject>>::iterator it = m_gameObjects.begin(); it != m_gameObjects.end(); it++)
 	{
+		// don't want goal visable so disable it
 		if (it->first == "player2Goal")
 			it->second->isActive(false);
 
+		// set uniforms and draw
 		if (it->second->isActive())
 		{
 			shared<GE::MeshRenderer> renderer = it->second->getComponentShared<GE::MeshRenderer>(GE::kMeshRenderer);
@@ -656,6 +658,7 @@ void Application::draw()
 			it->second->draw();
 		}
 
+		// re-enable
 		if (it->first == "player2Goal")
 			it->second->isActive(true);
 	}
@@ -859,6 +862,7 @@ void Application::ballReset()
 
 void Application::instructions()
 {
+	// get all of the key we want
 	GE::Input::Key p1MoveV = m_input->getKeyFromName("movementVert");
 	GE::Input::Key p1MoveH = m_input->getKeyFromName("movementHoriz");
 	GE::Input::Key p2MoveV = m_input->getKeyFromName("movementVert2");
@@ -867,7 +871,7 @@ void Application::instructions()
 	GE::Input::Key quit = m_input->getKeyFromName("quit");
 	int quitKey = quit.keyBinding == ESC ? 27 : quit.keyBinding;
 
-
+	// for multikeys extract the two values from them
 	short p1MoveVLower, p1MoveVHigher;
 	short p1MoveHLower, p1MoveHHigher;
 	short p2MoveVLower, p2MoveVHigher;

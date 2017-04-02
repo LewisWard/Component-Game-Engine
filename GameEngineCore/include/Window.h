@@ -1,6 +1,9 @@
 // Author  : Lewis Ward (i7212443)
 // Program : Game Engine
 // Date    : 09/10/2016
+/*
+* These functions are the same as in Assignment 1, it has not been created or modified
+*/
 #pragma once
 
 #define ENGINEASSETS "../EngineAssets/"
