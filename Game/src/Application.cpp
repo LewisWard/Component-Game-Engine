@@ -385,6 +385,8 @@ Application::Application()
 
 	m_timer = mkShare<GEC::Timer>();
 	m_timer->stop();
+
+	instructions();
 }
 
 Application::~Application()
@@ -853,3 +855,36 @@ void Application::ballReset()
 	m_gameObjects.at("ball")->getComponentShared<GE::RidigBody>(GE::kRigidBody)->getRigidBody()->setLinearVelocity(m_startingVelocity); // moves towards player 1
 	m_ballSpeed = btVector3(1, 1, 1);
 }
+
+void Application::instructions()
+{
+	GE::Input::Key p1MoveV = m_input->getKeyFromName("movementVert");
+	GE::Input::Key p1MoveH = m_input->getKeyFromName("movementHoriz");
+	GE::Input::Key p2MoveV = m_input->getKeyFromName("movementVert2");
+	GE::Input::Key p2MoveH = m_input->getKeyFromName("movementHoriz2");
+	GE::Input::Key reset = m_input->getKeyFromName("action");
+	GE::Input::Key quit = m_input->getKeyFromName("quit");
+	int quitKey = quit.keyBinding == ESC ? 27 : quit.keyBinding;
+
+
+	short p1MoveVLower, p1MoveVHigher;
+	short p1MoveHLower, p1MoveHHigher;
+	short p2MoveVLower, p2MoveVHigher;
+	short p2MoveHLower, p2MoveHHigher;
+	m_input->useMultiKey(p1MoveV, p1MoveVLower, p1MoveVHigher);
+	m_input->useMultiKey(p1MoveH, p1MoveHLower, p1MoveHHigher);
+	m_input->useMultiKey(p2MoveV, p2MoveVLower, p2MoveVHigher);
+	m_input->useMultiKey(p2MoveH, p2MoveHLower, p2MoveHHigher);
+
+	GE::consoleLog("--------INSTRUCTIONS--------");
+	GE::consoleLog("Player 1 on the left, Player 2 on the right.\nMove your paddle to stop the ball of hitting your goal.\nScore points from scoring.");
+	GE::consoleLog("--------CONTROLS--------");
+	std::cout << "Player1 vertical movement: " << (char)p1MoveVLower << "/" << (char)p1MoveVHigher << std::endl;
+	std::cout << "Player1 horizontal movement: " << (char)p1MoveHLower << "/" << (char)p1MoveHHigher << std::endl;
+	std::cout << "Player2 vertical movement: " << (char)p2MoveVLower << "/" << (char)p2MoveVHigher << std::endl;
+	std::cout << "Player2 horizontal movement: " << (char)p2MoveHLower << "/" << (char)p2MoveHHigher << std::endl;
+	std::cout << "Ball reset: " << (char)reset.keyBinding << std::endl;
+	quit.keyBinding == ESC ? GE::consoleLog("Quit game: ESC") : std::cout << "Ball reset: " << (char)quit.keyBinding << std::endl;
+	GE::consoleLog("--------------------------------");
+}
+

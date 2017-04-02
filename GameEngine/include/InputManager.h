@@ -107,6 +107,14 @@ namespace GE
 			//----------------------------------------------------------------------------------------------------------------------
 			Key getKeyFromName(std::string inputName);
 
+			//----------------------------------------------------------------------------------------------------------------------
+			/// \brief Cannot directly use a multi-key, this will return the ASCII values in the higher and lower shorts
+			/// prama GE::Input::Key key
+			/// prama short the ASCII value to store in higher 8 bits
+			/// prama short the ASCII value to store in lower 8 bits
+			//----------------------------------------------------------------------------------------------------------------------
+			void useMultiKey(Key key, short& higher, short& lower);
+
 		private:
 
 			//----------------------------------------------------------------------------------------------------------------------
@@ -122,14 +130,6 @@ namespace GE
 			/// prama short the ASCII value to store in lower 8 bits
 			//----------------------------------------------------------------------------------------------------------------------
 			void makeMultiKey(Key& k, short higher, short lower);
-
-			//----------------------------------------------------------------------------------------------------------------------
-			/// \brief Cannot directly use a multi-key, this will return the ASCII values in the higher and lower shorts
-			/// prama GE::Input::Key key
-			/// prama short the ASCII value to store in higher 8 bits
-			/// prama short the ASCII value to store in lower 8 bits
-			//----------------------------------------------------------------------------------------------------------------------
-			void useMultiKey(Key key, short& higher, short& lower);
 
 			//----------------------------------------------------------------------------------------------------------------------
 			/// \brief Turns a multi-key back into a single key
