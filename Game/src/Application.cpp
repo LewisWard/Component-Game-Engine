@@ -669,6 +669,7 @@ void Application::draw()
 	glutSwapBuffers();
 }
 
+// based upon: http://hamelot.io/programming/using-bullet-only-for-collision-detection/ [accessed 25/03/2017].
 btVector3 Application::getOverlappingGameObjects(std::string& keyA, std::string& keyB, int pairNumber)
 {
 	// get the two objects that have collided

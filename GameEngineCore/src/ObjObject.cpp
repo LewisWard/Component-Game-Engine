@@ -30,13 +30,11 @@ GEC::ObjObject::ObjObject(const char* objFilename)
 	m_linkedTexture = 0;
 
 	// create vertex and index buffers
-	m_vertexBuffer = new VertexBuffer(m_vertices);
-
+	m_vertexBuffer = mkShare<GEC::VertexBuffer>(m_vertices);
 }
 
 GEC::ObjObject::~ObjObject()
 {
-	delete m_vertexBuffer;
 	m_vertexBuffer = 0;
 	m_linkedTexture = 0;
 	m_vertices.clear();

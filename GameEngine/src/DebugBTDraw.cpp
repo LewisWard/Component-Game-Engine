@@ -1,6 +1,6 @@
 // Author  : Lewis Ward (i7212443)
 // Program : Game Engine
-// Date    : 09/10/2016
+// Date    : 27/03/2017
 #pragma once
 #include "DebugBTDraw.h"
 
@@ -20,7 +20,7 @@ namespace GE
 
 	void DebugBTDraw::drawLine(const btVector3& from, const btVector3& to, const btVector3& fromColor, const btVector3& toColor)
 	{
-		std::cout << "Implemented drawLine\n";
+		std::cout << "Implement drawLine\n";
 	}
 
 	void DebugBTDraw::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
@@ -46,7 +46,7 @@ namespace GE
 
 	void DebugBTDraw::drawSphere(const btVector3& p, btScalar radius, const btVector3& color)
 	{
-		std::cout << "Implemented drawSphere\n";
+		std::cout << "Implement drawSphere\n";
 	}
 
 	void DebugBTDraw::drawBox(const btVector3& bbMin, const btVector3& bbMax, const btVector3& color)
@@ -122,7 +122,7 @@ namespace GE
 
 	void DebugBTDraw::drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
 	{
-		std::cout << "Implemented drawContactPoint\n";
+		std::cout << "Implement drawContactPoint\n";
 	}
 
 	void DebugBTDraw::reportErrorWarning(const char* warningString)
@@ -132,7 +132,7 @@ namespace GE
 
 	void DebugBTDraw::draw3dText(const btVector3& location, const char* textString)
 	{
-		std::cout << "draw3dText unsupported\n";
+		std::cout << "Implement unsupported\n";
 	}
 
 	void DebugBTDraw::setDebugMode(int debugMode)

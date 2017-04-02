@@ -41,7 +41,7 @@ namespace GEC
 		/// \brief  gets the Vertex Buffer
 		/// \return	gl::VertexBuffer*
 		//----------------------------------------------------------------------------------------------------------------------
-		inline VertexBuffer* getVertexBuffer() { return m_vertexBuffer; }
+		inline shared<VertexBuffer> getVertexBuffer() { return m_vertexBuffer; }
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  gets the number of indices the object has
@@ -53,13 +53,13 @@ namespace GEC
 		/// \brief  gets the texture
 		/// \return gl::Texture*
 		//----------------------------------------------------------------------------------------------------------------------
-		inline Texture* getLinkedTexture() { return m_linkedTexture; }
+		inline shared<Texture>getLinkedTexture() { return m_linkedTexture; }
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  sets the texture
 		/// prama  gl::Texture*
 		//----------------------------------------------------------------------------------------------------------------------
-		inline void setLinkedTexture(Texture* texture) { m_linkedTexture = texture; }
+		inline void setLinkedTexture(shared<Texture> texture) { m_linkedTexture = texture; }
 
 		//----------------------------------------------------------------------------------------------------------------------
 		/// \brief  sets the position of the vertices that are the greatest distance away from the center of the model
@@ -74,8 +74,8 @@ namespace GEC
 		std::vector<vertexNormalUV> m_vertices; ///< store the vertices
 		std::vector<int> m_indices; ///< store the indices
 		glm::mat4 m_modelMatrix; ///< model matrix
-		VertexBuffer* m_vertexBuffer; ///< Vertex Buffer (VBO/IBO)
-		Texture* m_linkedTexture; ///< points to the texture that should be bound
+		shared<VertexBuffer> m_vertexBuffer; ///< Vertex Buffer (VBO/IBO)
+		shared<Texture> m_linkedTexture; ///< points to the texture that should be bound
 		const char* m_objectName; ///< objects name
 
 		//----------------------------------------------------------------------------------------------------------------------
