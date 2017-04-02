@@ -1,4 +1,4 @@
-#Game Engine by Lewis Ward (i7212443)
+# Game Engine by Lewis Ward (i7212443)
 ## Introduction
 
 A 3D component based Game Engine written in C++.

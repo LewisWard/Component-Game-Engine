@@ -1,6 +1,39 @@
 // Author  : Lewis Ward (i7212443)
 // Program : Game Engine
 // Date    : 18/09/2016
+
+/**
+* \mainpage Game Engine Documentation
+*
+* \section Game Engine by Lewis Ward (i7212443)
+*
+* \subsection Introduction
+* A 3D component based Game Engine written in C++. All classes that have not untouched from the first assignment have a comment marked 
+* at the top of their file to indicate if a class is new or modified from the first assignment or not.
+* 
+* \subsection  Installation
+* To load the engine project open GameEngine.sln.
+*
+* To run a build, they are found in:
+*
+* bin/Release/x64/Game.exe
+*
+* bin/Debug/x64/Game.exe
+* 
+* 
+* \subsection Copyright
+* Allow included and used libraries include within the Engine are works of their respected owners, if they came with a license file it can be found with the directory the library is in.
+*
+* Freeglut: http://freeglut.sourceforge.net/
+*
+* SOIL: http://www.lonesock.net/soil.html
+*
+* Bullet: http://bulletphysics.org/wordpress/
+*
+* GLM: http://glm.g-truc.net/0.9.8/index.html
+*
+*/
+
 #pragma once
 #define RELEASEINBUILD 0
 #define TEXTURE_LOW 512
