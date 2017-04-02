@@ -350,7 +350,7 @@ Application::Application()
 
 	// ball
 	m_ballMaxSpeed = 300.0f;
-	m_startingVelocity = btVector3(1, 0, 10);
+	m_startingVelocity = btVector3(1, 0, 8);
 	m_velocityDirection = m_startingVelocity;
 	m_ballSpeed = btVector3(1, 1, 1);
 	m_gameObjects.at("ball")->getComponentShared<GE::RigidBody>(GE::kRigidBody)->getRigidBody().get()->setFriction(0.0f);
@@ -414,7 +414,7 @@ void Application::update(float& dt)
 
 
 	//------------------ bullet step start ------------------ //
-	m_dynamicsWorld->stepSimulation(1.f / 60.f, 10);
+	m_dynamicsWorld->stepSimulation(1.f / 30.f, 10);
 	
 	int overlaps = overlappingObjectsPairsCount();
 	bool player1Scored = false;
@@ -509,9 +509,9 @@ void Application::update(float& dt)
 					if (ballMag <= m_ballMaxSpeed)
 					{
 						btVector3 tmp = m_ballSpeed;
-						m_ballSpeed.setX(tmp.getX() + 0.1f);
-						m_ballSpeed.setY(tmp.getY() + 0.1f);
-						m_ballSpeed.setZ(tmp.getZ() + 0.1f);
+						m_ballSpeed.setX(tmp.getX() + 1.0f * dt);
+						m_ballSpeed.setY(tmp.getY() + 1.0f * dt);
+						m_ballSpeed.setZ(tmp.getZ() + 1.0f * dt);
 						m_velocityDirection *= m_ballSpeed;
 					}
 				}
@@ -526,10 +526,10 @@ void Application::update(float& dt)
 	glm::vec3 glmOrigin;
 	btTransform bttransform;
 
-	bttransform = m_gameObjects.at("player1Paddle")->getComponentShared<GE::RigidBody>(GE::kRigidBody)->getRigidBody()->getWorldTransform();
+	m_gameObjects.at("player1Paddle")->getComponentShared<GE::RigidBody>(GE::kRigidBody)->getBodyWorldTransform(bttransform);
 	glmOrigin = glm::vec3(bttransform.getOrigin().getX(), bttransform.getOrigin().getY(), bttransform.getOrigin().getZ());
 	m_gameObjects.at("player1Paddle")->getComponentShared<GE::Transform>(GE::kTransform)->setPosition(glmOrigin);
-	bttransform = m_gameObjects.at("player2Paddle")->getComponentShared<GE::RigidBody>(GE::kRigidBody)->getRigidBody()->getWorldTransform();
+	m_gameObjects.at("player2Paddle")->getComponentShared<GE::RigidBody>(GE::kRigidBody)->getBodyWorldTransform(bttransform);
 	glmOrigin = glm::vec3(bttransform.getOrigin().getX(), bttransform.getOrigin().getY(), bttransform.getOrigin().getZ());
 	m_gameObjects.at("player2Paddle")->getComponentShared<GE::Transform>(GE::kTransform)->setPosition(glmOrigin);
 

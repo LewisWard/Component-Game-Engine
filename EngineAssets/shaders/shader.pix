@@ -60,12 +60,12 @@ vec4 valueFromLighting(vec4 textureDiffuse, vec3 lightPosition)
 void main()
 {
   vec4 diffuse = texture2D(texture, vs_uv * uvTileScale);
-  vec4 output;
+  vec4 outputFromLighting;
 
   // get the colour from all lights in the scene
   for(int i = 0; i < LIGHTCOUNT; i++)
-    output += valueFromLighting(diffuse, lights[i].position) * vec4(lights[i].colour, 1.0);
+    outputFromLighting += valueFromLighting(diffuse, lights[i].position) * vec4(lights[i].colour, 1.0);
 
-  output_colour = output;
+  output_colour = outputFromLighting;
 }
 
