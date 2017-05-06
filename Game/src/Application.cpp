@@ -1,6 +1,14 @@
-// Author  : Lewis Ward (i7212443)
-// Program : Game Engine
-// Date    : 20/03/2017
+/*
+Copyright (c) 2016-2017 Lewis Ward: http://www.lewis-ward.com/
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the author be held liable for any damages arising from the use of this software.
+Anyone can compile the software for personal use, no permission is granted for anyone to use the software for any other use including commercial applications,
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software.
+2. This notice may not be removed or altered from any source distribution.
+*/
 #include "Application.h"
 #include <string>
 
@@ -889,7 +897,7 @@ void Application::instructions()
 	std::cout << "Player2 vertical movement: " << (char)p2MoveVLower << "/" << (char)p2MoveVHigher << std::endl;
 	std::cout << "Player2 horizontal movement: " << (char)p2MoveHLower << "/" << (char)p2MoveHHigher << std::endl;
 	std::cout << "Ball reset: " << (char)reset.keyBinding << std::endl;
-	quit.keyBinding == ESC ? GE::consoleLog("Quit game: ESC") : std::cout << "Ball reset: " << (char)quit.keyBinding << std::endl;
+	//quit.keyBinding == ESC ? GE::consoleLog("Quit game: ESC") : std::cout << "Ball reset: " << (char)quit.keyBinding << std::endl;
 	GE::consoleLog("--------------------------------");
 }
 

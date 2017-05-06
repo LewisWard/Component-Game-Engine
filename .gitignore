@@ -1,0 +1,15 @@
+/build
+/bin/x64
+/bin/CMakeFiles
+/bin/Debug
+/bin/EngineAssets
+/bin/Game.dir
+/bin/GameEngine.dir
+/bin/GameEngineCore.dir
+/CMakeFiles
+/bin/*.vcxproj
+/bin/*.sdf
+/bin/*.filters
+/docTools
+/docs
+/EngineAssets/textures/*.psd
