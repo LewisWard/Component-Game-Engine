@@ -5,9 +5,18 @@ A 3D component based Game Engine written in C++, using OpenGL with Bullet Physic
 
 ##  Installation
 
-If on Windows and have Visual Studio 2015 installed, run: bin/BUILD_VS_x64.bat
+If on Windows and have Visual Studio 2015 and CMake installed, run: bin/BUILD_VS_x64.bat
 
 CMake will generate a VS2015 Project then open GameEngine.sln. Otherwise, run CMake from within the bin directory (i.e. cmake ../)
+
+If using Visual Studio, make sure that the "Game" Project rather then "ALL_BUILD" is set as the start up project. Then build and run.
+
+Binaries output:
+
+*bin/Debug/Game.exe
+*bin/Release/Game.exe
+
+When the game is running a console will also be open, see the console for more information such as controls.
 
 
 ## Copyright
