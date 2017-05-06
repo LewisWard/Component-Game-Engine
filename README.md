@@ -22,7 +22,7 @@ subject to the following restrictions:
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software.
 2. This notice may not be removed or altered from any source distribution.
 
-Included and used libraries include within the Engine are works of their respected owners, if they came with a license file it can be found with the directory the library is in.
+Used libraries include within the Game Engine are works of their respected owners, if they came with a license file it can be found with the directory the library is in.
 
 * Freeglut: http://freeglut.sourceforge.net/
 * SOIL: http://www.lonesock.net/soil.html
