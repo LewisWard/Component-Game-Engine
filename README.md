@@ -13,8 +13,8 @@ If using Visual Studio, make sure that the "Game" Project rather then "ALL_BUILD
 
 Binaries output:
 
-*bin/Debug/Game.exe
-*bin/Release/Game.exe
+* bin/Debug/Game.exe
+* bin/Release/Game.exe
 
 When the game is running a console will also be open, see the console for more information such as controls.
 
